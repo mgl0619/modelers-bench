@@ -11,8 +11,8 @@ website:
   title: "The Modeler's Bench"
   description: "An open, reproducible curriculum for quantitative pharmacology."
   favicon: assets/favicon.png
-  site-url: "https://example.org"          # replace at Phase 0
-  repo-url: "https://github.com/USER/modelers-bench"   # replace at Phase 0
+  site-url: "https://mgl0619.github.io/modelers-bench"
+  repo-url: "https://github.com/mgl0619/modelers-bench"
   repo-actions: [edit, issue]
   page-navigation: true
   back-to-top-navigation: true
@@ -35,7 +35,7 @@ website:
         href: about.qmd
     tools:
       - icon: github
-        href: "https://github.com/USER/modelers-bench"
+        href: "https://github.com/mgl0619/modelers-bench"
 
   sidebar:
     style: floating
