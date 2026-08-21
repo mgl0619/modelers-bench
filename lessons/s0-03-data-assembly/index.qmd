@@ -1,0 +1,278 @@
+---
+title: "Data assembly"
+subtitle: "Lesson S0-03"
+description: >
+  The event-record data model, where clinical data actually comes from, and the
+  automated checks that stand between a defect and a wrong dose recommendation.
+categories: [foundations, data, CDISC]
+---
+
+::: {.callout-tip appearance="simple"}
+## The decision this serves
+Can this dataset be trusted to support a dosing decision? Every number in the
+report inherits the answer, and no amount of modeling sophistication downstream
+recovers from a defect here.
+:::
+
+## 1. The unglamorous truth
+
+Assembling and checking the analysis dataset routinely takes longer than the
+modeling. New modelers experience this as an obstacle between them and the
+interesting work. It is not. It **is** the work: the model can only ever be as
+good as the data structure it is fitted to, and the overwhelming majority of
+"strange model behaviour" turns out to be a data problem wearing a modeling
+costume.
+
+Two consequences follow, and both are cultural rather than technical:
+
+- **The dataset is a deliverable, with a specification, a version and an
+  owner.** Not a by-product of somebody's afternoon.
+- **You never edit it by hand.** Every transformation from source to
+  analysis-ready is a line of code someone else can re-run. If you cannot
+  regenerate the dataset from source with one command, you do not have a dataset
+  — you have a file.
+
+## 2. The event-record data model
+
+Pharmacometric data has an unusual shape, and it is worth understanding *why*
+rather than memorising column names. Rows are not measurements; rows are
+**events in time for one subject**. A dose is an event. A concentration
+measurement is an event. Both live in the same table, ordered by time.
+
+This is the NM-TRAN convention, invented for NONMEM and now understood by
+essentially every tool in the field — nlmixr2, Monolix, Pumas, mrgsolve and
+rxode2 all read it with minor variations.
+
+| Column | Meaning | Gotchas |
+|---|---|---|
+| `ID` | Subject identifier | Must be stable and unique. Never reuse; never zero-pad some and not others. |
+| `TIME` | Time since a fixed reference | **Actual**, not nominal, wherever available. Units stated once, never mixed. |
+| `AMT` | Dose amount for a dosing record | Units must match the model's amount units. Blank for observations. |
+| `DV` | The observation | One analyte per `CMT`, or one row per analyte. Blank for dose records. |
+| `EVID` | Event type: 0 = observation, 1 = dose | The column that tells the engine what kind of row this is. |
+| `MDV` | Missing dependent variable, 1 = ignore `DV` | Redundant with `EVID` for doses; essential for missing observations. |
+| `CMT` | Which compartment the event applies to | Dose into gut, observe in central — a classic silent error when swapped. |
+| `RATE` / `DUR` | Infusion rate or duration | Zero or absent for bolus and oral doses. |
+| `II` / `ADDL` | Interdose interval and additional doses | Compact way to express repeated dosing. Expand it when debugging. |
+| covariates | `WT`, `AGE`, `SEX`, `CRCL`, … | Baseline covariates must be **constant within subject**. |
+
+### Rules that are not negotiable
+
+1. **Records sort by `ID`, then `TIME`, then dose-before-observation.** A
+   concentration at the same timestamp as a dose is a *pre-dose* sample. Sort it
+   after the dose and you have told the engine that the drug was already on
+   board.
+2. **Time is monotonic within a subject.** No negative times, no going
+   backwards. A screening sample at "-0.5 h" needs a reference-time decision,
+   not a negative number.
+3. **One row, one event.** No dose and observation packed into the same row.
+4. **Baseline covariates do not change within a subject.** If `AGE` changes
+   mid-study, either it is time-varying by design and must be modeled as such,
+   or it is a merge defect.
+5. **Units are declared once and never mixed.** See `S0-02`, and see the
+   failure mode below.
+
+## 3. Where the data actually comes from
+
+In an industry setting you rarely receive a PK dataset. You receive CDISC SDTM
+domains and build one:
+
+| Domain | What it gives you |
+|---|---|
+| `DM` | Demographics — the baseline covariate spine |
+| `EX` | Exposure — actual doses given, dates and times |
+| `PC` | Pharmacokinetic concentrations — the observations |
+| `LB` | Laboratory results — creatinine for CRCL, liver enzymes |
+| `VS` | Vital signs — weight and height, sometimes repeated |
+| `CM` | Concomitant medications — where the CYP3A4 inhibitor flag comes from |
+
+The industry-standard analysis-ready output is an **ADaM `ADPPK`** dataset, and
+if your organisation has an ADPPK standard, use it: it is traceable, reviewable,
+and a regulator knows what to expect. `CASE-SM` ships in the simpler NM-TRAN
+shape so the lesson stays about the concepts.
+
+Three joins account for most defects: **`EX` to `PC` on time** (mismatched
+timezones, dates without times, dose diaries), **`DM` to everything on subject**
+(screening versus randomisation identifiers), and **`LB` to baseline** (which
+of three creatinine values is "baseline"?). Write the rule down before you write
+the join.
+
+### Nominal versus actual time
+
+The protocol says 2 h post-dose; the nurse drew at 2 h 41 min. Use the
+**actual** time for the observation and the **actual** dose time for the dosing
+record, and compute time-after-dose rather than trusting a nominal column. Using
+nominal times inflates residual error and, in fast-absorption compounds, can
+bias $k_a$ badly — the peak is where timing errors hurt most.
+
+Nominal time still has a job: it is the right x-axis for descriptive summaries
+and mean-profile plots, where averaging across subjects requires a common grid.
+Keep both columns. Label them unambiguously.
+
+## 4. Below the limit of quantification
+
+Some fraction of samples come back below what the assay can measure. `CASE-SM`
+has 4%; a study with a long washout can have 30%. These are not missing data —
+they are **censored** data, and you know something real about them: the true
+value lies between zero and the LLOQ.
+
+The standard menu (Beal's M1–M7) is covered properly in `S2`. What matters at
+assembly time is narrower and non-negotiable:
+
+- **Never silently impute.** Substituting LLOQ/2 without a flag destroys the
+  information that the value was censored and is a defect, not a convention.
+- **Keep a `BLQ` flag column** so that the analysis, not the assembly, decides
+  what to do.
+- **Record the LLOQ itself**, per analyte and per assay version. It changes when
+  laboratories or methods change.
+
+## 5. Checks are code, not care
+
+The defence against data defects is not attentiveness. It is a script that runs
+every time the dataset is built and **fails loudly**. Write it once, reuse it
+across compounds, extend it whenever something new bites you.
+
+A serviceable starting battery, all of which the notebook implements:
+
+| Check | Catches |
+|---|---|
+| ID format and uniqueness | Merge and export drift |
+| Duplicate `(ID, TIME, EVID, CMT)` keys | Double-merged source data |
+| Negative or non-monotonic time | Reference-time errors |
+| Dose sorted after a same-time observation | Pre-dose samples treated as post-dose |
+| Regular dosing intervals | Missing dose records |
+| `DV` exactly 0 | Zero used to mean "missing" |
+| Values below LLOQ not flagged BLQ | Silent imputation |
+| Late concentrations orders of magnitude off | Unit switches, assay changes |
+| Covariate plausibility ranges | Decimal-point errors |
+| Baseline covariates constant within subject | Join defects |
+| `AMT` plausibility | Dose unit errors |
+
+::: {.callout-note appearance="simple"}
+Checks corroborate one another, which is why you run the whole battery rather
+than stopping at the first hit. In the notebook, the four subjects whose
+concentrations were switched to µg/mL trip both the unit-switch check **and**
+the BLQ-consistency check — because dividing by a thousand pushed their values
+below the LLOQ. One defect, two alarms. That redundancy is what makes a battery
+worth more than the sum of its checks.
+:::
+
+## 6. Traceability
+
+Assume that in three years someone will ask why subject 44 was excluded, and
+that you will not remember. What survives is:
+
+- A **script** from source to analysis-ready, run end to end, with no manual
+  steps.
+- A **written exclusion log** — subject, record, reason, decision-maker, date.
+  "Obvious" exclusions are exactly the ones that get questioned.
+- A **version** on the dataset, and a note of which model runs used which
+  version. Datasets get revised mid-analysis more often than anyone would like.
+- The **check output archived**, not just run. "The checks passed" is a claim;
+  the log is the evidence.
+
+`S0-05` turns this into a repository structure. `S7` turns it into something
+that survives an audit.
+
+## Work through it
+
+The notebook loads a deliberately corrupted copy of `CASE-SM`, builds the check
+battery from scratch, and grades itself against a manifest of the eleven
+injected defects.
+
+- [Notebook — R](notebook-r.qmd)
+- [Notebook — Python](notebook-py.qmd)
+
+::: {.panel-tabset}
+
+### R
+
+```r
+raw <- read.csv("cases/case-sm/data/ozanib_pk_messy.csv", colClasses = c(ID = "character"))
+
+# baseline covariates must be constant within subject
+varying <- sapply(c("AGE", "SEX", "WT", "DOSE"),
+                  function(c) max(tapply(raw[[c]], raw$ID, \(x) length(unique(x)))))
+varying[varying > 1]
+```
+
+### Python
+
+```python
+raw = pd.read_csv("cases/case-sm/data/ozanib_pk_messy.csv", dtype={"ID": str})
+
+# baseline covariates must be constant within subject
+varying = {c: raw.groupby("ID")[c].nunique().max() for c in ["AGE", "SEX", "WT", "DOSE"]}
+{k: v for k, v in varying.items() if v > 1}
+```
+
+:::
+
+::: {.callout-warning appearance="simple"}
+## Failure mode — the defect that makes the model look interesting
+Four subjects have their concentrations reported in µg/mL rather than ng/mL from
+day 11 onward. Nothing crashes. What a modeler sees is that late-phase
+concentrations in a subset of subjects are far lower than the model predicts.
+
+The dangerous part is that this has a *modeling* explanation ready to hand:
+time-dependent clearance, enzyme auto-induction, non-adherence. All three are
+real phenomena, all three would produce a qualitatively similar signal, and
+fitting any of them will improve the objective function. A modeler under
+deadline pressure can spend two weeks building a defensible, publishable,
+completely wrong auto-induction model.
+
+**When the data surprise you, check the data before you enrich the model.** This
+is the single most valuable habit in the lesson, and the reason the check battery
+runs before anyone is allowed to be interested in a residual plot.
+:::
+
+## Check yourself
+
+::: {.callout-note collapse="true"}
+## 1. A pre-dose sample and the dose share a timestamp. Why does row order change the answer?
+The engine processes records sequentially. Dose first means the observation is
+taken with drug already administered — for an oral dose the predicted
+concentration is still near zero, so the damage is small; for an IV bolus the
+prediction jumps to $D/V$ and the residual is enormous. On repeated dosing the
+error is worse: a trough sorted after the dose is compared against a
+post-dose prediction at every single dosing occasion. Sort dose before
+observation, always, and add it to the check battery.
+:::
+
+::: {.callout-note collapse="true"}
+## 2. 30% of a study's samples are BLQ. What are your options and what does each cost?
+Discarding them (M1) is simple but biases the terminal phase upward — you keep
+only the samples that happened to be measurable. Substituting LLOQ/2 (M5/M6)
+is convenient and known to bias parameters, sometimes badly. Treating them as
+censored and adding their likelihood contribution (M3) is the statistically
+correct approach and the one a reviewer expects at that fraction; it costs
+estimation time and a more delicate model. At 30% BLQ, M3 is effectively the
+default and anything else needs justifying. All of this is a modeling decision
+— at assembly time your only job is to flag them and never impute.
+:::
+
+::: {.callout-note collapse="true"}
+## 3. Your dataset passes every check. What are you still not protected against?
+Everything systematic that is internally consistent: a dose diary transcribed
+wrongly but plausibly, a timezone offset applied uniformly, an entire study
+recorded in the wrong units, a covariate that means something different at one
+site. Checks catch *inconsistency*, not *wrongness*. The remaining defences are
+comparison against an independent source (the CSR, the raw laboratory export),
+plotting the raw data by subject and looking at it, and a second person
+reproducing the assembly from source.
+:::
+
+## Going further
+
+- **Next:** [S0-04 · Choosing a stack](../s0-04-choosing-a-stack/).
+- **Uses this:** everything in `S2`; the exclusion log resurfaces in `S6` when a
+  regulator asks about it.
+- **Reference:** the CDISC ADaM ADPPK implementation guide; the NONMEM users
+  guide on data records — dry, short, and the definitive statement of the
+  conventions every other tool imitates.
+
+*Seen in the wild:* the most expensive data defect one team ever shipped was a
+dose diary in which patients recorded the date but not the time, and the
+assembly assumed 08:00. For a compound with a two-hour t~max~ this scattered the
+absorption phase; the fitted $k_a$ was meaningless, and the food-effect analysis
+built on it had to be withdrawn. Nothing in the dataset looked wrong.

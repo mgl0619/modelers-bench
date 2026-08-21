@@ -1,0 +1,256 @@
+---
+title: "S0-01 notebook — R"
+subtitle: "Compartments and ODEs from first principles"
+execute:
+  freeze: auto
+---
+
+Everything in the lesson, built from scratch and checked. Run it top to bottom.
+
+```{r setup}
+#| message: false
+library(deSolve)
+library(dplyr)
+library(ggplot2)
+theme_set(theme_minimal(base_size = 11))
+```
+
+## 1. One compartment, IV bolus — and a check you should always run
+
+Work in **amounts** inside the ODE and convert to concentration at the end.
+Doses in µg with volumes in L means µg/L, which reads directly as ng/mL.
+
+```{r}
+CL <- 12; V <- 60          # L/h, L
+D  <- 50 * 1000            # 50 mg as ug
+k  <- CL / V
+
+t <- seq(0, 48, by = 0.1)
+sol <- ode(c(A = D), t, function(t, y, p) list(-k * y["A"]),
+           parms = NULL, method = "lsoda", rtol = 1e-10, atol = 1e-12)
+
+numeric  <- sol[, "A"] / V
+analytic <- (D / V) * exp(-k * t)
+
+cat(sprintf("max relative error vs analytic : %.2e\n",
+            max(abs(numeric - analytic) / analytic)))
+cat(sprintf("half-life                      : %.2f h\n", log(2) / k))
+cat(sprintf("AUC(0-inf) numeric             : %.1f ng*h/mL\n",
+            sum(diff(t) * (head(numeric, -1) + tail(numeric, -1)) / 2) +
+              tail(numeric, 1) / k))
+cat(sprintf("D / CL                         : %.1f ng*h/mL\n", D / CL))
+```
+
+Two habits worth forming now. **Always validate numerics against an analytical
+solution when one exists.** And **`AUC(0-inf) = D/CL` is exact for any linear
+model**, so it is a free correctness check on every simulation you ever write.
+
+```{r}
+#| fig-height: 3.2
+tibble(t = t, conc = numeric) |>
+  ggplot(aes(t, conc)) + geom_line(linewidth = 0.7) +
+  scale_y_log10() + labs(x = "Time (h)", y = "Conc (ng/mL)",
+                         title = "Semi-log — a straight line")
+```
+
+## 2. Add absorption
+
+```{r}
+one_cmt_oral <- function(t, y, p) with(as.list(c(y, p)), {
+  list(c(A_gut = -ka * A_gut,
+         A_c   =  ka * A_gut - (CL / V) * A_c))
+})
+
+ka <- 1.2
+tt <- seq(0, 48, by = 0.01)
+s  <- ode(c(A_gut = D, A_c = 0), tt, one_cmt_oral,
+          parms = c(ka = ka, CL = CL, V = V),
+          method = "lsoda", rtol = 1e-10, atol = 1e-12)
+cc <- s[, "A_c"] / V
+
+cat(sprintf("tmax numeric %.3f h   analytic %.3f h   Cmax %.1f ng/mL\n",
+            tt[which.max(cc)], log(ka / k) / (ka - k), max(cc)))
+```
+
+### Flip-flop: when the terminal slope is absorption
+
+```{r}
+for (ka_i in c(1.2, 0.05)) {
+  tg <- seq(0, 120, by = 0.1)
+  si <- ode(c(A_gut = D, A_c = 0), tg, one_cmt_oral,
+            parms = c(ka = ka_i, CL = CL, V = V),
+            method = "lsoda", rtol = 1e-10, atol = 1e-12)
+  ci <- si[, "A_c"] / V
+  m  <- tg > 72 & ci > 0
+  slope <- coef(lm(log(ci[m]) ~ tg[m]))[2]
+  cat(sprintf("ka = %5.2f /h  ->  terminal t1/2 from slope = %5.2f h\n",
+              ka_i, log(2) / -slope))
+}
+cat(sprintf("\nelimination t1/2 = %.2f h    absorption t1/2 (ka = 0.05) = %.2f h\n",
+            log(2) / k, log(2) / 0.05))
+```
+
+The slow-absorption curve's terminal slope reports the **absorption** half-life,
+not the elimination half-life. Nothing in the fit tells you which one you are
+looking at. Only an IV arm does.
+
+## 3. Two compartments — the CASE-SM structure
+
+```{r}
+hybrid <- function(CL, Vc, Q, Vp) {
+  k10 <- CL / Vc; k12 <- Q / Vc; k21 <- Q / Vp
+  s <- k10 + k12 + k21
+  d <- sqrt(s^2 - 4 * k10 * k21)
+  c(alpha = (s + d) / 2, beta = (s - d) / 2, k21 = k21)
+}
+
+conc_sd <- function(t, dose_mg, ka, CL, Vc, Q, Vp) {
+  h <- hybrid(CL, Vc, Q, Vp); a <- h["alpha"]; b <- h["beta"]; k21 <- h["k21"]
+  A <- dose_mg * 1000 * ka / Vc
+  as.numeric(A * (((k21 - a) / ((ka - a) * (b - a))) * exp(-a * t) +
+                  ((k21 - b) / ((ka - b) * (a - b))) * exp(-b * t) +
+                  ((k21 - ka) / ((a - ka) * (b - ka))) * exp(-ka * t)))
+}
+
+TRUE_P <- list(ka = 1.2, CL = 12, Vc = 60, Q = 8, Vp = 90)   # CASE-SM typical values
+
+ode_sd <- function(t, dose_mg, ka, CL, Vc, Q, Vp) {
+  rhs <- function(t, y, p) with(as.list(y), list(c(
+    A_gut = -ka * A_gut,
+    A_c   =  ka * A_gut - (CL / Vc) * A_c - (Q / Vc) * A_c + (Q / Vp) * A_p,
+    A_p   =  (Q / Vc) * A_c - (Q / Vp) * A_p)))
+  s <- ode(c(A_gut = dose_mg * 1000, A_c = 0, A_p = 0), c(0, t), rhs,
+           parms = NULL, method = "lsoda", rtol = 1e-11, atol = 1e-13)
+  (s[-1, "A_c"]) / Vc
+}
+
+tg <- seq(0.01, 72, length.out = 200)
+an <- do.call(conc_sd, c(list(t = tg, dose_mg = 50), TRUE_P))
+nu <- do.call(ode_sd,  c(list(t = tg, dose_mg = 50), TRUE_P))
+h  <- hybrid(TRUE_P$CL, TRUE_P$Vc, TRUE_P$Q, TRUE_P$Vp)
+
+cat(sprintf("analytic vs ODE, max relative error : %.1e\n", max(abs(an - nu) / nu)))
+cat(sprintf("distribution t1/2 (alpha)           : %.2f h\n", log(2) / h["alpha"]))
+cat(sprintf("terminal     t1/2 (beta)            : %.2f h\n", log(2) / h["beta"]))
+```
+
+Two half-lives, differing eight-fold. Quoting "the" half-life of this compound
+without saying which one is meaningless.
+
+## 4. Multiple dosing by superposition
+
+For a **linear** model the response to repeated doses is the sum of the
+responses to each dose alone — not an approximation. It gives you a fast
+simulator and an exact check at once.
+
+```{r}
+conc_md <- function(t, dose_mg, ka, CL, Vc, Q, Vp, n_doses = 21, tau = 24) {
+  out <- numeric(length(t))
+  for (i in seq_len(n_doses) - 1) {
+    dt <- t - i * tau
+    ok <- dt >= 0
+    if (any(ok)) out[ok] <- out[ok] + conc_sd(dt[ok], dose_mg, ka, CL, Vc, Q, Vp)
+  }
+  out
+}
+
+trapz <- function(x, y) sum(diff(x) * (head(y, -1) + tail(y, -1)) / 2)
+
+g1  <- seq(0, 24, length.out = 24001)
+gss <- seq(480, 504, length.out = 24001)
+auc1  <- trapz(g1,  do.call(conc_md, c(list(t = g1,  dose_mg = 50), TRUE_P)))
+css   <- do.call(conc_md, c(list(t = gss, dose_mg = 50), TRUE_P))
+aucss <- trapz(gss, css)
+
+cat(sprintf("AUC(0-24) day 1        : %8.1f ng*h/mL\n", auc1))
+cat(sprintf("AUC(tau) steady state  : %8.1f ng*h/mL\n", aucss))
+cat(sprintf("Dose / CL              : %8.1f ng*h/mL   <- must match exactly\n", 50000 / TRUE_P$CL))
+cat(sprintf("accumulation ratio     : %8.3f\n", aucss / auc1))
+cat(sprintf("steady-state Cmax %.1f, Cmin %.1f ng/mL\n", max(css), min(css)))
+```
+
+```{r}
+#| fig-height: 3.4
+tf <- seq(0, 504, by = 0.1)
+tibble(day = tf / 24, conc = do.call(conc_md, c(list(t = tf, dose_mg = 50), TRUE_P))) |>
+  filter(conc > 0) |>
+  ggplot(aes(day, conc)) + geom_line(linewidth = 0.5) + scale_y_log10() +
+  labs(x = "Day", y = "Conc (ng/mL)",
+       title = "CASE-SM, 50 mg once daily — approach to steady state")
+```
+
+Note how quickly the troughs plateau despite a 14.6 h terminal half-life: the
+accumulation ratio is 1.22, not the ~3 that a single-exponential intuition
+would predict.
+
+## 5. Failure mode — a converged, meaningless fit
+
+```{r}
+df    <- read.csv("../../cases/case-sm/data/ozanib_pk.csv")
+truth <- read.csv("../../cases/case-sm/data/ozanib_individual_truth.csv")
+
+obs <- df |> filter(EVID == 0, !is.na(DV), DAY == 1, TIME > 0)
+sid <- obs |> count(ID) |> slice_max(n, n = 1) |> pull(ID) |> first()
+sub <- obs |> filter(ID == sid)
+dose <- sub$DOSE[1]
+tr   <- truth |> filter(ID == sid)
+sparse <- sub |> filter(TIME %in% c(0.5, 4, 12))
+
+obj <- function(logp, tt, yy) {
+  p <- exp(pmin(pmax(logp, -6), 8))
+  pred <- pmax(conc_sd(tt, dose, p[1], p[2], p[3], p[4], p[5]), 1e-8)
+  sum((log(pred) - log(yy))^2)
+}
+
+p0 <- log(c(1, 10, 50, 6, 80))
+cat(sprintf("subject %d at %g mg\n", sid, dose))
+cat(sprintf("%-18s ka %5.2f  CL %6.2f  Vc %6.1f  Q %6.2f  Vp %7.1f\n",
+            "TRUTH", tr$KA, tr$CL, tr$VC, tr$Q, tr$VP))
+
+for (nm in c("rich", "sparse")) {
+  d <- if (nm == "rich") sub else sparse
+  fit <- optim(p0, obj, tt = d$TIME, yy = d$DV,
+               method = "BFGS", control = list(maxit = 5000, reltol = 1e-12))
+  e <- exp(fit$par)
+  cat(sprintf("%-18s ka %5.2f  CL %6.2f  Vc %6.1f  Q %6.2f  Vp %7.1f  | rmse(log) %.3f\n",
+              sprintf("%s, %d points", nm, nrow(d)),
+              e[1], e[2], e[3], e[4], e[5], sqrt(fit$value / nrow(d))))
+}
+```
+
+The three-point fit reaches a residual error of essentially **zero**: five
+parameters passing through three points can always be made to fit perfectly,
+and the optimiser reports success. The rich fit is honest but still recovers
+`Q` and `Vp` poorly from eight oral samples in one individual — which is not a
+bug in your code, but the reason population modeling (`S2`) exists.
+
+::: {.callout-important}
+Convergence is not evidence. A perfect fit is a warning sign rather than a
+triumph. Look at parameter correlations and conditioning before you look at the
+estimates.
+:::
+
+## 6. A trap that is really in the data
+
+```{r}
+predose <- df |> filter(EVID == 0, DAY == 1, TIME == 0)
+cat(sprintf("pre-dose samples: %d   flagged BLQ: %d   reported as a real number: %d\n",
+            nrow(predose), sum(predose$BLQ), sum(!is.na(predose$DV))))
+
+predose |> filter(!is.na(DV)) |> select(ID, TIME, DV, IPRED_TRUE, BLQ) |> head(8)
+```
+
+The true concentration before the first dose is exactly zero, but the assay has
+additive error, so some pre-dose samples come back as small positive numbers.
+Feed one into a log-scale objective and it contributes a residual of about 18
+and drags the whole fit with it. That is why section 5 filters `TIME > 0`.
+`S0-03` is about catching this class of problem before it reaches the model.
+
+## What to try next
+
+1. Refit the rich profile with `Q` and `Vp` fixed at the truth. How much better
+   are `CL` and `Vc`? That is the value of borrowing strength, measured.
+2. Simulate a missed dose on day 10 (drop one term from the superposition sum)
+   and see how long the trough takes to recover.
+3. Set `ka = 0.15` and refit. Can you tell from the fit alone that you are in
+   flip-flop?

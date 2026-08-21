@@ -1,0 +1,8 @@
+id: s0-04
+strand: S0
+title: Choosing a stack
+paths: [PATH-A, PATH-B, PATH-C]
+prereqs: [s0-01]
+next: s0-05
+runnable: false
+reviewed: 2026-08-21

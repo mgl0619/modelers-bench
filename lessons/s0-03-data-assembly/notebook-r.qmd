@@ -1,0 +1,208 @@
+---
+title: "S0-03 notebook — R"
+subtitle: "Build a data-check battery and grade it"
+execute:
+  freeze: auto
+---
+
+Eleven realistic defects have been injected into a copy of `CASE-SM`. Build the
+checks, then grade yourself against the manifest.
+
+```{r setup}
+#| message: false
+library(dplyr)
+
+LLOQ <- 1
+raw <- read.csv("../../cases/case-sm/data/ozanib_pk_messy.csv",
+                colClasses = c(ID = "character"))
+
+cat(sprintf("%d rows, %d subjects\n", nrow(raw), n_distinct(raw$ID)))
+head(raw, 4)
+```
+
+Note `colClasses = c(ID = "character")`. Reading identifiers as text is a habit
+worth forming: `007` becomes `7` otherwise, and then a merge silently drops a
+subject.
+
+## The battery
+
+Each check appends to a findings list rather than stopping, so one run reports
+everything at once. In production, `stop()` at the end if the list is non-empty
+— a build that continues past a failed check is not a check.
+
+```{r}
+findings <- list()
+flag <- function(code, msg, ids = character()) {
+  findings[[length(findings) + 1]] <<-
+    list(code = code, message = msg, ids = sort(unique(as.character(ids))))
+}
+```
+
+### C01 · Identifier format
+
+```{r}
+bad <- unique(raw$ID)[unique(raw$ID) != as.character(as.integer(unique(raw$ID)))]
+if (length(bad)) flag("ID_FORMAT", sprintf("%d ID(s) not canonical", length(bad)), bad)
+```
+
+### C02 · Duplicate event keys
+
+```{r}
+key <- raw |> count(ID, TIME, EVID, CMT) |> filter(n > 1)
+if (nrow(key)) flag("DUP_RECORDS", sprintf("%d duplicated event key(s)", nrow(key)), key$ID)
+```
+
+### C03 · Negative time
+
+```{r}
+d <- raw |> filter(TIME < 0)
+if (nrow(d)) flag("NEGATIVE_TIME", sprintf("%d record(s) with TIME < 0", nrow(d)), d$ID)
+```
+
+### C04 · Dose must sort before an observation at the same time
+
+```{r}
+bad <- raw |>
+  group_by(ID, TIME) |>
+  filter(n() > 1, first(EVID) == 0, any(EVID == 1)) |>
+  ungroup() |> pull(ID)
+if (length(bad)) flag("DOSE_ORDER", "observation sorts before the dose at the same TIME", bad)
+```
+
+### C05 · Regular dosing intervals
+
+```{r}
+bad <- raw |>
+  filter(EVID == 1) |>
+  group_by(ID) |>
+  summarise(irregular = {
+    g <- diff(sort(TIME))
+    length(g) > 0 && any(abs(g - median(g)) > 1e-6)
+  }, .groups = "drop") |>
+  filter(irregular) |> pull(ID)
+if (length(bad)) flag("MISSING_DOSE", "irregular gap in the dosing sequence", bad)
+```
+
+### C06 · Zero used to mean missing
+
+```{r}
+d <- raw |> filter(EVID == 0, !is.na(DV), DV == 0)
+if (nrow(d)) flag("ZERO_MEANS_MISSING", sprintf("%d observation(s) with DV exactly 0", nrow(d)), d$ID)
+```
+
+### C07 · BLQ consistency
+
+```{r}
+d <- raw |> filter(EVID == 0, !is.na(DV), DV < LLOQ, BLQ == 0)
+if (nrow(d)) flag("BLQ_IMPUTED", sprintf("%d value(s) below LLOQ not flagged", nrow(d)), d$ID)
+```
+
+### C08 · Unit switch
+
+A within-subject comparison is far more sensitive than a population range check,
+because it does not have to see through between-subject variability.
+
+```{r}
+bad <- raw |>
+  filter(EVID == 0, !is.na(DV), TIME > 0) |>
+  group_by(ID) |>
+  summarise(n_early = sum(TIME < 240), n_late = sum(TIME >= 240),
+            med_early = median(DV[TIME < 240]),
+            med_late  = median(DV[TIME >= 240]), .groups = "drop") |>
+  filter(n_early > 2, n_late > 0, med_late < med_early / 100) |> pull(ID)
+if (length(bad)) flag("UNIT_SWITCH", "late concentrations >100x lower than early ones", bad)
+```
+
+### C09 · Covariate plausibility
+
+```{r}
+d <- raw |> filter(WT < 35 | WT > 250)
+if (nrow(d)) flag("IMPOSSIBLE_COVARIATE", "body weight outside 35-250 kg", d$ID)
+```
+
+### C10 · Baseline covariates constant within subject
+
+```{r}
+cols <- c("AGE", "SEX", "WT", "DOSE")
+nuniq <- sapply(cols, \(c) max(tapply(raw[[c]], raw$ID, \(x) length(unique(x)))))
+bad_cols <- names(nuniq)[nuniq > 1]
+if (length(bad_cols)) {
+  ids <- unlist(lapply(bad_cols, \(c) {
+    n <- tapply(raw[[c]], raw$ID, \(x) length(unique(x))); names(n)[n > 1]
+  }))
+  flag("TIME_VARYING_BASELINE",
+       sprintf("baseline covariate(s) vary within subject: %s", paste(bad_cols, collapse = ", ")), ids)
+}
+```
+
+### C11 · Dose magnitude
+
+```{r}
+d <- raw |> filter(EVID == 1, AMT < 1 | AMT > 1000)
+if (nrow(d)) flag("DOSE_UNIT", "AMT outside a plausible 1-1000 mg range", d$ID)
+```
+
+## The report
+
+```{r}
+for (f in findings) {
+  ids <- paste(head(f$ids, 6), collapse = ",")
+  if (length(f$ids) > 6) ids <- paste0(ids, "...")
+  cat(sprintf("%-22s %-55s -> ID %s\n", f$code, f$message, ids))
+}
+cat(sprintf("\n%d check(s) failed\n", length(findings)))
+```
+
+## Grade yourself
+
+```{r}
+manifest <- read.csv("../../cases/case-sm/data/ozanib_pk_messy_manifest.csv")
+found    <- sapply(findings, \(f) f$code)
+injected <- manifest$code
+
+cat(sprintf("injected : %d\n", length(injected)))
+cat(sprintf("detected : %d\n", length(intersect(found, injected))))
+cat(sprintf("missed   : %s\n", paste(setdiff(injected, found), collapse = ", ")))
+cat(sprintf("spurious : %s\n", paste(setdiff(found, injected), collapse = ", ")))
+```
+
+::: {.callout-important}
+Look at which subjects trip **C07**. Subjects 11–14 appear there as well as in
+**C08**, because dividing their concentrations by a thousand pushed them below
+the LLOQ. One injected defect, two independent alarms — the argument for running
+the whole battery rather than stopping at the first failure.
+:::
+
+## Now fix them
+
+```{r}
+data.frame(
+  code = c("ID_FORMAT", "DUP_RECORDS", "NEGATIVE_TIME", "DOSE_ORDER", "MISSING_DOSE",
+           "ZERO_MEANS_MISSING", "BLQ_IMPUTED", "UNIT_SWITCH", "IMPOSSIBLE_COVARIATE",
+           "TIME_VARYING_BASELINE", "DOSE_UNIT"),
+  response = c(
+    "normalise in the assembly script, re-run every join",
+    "de-duplicate on the event key AFTER confirming they are true duplicates",
+    "decide the reference time; a screening sample may belong to a prior period",
+    "re-sort ID, TIME, then EVID descending",
+    "recover from source EX; if unrecoverable, exclude the interval and log it",
+    "set to NA with MDV = 1; never carry a 0 into a log-scale model",
+    "restore the flag from the raw assay export; do not un-impute by arithmetic",
+    "confirm against the laboratory report, then convert once at the boundary",
+    "query the site; do not silently correct a decimal point",
+    "take the baseline visit value; check the join key",
+    "confirm against source EX, then convert once")
+)
+```
+
+Three of these — the missing dose, the impossible weight, the unit switch —
+cannot be resolved inside the analysis at all. **A check you "fix" by guessing
+has been converted from a defect you know about into a defect you do not.**
+
+## What to try next
+
+1. Add a check that every subject has at least one observation after their last dose.
+2. Generalise C08: flag any subject whose residual variability against a naive
+   pooled fit is an order of magnitude worse than the population median.
+3. Wrap the battery in a function that `stop()`s on any finding and run it as a
+   pre-commit hook. That is the version that actually protects you.

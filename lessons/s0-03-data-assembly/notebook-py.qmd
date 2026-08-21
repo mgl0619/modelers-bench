@@ -1,0 +1,222 @@
+---
+title: "S0-03 notebook — Python"
+subtitle: "Build a data-check battery and grade it"
+jupyter: python3
+execute:
+  freeze: auto
+---
+
+Eleven realistic defects have been injected into a copy of `CASE-SM`. Build the
+checks, then grade yourself against the manifest.
+
+```{python}
+import numpy as np
+import pandas as pd
+
+LLOQ = 1.0
+raw = pd.read_csv("../../cases/case-sm/data/ozanib_pk_messy.csv", dtype={"ID": str})
+
+print(f"{len(raw)} rows, {raw.ID.nunique()} subjects")
+raw.head(4)
+```
+
+Note the `dtype={"ID": str}`. Reading identifiers as strings is a habit worth
+forming: pandas will happily turn `007` into `7`, and then your merge silently
+drops a subject.
+
+## The battery
+
+Each check appends to a findings list rather than raising, so one run reports
+everything wrong at once. In production you would raise at the end if the list
+is non-empty — a build that continues past a failed check is not a check.
+
+```{python}
+findings = []
+
+def flag(code, msg, ids=()):
+    findings.append(dict(code=code, message=msg,
+                         ids=sorted(set(map(str, ids)))))
+```
+
+### C01 · Identifier format
+
+```{python}
+bad = [i for i in raw.ID.unique() if str(i) != str(int(float(i)))]
+if bad:
+    flag("ID_FORMAT", f"{len(bad)} ID(s) not in canonical numeric form", bad)
+```
+
+### C02 · Duplicate event keys
+
+```{python}
+key = ["ID", "TIME", "EVID", "CMT"]
+d = raw[raw.duplicated(key, keep=False)]
+if len(d):
+    flag("DUP_RECORDS", f"{len(d)} rows share an (ID, TIME, EVID, CMT) key", d.ID.unique())
+```
+
+### C03 · Negative time
+
+```{python}
+d = raw[raw.TIME < 0]
+if len(d):
+    flag("NEGATIVE_TIME", f"{len(d)} record(s) with TIME < 0", d.ID.unique())
+```
+
+### C04 · Dose must sort before an observation at the same time
+
+```{python}
+bad = []
+for i, g in raw.groupby("ID", sort=False):
+    for t, gt in g.groupby("TIME"):
+        if len(gt) > 1 and gt.EVID.iloc[0] == 0 and (gt.EVID == 1).any():
+            bad.append(i)
+if bad:
+    flag("DOSE_ORDER", "observation sorts before the dose at the same TIME", bad)
+```
+
+### C05 · Regular dosing intervals
+
+```{python}
+bad = []
+for i, g in raw.groupby("ID", sort=False):
+    dt = np.sort(g.loc[g.EVID == 1, "TIME"].values)
+    if len(dt) == 0:
+        bad.append(i)
+        continue
+    gaps = np.diff(dt)
+    if len(gaps) and (np.abs(gaps - np.median(gaps)) > 1e-6).any():
+        bad.append(i)
+if bad:
+    flag("MISSING_DOSE", "irregular gap in the dosing sequence", bad)
+```
+
+### C06 · Zero used to mean missing
+
+```{python}
+d = raw[(raw.EVID == 0) & (raw.DV == 0)]
+if len(d):
+    flag("ZERO_MEANS_MISSING", f"{len(d)} observation(s) with DV exactly 0", d.ID.unique())
+```
+
+### C07 · BLQ consistency
+
+```{python}
+d = raw[(raw.EVID == 0) & raw.DV.notna() & (raw.DV < LLOQ) & (raw.BLQ == 0)]
+if len(d):
+    flag("BLQ_IMPUTED", f"{len(d)} value(s) below LLOQ not flagged BLQ", d.ID.unique())
+```
+
+### C08 · Unit switch
+
+Compare each subject's late concentrations against their own early ones. A
+within-subject comparison is far more sensitive than a population range check,
+because it does not have to see through between-subject variability.
+
+```{python}
+o = raw[(raw.EVID == 0) & raw.DV.notna() & (raw.TIME > 0)]
+bad = []
+for i, g in o.groupby("ID", sort=False):
+    early, late = g[g.TIME < 240].DV, g[g.TIME >= 240].DV
+    if len(early) > 2 and len(late) > 0 and late.median() < early.median() / 100:
+        bad.append(i)
+if bad:
+    flag("UNIT_SWITCH", "late concentrations >100x lower than early ones", bad)
+```
+
+### C09 · Covariate plausibility
+
+```{python}
+d = raw[(raw.WT < 35) | (raw.WT > 250)]
+if len(d):
+    flag("IMPOSSIBLE_COVARIATE", "body weight outside 35-250 kg", d.ID.unique())
+```
+
+### C10 · Baseline covariates constant within subject
+
+```{python}
+bad_cols = [c for c in ["AGE", "SEX", "WT", "DOSE"] if raw.groupby("ID")[c].nunique().max() > 1]
+if bad_cols:
+    ids = set()
+    for c in bad_cols:
+        n = raw.groupby("ID")[c].nunique()
+        ids |= set(n[n > 1].index)
+    flag("TIME_VARYING_BASELINE", f"baseline covariate(s) vary within subject: {bad_cols}", ids)
+```
+
+### C11 · Dose magnitude
+
+```{python}
+d = raw[(raw.EVID == 1) & ((raw.AMT < 1) | (raw.AMT > 1000))]
+if len(d):
+    flag("DOSE_UNIT", "AMT outside a plausible 1-1000 mg range", d.ID.unique())
+```
+
+## The report
+
+```{python}
+for f in findings:
+    ids = ",".join(f["ids"][:6]) + ("..." if len(f["ids"]) > 6 else "")
+    print(f"{f['code']:22s} {f['message']:55s} -> ID {ids}")
+print(f"\n{len(findings)} check(s) failed")
+```
+
+## Grade yourself
+
+```{python}
+manifest = pd.read_csv("../../cases/case-sm/data/ozanib_pk_messy_manifest.csv")
+found = {f["code"] for f in findings}
+injected = set(manifest.code)
+
+print(f"injected : {len(injected)}")
+print(f"detected : {len(found & injected)}")
+print(f"missed   : {sorted(injected - found) or 'none'}")
+print(f"spurious : {sorted(found - injected) or 'none'}")
+```
+
+::: {.callout-important}
+Look at which subjects trip **C07** (BLQ consistency). Subjects 11–14 appear
+there as well as in **C08**, because dividing their concentrations by a thousand
+pushed them below the LLOQ. One injected defect, two independent alarms.
+
+That redundancy is the argument for running the whole battery rather than
+stopping at the first failure — and for reading *which* subjects each check
+names, not just how many checks failed.
+:::
+
+## Now fix them
+
+Detection is half the job. Each defect has a different correct response, and
+"correct" sometimes means *refuse to guess*.
+
+```{python}
+fixes = pd.DataFrame([
+    ("ID_FORMAT",            "normalise in the assembly script, re-run every join"),
+    ("DUP_RECORDS",          "de-duplicate on the event key AFTER confirming they are true duplicates"),
+    ("NEGATIVE_TIME",        "decide the reference time; a screening sample may belong to a prior period"),
+    ("DOSE_ORDER",           "re-sort ID, TIME, then EVID descending"),
+    ("MISSING_DOSE",         "recover from source EX; if unrecoverable, exclude the interval and log it"),
+    ("ZERO_MEANS_MISSING",   "set to NA with MDV = 1; never carry a 0 into a log-scale model"),
+    ("BLQ_IMPUTED",          "restore the flag from the raw assay export; do not un-impute by arithmetic"),
+    ("UNIT_SWITCH",          "confirm against the laboratory report, then convert once at the boundary"),
+    ("IMPOSSIBLE_COVARIATE", "query the site; do not silently correct a decimal point"),
+    ("TIME_VARYING_BASELINE","take the baseline visit value; check the join key"),
+    ("DOSE_UNIT",            "confirm against source EX, then convert once"),
+], columns=["code", "correct response"])
+
+print(fixes.to_string(index=False))
+```
+
+Three of these — the missing dose, the impossible weight, the unit switch —
+cannot be resolved inside the analysis at all. They require going back to
+source. **A check that you "fix" by guessing has been converted from a defect
+you know about into a defect you do not.**
+
+## What to try next
+
+1. Add a check that every subject has at least one observation after their last
+   dose. What does it catch that nothing above does?
+2. Make C08 more general: flag any subject whose residual variability against a
+   naive pooled fit is an order of magnitude worse than the population median.
+3. Turn the battery into a function that raises on any finding, and run it as a
+   pre-commit hook. That is the version that actually protects you.

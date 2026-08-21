@@ -1,0 +1,302 @@
+---
+title: "Compartments and ODEs from first principles"
+subtitle: "Lesson S0-01"
+description: >
+  Where every pharmacokinetic equation comes from: mass balance. Build the
+  one- and two-compartment models from scratch, and learn why clearance —
+  not the rate constant — is the parameter that means something.
+categories: [foundations, PK, ODEs]
+---
+
+::: {.callout-tip appearance="simple"}
+## The decision this serves
+Which structural model can the data support, and what does each parameter in it
+physically mean? Get this wrong and every downstream number — the dose
+recommendation, the covariate effect, the label — inherits the error.
+:::
+
+## 1. A compartment is not an organ
+
+The single most common misconception, and the one that quietly wrecks
+interpretation later. A compartment is a **kinetically homogeneous space**: a
+mathematical container in which drug is assumed to mix instantaneously and from
+which it leaves at a rate proportional to how much is there.
+
+That is all it claims. The "central compartment" is not the blood; the
+"peripheral compartment" is not the tissues. They are the smallest number of
+containers whose behaviour reproduces what the concentration–time curve does.
+PBPK models (`S3`) *do* use compartments that map to real organs — which is
+exactly why they need far more parameters and far more *in vitro* data.
+
+::: {.callout-note appearance="simple"}
+The right way to hold it: **a compartmental model is a description of the
+data's behaviour, not a claim about anatomy.** If a two-compartment model fits,
+you have learned that the drug leaves the sampled space faster than it is
+eliminated — not that you have found a tissue.
+:::
+
+## 2. Everything is mass balance
+
+Every equation in pharmacokinetics is the same statement:
+
+$$\frac{dA}{dt} = (\text{rate in}) - (\text{rate out})$$
+
+where $A$ is an amount (mg, µg, µmol), not a concentration. Work in amounts
+inside the differential equations and convert to concentration only at the end —
+this one habit prevents most unit errors, and `S0-02` is devoted to the rest.
+
+### One compartment, IV bolus
+
+Nothing enters after time zero; drug leaves at a rate proportional to the
+amount present:
+
+$$\frac{dA}{dt} = -k \cdot A, \qquad A(0) = D$$
+
+Separate and integrate and you get the exponential decay everyone recognises:
+
+$$A(t) = D e^{-kt}, \qquad C(t) = \frac{D}{V} e^{-kt}$$
+
+Take logs and it is a straight line — which is why the field spent forty years
+drawing semi-log plots, and why you should still always look at one.
+
+### Clearance is the primary parameter, not $k$
+
+Here is the conceptual step that separates people who understand PK from people
+who can do the algebra.
+
+The elimination rate constant $k$ is a *derived* quantity. What the body
+actually does is irreversibly remove drug from a volume of blood per unit time —
+that is **clearance**, $CL$, with units of volume/time (L/h). The relationship is
+
+$$k = \frac{CL}{V}, \qquad t_{1/2} = \frac{\ln 2}{k} = \frac{0.693 \, V}{CL}$$
+
+Why this matters, concretely: **clearance and volume are physiologically
+independent, and $k$ and $t_{1/2}$ are not.** A patient with liver impairment
+has lower $CL$. An obese patient may have larger $V$. Both change the half-life,
+but they demand *different* dose adjustments — clearance drives the maintenance
+dose, volume drives the loading dose. Parameterise a model in $k$ and you have
+tangled two mechanisms into one number that no covariate can cleanly explain.
+
+$$\text{maintenance rate} = CL \times C_{ss}, \qquad \text{loading dose} = V \times C_{target}$$
+
+These two lines are most of clinical dose selection.
+
+## 3. Adding absorption
+
+An oral dose does not arrive in the central compartment; it arrives in the gut
+and is absorbed. Add a container:
+
+$$\frac{dA_{gut}}{dt} = -k_a A_{gut}, \qquad
+\frac{dA_{c}}{dt} = k_a A_{gut} - \frac{CL}{V} A_{c}$$
+
+Two exponentials now shape the curve: absorption in, elimination out. The peak
+occurs where they balance,
+
+$$t_{max} = \frac{\ln(k_a / k)}{k_a - k}$$
+
+### The $/F$ problem, and why it is not pedantry
+
+From oral data alone, dose and bioavailability are inseparable — every
+observation depends on the product $F \cdot D$. So what you estimate is not
+$CL$ and $V$ but $CL/F$ and $V/F$, the *apparent* clearance and volume.
+
+A learner who writes "clearance was 12 L/h" for an oral-only dataset has made a
+real error, not a cosmetic one: if $F = 0.4$, true clearance is 4.8 L/h, and any
+comparison to hepatic blood flow, to an IV study, or to a PBPK prediction is
+now wrong by a factor of two and a half. `CASE-SM` is oral-only for exactly this
+reason. Write the `/F`.
+
+### Flip-flop kinetics
+
+When absorption is slower than elimination ($k_a < k$), the terminal slope of
+the curve reflects **absorption**, not elimination. The two exponentials swap
+roles, the fitted parameters are exchangeable, and a model can converge happily
+on the wrong assignment. This is common with extended-release formulations and
+with poorly soluble compounds, and the only reliable way to resolve it is IV
+data or a formulation comparison — not a better fit statistic.
+
+## 4. Two compartments, and why the curve bends
+
+Plot most real IV data on a semi-log axis and it is not a straight line: there is
+a steep early phase, then a shallower one. Drug is distributing into a space
+that the sampled compartment exchanges with, and coming back.
+
+$$\frac{dA_c}{dt} = -\frac{CL}{V_c}A_c - \frac{Q}{V_c}A_c + \frac{Q}{V_p}A_p,
+\qquad
+\frac{dA_p}{dt} = \frac{Q}{V_c}A_c - \frac{Q}{V_p}A_p$$
+
+$Q$ is intercompartmental clearance — the same idea as $CL$, but reversible.
+The solution is a sum of two exponentials with hybrid rate constants $\alpha$
+(fast, distribution) and $\beta$ (slow, terminal):
+
+$$\alpha, \beta = \tfrac{1}{2}\left[(k_{10}+k_{12}+k_{21}) \pm
+\sqrt{(k_{10}+k_{12}+k_{21})^2 - 4k_{10}k_{21}}\right]$$
+
+::: {.callout-warning appearance="simple"}
+**The terminal half-life is not "the" half-life.** For `CASE-SM`, the terminal
+$t_{1/2}$ is 14.6 h but the distribution $t_{1/2}$ is 1.85 h, and the drug
+accumulates only 1.22-fold on daily dosing — far less than a naive reading of
+14.6 h would suggest, because most of the AUC is delivered in the fast phase.
+Half-life is a derived, composite quantity. Reason in $CL$ and $V$.
+:::
+
+## 5. Why ODEs instead of closed-form solutions
+
+Every model above has an analytical solution, and analytical solutions are much
+faster. Use them when you can. But you will abandon them the moment you need any
+of the following, which is nearly always:
+
+- **Multiple and irregular doses** — superposition handles repeated identical
+  doses, but not missed doses, dose changes, or infusions of varying rate.
+- **Nonlinearity** — Michaelis–Menten elimination, target-mediated disposition
+  (`S1`), saturable absorption. No closed form exists.
+- **Time-varying parameters** — enzyme induction, disease progression, a
+  covariate that changes during the study.
+- **Anything with feedback** — turnover models, most of PD, all of QSP.
+
+So you learn to write and solve the ODE system, and you keep the analytical
+solution as a check on your numerics. Every serious tool in this field —
+NONMEM, nlmixr2, Monolix, Pumas, mrgsolve, PK-Sim — is at bottom a
+differential-equation solver wrapped in an estimation routine.
+
+### Solving them without lying to yourself
+
+- Use a **stiff-capable solver** (LSODA and friends switch automatically).
+  PK/PD systems are routinely stiff — fast absorption alongside slow terminal
+  elimination is exactly the condition that makes non-stiff solvers crawl or
+  silently lose accuracy.
+- **Tighten tolerances until the answer stops moving**, then leave them there.
+  Default tolerances are chosen for speed, not for you.
+- **Doses are events, not terms in the equation.** Add the amount to the
+  compartment at the dose time and restart the integration. Smearing a bolus
+  into a continuous input is a classic and hard-to-spot bug.
+- **Validate against the analytical solution** whenever one exists. The
+  generator for `CASE-SM` was checked exactly this way before the data shipped.
+
+## 6. Linearity buys you one beautiful result
+
+If the system is linear — every rate proportional to an amount — then
+superposition holds, and at steady state on a regimen of dose $D$ every $\tau$:
+
+$$AUC_{\tau,ss} = \frac{D}{CL}$$
+
+Exactly. Not approximately, and regardless of how many compartments there are or
+what $k_a$ is. For `CASE-SM` at 50 mg with $CL/F = 12$ L/h, that is
+4166.7 ng·h/mL, and the numerical solution in the notebook reproduces it to
+four figures. It is the cleanest available check that your simulation code is
+correct, and it is the reason clearance is the parameter that sets the
+maintenance dose.
+
+## Work through it
+
+The notebook builds all of the above from scratch and reproduces every number in
+this lesson. Do it in whichever language you are making your primary one.
+
+- [Notebook — R](notebook-r.qmd)
+- [Notebook — Python](notebook-py.qmd)
+
+Here is the core of it, side by side:
+
+::: {.panel-tabset}
+
+### R
+
+```r
+library(deSolve)
+
+one_cmt_oral <- function(t, y, p) with(as.list(c(y, p)), {
+  dA_gut <- -ka * A_gut
+  dA_c   <-  ka * A_gut - (CL / V) * A_c
+  list(c(dA_gut, dA_c))
+})
+
+p <- c(ka = 1.2, CL = 12, V = 60)          # L/h and L; apparent (X/F)
+y0 <- c(A_gut = 50 * 1000, A_c = 0)         # 50 mg as ug -> ug/L reads as ng/mL
+out <- ode(y0, seq(0, 48, 0.1), one_cmt_oral, p, method = "lsoda",
+           rtol = 1e-9, atol = 1e-12)
+
+conc <- out[, "A_c"] / p["V"]
+plot(out[, "time"], conc, type = "l", log = "y",
+     xlab = "Time (h)", ylab = "Concentration (ng/mL)")
+```
+
+### Python
+
+```python
+import numpy as np
+from scipy.integrate import solve_ivp
+
+def one_cmt_oral(t, y, ka, CL, V):
+    a_gut, a_c = y
+    return [-ka * a_gut, ka * a_gut - (CL / V) * a_c]
+
+ka, CL, V = 1.2, 12.0, 60.0                 # L/h and L; apparent (X/F)
+y0 = [50 * 1000, 0.0]                       # 50 mg as ug -> ug/L reads as ng/mL
+t = np.linspace(0, 48, 481)
+
+sol = solve_ivp(one_cmt_oral, (0, 48), y0, t_eval=t, args=(ka, CL, V),
+                method="LSODA", rtol=1e-9, atol=1e-12)
+conc = sol.y[1] / V
+```
+
+:::
+
+::: {.callout-warning appearance="simple"}
+## Failure mode — fitting structure the data cannot support
+Take the `CASE-SM` trough-only samples on days 7, 10 and 21 and try to fit a
+two-compartment model to them alone. It will often converge. The standard errors
+on $Q$ and $V_p$ will be enormous, the parameters will be strongly correlated,
+and the fitted "distribution phase" will be an artefact of three points that
+contain no information about distribution at all.
+
+The notebook makes you do this, because the lesson only lands once you have
+watched a converged, plausible-looking, meaningless fit come out of your own
+code. **Convergence is not evidence.** The diagnostics that catch this —
+correlation matrix, condition number, profile likelihood — arrive in `S2`; the
+instinct starts here.
+:::
+
+## Check yourself
+
+::: {.callout-note collapse="true"}
+## 1. A drug's terminal half-life is 40 h. How long until steady state on daily dosing?
+You cannot say from that alone, and the question contains a trap. For a
+one-compartment drug, roughly 4–5 half-lives — about a week. For a
+multi-compartment drug where the 40 h terminal phase carries a small share of
+the AUC, the *effective* accumulation half-life is much shorter and the trough
+plateaus in days. `CASE-SM` has a 14.6 h terminal half-life and troughs within
+5% of steady state by day 4. Compute the accumulation ratio from $AUC_{\tau,ss}
+/ AUC_{\tau,1}$; do not read it off the terminal slope.
+:::
+
+::: {.callout-note collapse="true"}
+## 2. Why does an oral-only dataset force you to write $CL/F$ rather than $CL$?
+Every observed concentration depends on the product $F \cdot D$, so $F$ and the
+disposition parameters are structurally unidentifiable — infinitely many
+$(F, CL)$ pairs give an identical fit. Only an IV reference arm (or absolute
+bioavailability from another source) separates them. The practical damage from
+dropping the `/F`: any comparison against hepatic blood flow, against an IV
+study, or against a PBPK prediction becomes wrong by the factor $1/F$.
+:::
+
+::: {.callout-note collapse="true"}
+## 3. Your numerical simulation gives $AUC_{\tau,ss}$ = 4600 ng·h/mL for a 50 mg dose with $CL/F$ = 12 L/h. What is wrong?
+Superposition says it must be $D/CL = 50{,}000/12 = 4166.7$ ng·h/mL exactly, for
+any linear model. A 10% discrepancy means a bug, not biology. The usual suspects,
+in order: not yet at steady state; loose solver tolerances; a unit error between
+mg and µg; or dosing implemented as a continuous input rather than as an event.
+:::
+
+## Going further
+
+- **Next:** [S0-02 · Units, scaling and allometry](../s0-02-units-scaling-and-allometry/) — the errors that survive peer review.
+- **Uses this:** every lesson in `S1` and `S2`; `CASE-SM` is a two-compartment
+  oral model and you will meet it again with mixed effects attached.
+- **Reference:** Gabrielsson & Weiner, *Pharmacokinetic and Pharmacodynamic Data
+  Analysis*, for the closed-form solutions; Rowland & Tozer for the clearance
+  concepts; the `deSolve` and `scipy.integrate` documentation for the numerics.
+
+*Seen in the wild:* a phase 3 dose recommendation was once revisited late
+because a model had been parameterised in $k$ and $V$ rather than $CL$ and $V$,
+and the renal-impairment covariate had been applied to $k$ — which quietly
+changed the volume as well. The fit was fine. The dose adjustment was not.

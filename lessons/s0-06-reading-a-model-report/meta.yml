@@ -1,0 +1,8 @@
+id: s0-06
+strand: S0
+title: Reading a model report
+paths: [PATH-A, PATH-B, PATH-C]
+prereqs: [s0-00]
+next: null
+runnable: false
+reviewed: 2026-08-21

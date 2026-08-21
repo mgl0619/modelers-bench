@@ -1,0 +1,86 @@
+/*-- scss:defaults --*/
+
+// The Modeler's Bench — pine ink on paper, brass for structure.
+$font-family-sans-serif: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif !default;
+$font-family-monospace:  "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !default;
+$headings-font-family:   "Spectral", Georgia, "Times New Roman", serif !default;
+
+$paper:      #F6F7F4;
+$surface:    #FFFFFF;
+$surface-2:  #EEF1EC;
+$ink:        #131E1B;
+$ink-2:      #4C5B54;
+$rule:       #DDE3DB;
+$accent:     #0F6E63;
+$accent-ink: #0B564D;
+$brass:      #8E6410;
+
+$body-bg:    $paper;
+$body-color: $ink;
+$link-color: $accent-ink;
+$code-bg:    $surface-2;
+$code-color: $accent-ink;
+
+$font-size-root: 16.5px;
+$h1-font-size: 2.1rem;
+$h2-font-size: 1.55rem;
+$h3-font-size: 1.15rem;
+
+$toc-color: $ink-2;
+$toc-active-border: $accent;
+
+/*-- scss:rules --*/
+
+@import url("https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,500;0,600;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+body { line-height: 1.65; }
+
+h1, h2, h3 { letter-spacing: -0.01em; text-wrap: balance; }
+h2 { margin-top: 2.2rem; border-top: 1px solid $rule; padding-top: 1.4rem; }
+h3 { margin-top: 1.6rem; font-family: $font-family-sans-serif; font-weight: 600; }
+
+p, li { max-width: 68ch; }
+
+// subtitle under the lesson title
+.quarto-title .subtitle {
+  font-family: $font-family-monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: $brass;
+}
+
+// tables read as data, not decoration
+table { font-size: 0.92rem; }
+thead th {
+  font-family: $font-family-monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-weight: 500;
+  background: $surface-2;
+}
+td, th { vertical-align: top; }
+.table > :not(caption) > * > * { padding: 0.55rem 0.7rem; }
+
+// numeric columns line up
+td { font-variant-numeric: tabular-nums; }
+
+// callouts: quieter than the Quarto default
+div.callout { border-radius: 3px; }
+div.callout.callout-style-simple .callout-body { font-size: 0.97rem; }
+
+// code
+pre.sourceCode { border-radius: 3px; border: 1px solid $rule; }
+code:not(.sourceCode) { font-size: 0.86em; }
+
+// panel tabsets used for the Rosetta panels
+.panel-tabset .nav-link {
+  font-family: $font-family-monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+}
+
+// wide content never scrolls the page sideways
+.cell-output-display > table,
+div.sourceCode { overflow-x: auto; }

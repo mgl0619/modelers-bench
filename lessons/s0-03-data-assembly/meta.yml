@@ -1,0 +1,10 @@
+id: s0-03
+strand: S0
+title: Data assembly
+paths: [PATH-A, PATH-B]
+prereqs: [s0-02]
+next: s0-04
+runnable: true
+notebooks: [notebook-r.qmd, notebook-py.qmd]
+case: CASE-SM
+reviewed: 2026-08-21

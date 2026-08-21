@@ -1,0 +1,52 @@
+---
+title: "About"
+toc: false
+---
+
+## What this is
+
+An open curriculum for quantitative pharmacology, built in public, aimed at
+three audiences: junior scientists in industry, graduate students and postdocs,
+and scientists crossing over from adjacent fields.
+
+It exists because the field is not short of teaching material — it is short of
+one *path* through the material that a learner can actually run.
+
+## What it is not
+
+It is not a replacement for the community that already exists. The
+[ISoP discussion forum](https://discuss.go-isop.org/) is where the field's
+practitioner Q&A happens, and it should stay that way. Discussion here attaches
+to individual lessons, where the confusion actually occurs.
+
+It is not a certification, and it does not pretend that reading replaces doing.
+Every claim it makes about your competence rests on a finished, public analysis.
+
+## Principles
+
+- **Name the decision.** Every lesson opens with the development decision it
+  serves. If that cannot be written, the lesson is not ready.
+- **Every result runs.** No lesson ships without a notebook that executes in
+  continuous integration. Broken code is a build failure, not a footnote.
+- **Show the failure mode.** Each lesson breaks something on purpose and shows
+  the diagnostic that catches it. This is the part that experience buys.
+- **Truth is published.** Case data are simulated from documented models, so
+  every exercise can be graded.
+- **Open tools by default.** Concepts are taught on software anyone can install.
+  Proprietary tools are referenced, never redistributed.
+
+## Licence
+
+Content is **CC BY-SA 4.0** — reuse it in your teaching, keep derivatives open.
+Code and data-generation scripts are **MIT**.
+
+## Contributing
+
+Corrections, better explanations and new lessons are all welcome. See
+`CONTRIBUTING.md` in the repository. The most useful contribution is usually the
+least glamorous: telling us exactly where you got stuck.
+
+## Disclaimer
+
+Educational material. The compounds are fictional, the models are illustrative,
+and nothing here is clinical guidance or a regulatory position.

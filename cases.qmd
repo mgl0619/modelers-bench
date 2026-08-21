@@ -1,0 +1,58 @@
+---
+title: "Cases"
+subtitle: "Four molecules, carried through everything"
+---
+
+Every case is **fictional** and **simulated from a documented generative
+model**. Nothing here derives from a real programme, a company dataset, or any
+patient. The true parameters are published alongside the data.
+
+That is not a compromise forced by data access — it is a pedagogical advantage.
+When you fit a model to these data you can compare your estimate to the value
+that generated it, which is the one experiment a real dataset can never offer.
+
+## CASE-SM · "Ozanib" {#case-sm}
+
+Oral small molecule, CYP3A4 substrate, once daily for 21 days.
+
+| | |
+|---|---|
+| Structure | Two-compartment, first-order absorption, linear elimination |
+| Design | 60 subjects, 25 / 50 / 100 mg once daily; rich sampling on days 1 and 14, troughs on days 7, 10, 21 |
+| True typical values | $CL/F$ 12 L/h · $V_c/F$ 60 L · $Q/F$ 8 L/h · $V_p/F$ 90 L · $k_a$ 1.2 h⁻¹ |
+| Real covariate effects | Allometric weight (0.75 on clearances, 1.0 on volumes); strong CYP3A4 inhibitor multiplies $CL/F$ by 0.45 |
+| Deliberate decoys | `CRCL`, `AGE`, `SEX` and `ALT` are recorded and have **no** true effect |
+| Variability | IIV 30% on $CL$, 25% on $V_c$, 45% on $k_a$, correlated $CL$–$V_c$; combined 20% proportional + 0.5 ng/mL additive residual |
+| Censoring | LLOQ 1 ng/mL; ~4% of samples BLQ, flagged and set to `NA` |
+| Files | `cases/case-sm/` — `generate.py`, `generate.R`, `truth.yml`, `data/` |
+
+### Three deliberate traps
+
+- **Everything is apparent (`/F`).** There is no IV arm, so bioavailability is
+  not identifiable. Reporting "clearance is 12 L/h" is a real error, and the
+  case is built to expose it.
+- **Four covariates do nothing.** They exist so covariate-selection lessons have
+  genuine false positives to catch. Please do not "fix" this.
+- **A corrupted copy exists.** `ozanib_pk_messy.csv` carries eleven injected
+  data-assembly defects with a manifest, used in
+  [S0-03](lessons/s0-03-data-assembly/index.qmd).
+
+### Reproducing it
+
+```bash
+python cases/case-sm/generate.py        # the clean dataset
+python cases/case-sm/make_messy.py      # the corrupted copy plus its manifest
+```
+
+The generator was validated against an independent implementation, and against
+the analytical two-compartment solution, before the data shipped. For any linear
+model $AUC_{\tau,ss} = D/CL$ exactly — at 50 mg that is 4166.7 ng·h/mL, and the
+simulation reproduces it to four figures.
+
+## Planned
+
+| Case | What it is | Arrives with |
+|---|---|---|
+| `CASE-MAB` "Tezumab" | IgG1 monoclonal antibody, target-mediated disposition, subcutaneous, immunogenicity | S1 |
+| `CASE-CELL` "CT-19" | CD19 CAR-T: expansion, contraction, persistence, cytokine release | S4 |
+| `CASE-ONC` | Oncology dose-optimization exercise, Project Optimus framing | S6 |

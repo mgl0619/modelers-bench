@@ -1,0 +1,23 @@
+name: staleness
+
+# Every lesson carries a `reviewed:` date in meta.yml. Anything older than
+# 18 months gets an issue. This is the entire content-decay strategy.
+
+on:
+  schedule:
+    - cron: "0 6 1 * *"        # first of the month
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pyyaml
+      - name: Find stale lessons
+        run: python .github/scripts/staleness.py
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

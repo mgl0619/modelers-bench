@@ -1,0 +1,50 @@
+---
+title: "Path A · The New Modeler"
+subtitle: "Your first defensible population PK analysis in eight weeks"
+---
+
+**For:** a junior scientist in industry or a CRO, nought to five years in, who
+has a deliverable due and needs to be useful quickly.
+
+**Promise:** you can take raw clinical data to a fitted, evaluated population PK
+model and a written report that survives review.
+
+**Ends at:** a written model report, not a converged run. Finishing is a
+separate skill from modeling and it is the one employers screen on.
+
+## Foundations — available now
+
+| | Lesson | Why it is on this path |
+|---|---|---|
+| 1 | [S0-00 · What quantitative pharmacology is](../lessons/s0-00-what-is-qp/index.qmd) | Orientation, the skill ladder, and where your work sits in a programme |
+| 2 | [S0-01 · Compartments and ODEs](../lessons/s0-01-compartments-and-odes/index.qmd) | Clearance versus rate constants; why `/F` matters; convergence is not evidence |
+| 3 | [S0-02 · Units, scaling and allometry](../lessons/s0-02-units-scaling-and-allometry/index.qmd) | The errors that survive peer review; flat versus per-kilogram dosing |
+| 4 | [S0-03 · Data assembly](../lessons/s0-03-data-assembly/index.qmd) | The largest share of your actual working time, and where most defects live |
+| 5 | [S0-04 · Choosing a stack](../lessons/s0-04-choosing-a-stack/index.qmd) | What to learn first, and what to ignore for now |
+| 6 | [S0-05 · Git for modelers](../lessons/s0-05-git-for-modelers/index.qmd) | So that in three years you can answer "which run produced that number?" |
+| 7 | [S0-06 · Reading a model report](../lessons/s0-06-reading-a-model-report/index.qmd) | Read a dozen before you write one |
+
+**Time:** roughly 15–20 hours, including both notebooks per runnable lesson.
+Do them in one language. Come back for the second later, or never.
+
+## What comes next
+
+| Strand | On this path | Status |
+|---|---|---|
+| S1 · PK/PD core | NCA · compartmental models · absorption · TMDD · E~max~ and exposure–response | planned |
+| S2 · Population PK/PD | The core of this path: mixed effects, covariates, diagnostics, simulation | planned |
+| S6 · Decisions | Exposure–response for labeling; presenting to a non-modeler | planned |
+| S7 · Practice | Writing the modeling report; peer review | planned |
+
+## How to know you have finished
+
+Not "I read the lessons." The bar is:
+
+1. One **complete** analysis — raw data to written conclusion, not a notebook.
+2. It is **reproducible** by a stranger from your repository.
+3. You can **defend the structure**: why this model, why these covariates, why
+   this residual error, and what would have changed your mind.
+4. You can **explain it in ten minutes** to someone who does not model.
+
+That is the L2 checklist from [S0-00](../lessons/s0-00-what-is-qp/index.qmd),
+and it is what a hiring manager is actually testing for.

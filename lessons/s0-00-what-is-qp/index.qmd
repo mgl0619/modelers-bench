@@ -1,0 +1,376 @@
+---
+title: "What quantitative pharmacology is, and how to become one"
+subtitle: "Lesson S0-00 · start here"
+description: >
+  The field, the job, the skill ladder, and a concrete route in — whether you
+  are starting from pharmacy, engineering, statistics, biology, medicine or
+  code.
+categories: [foundations, orientation, careers]
+---
+
+::: {.callout-tip appearance="simple"}
+## The decision this serves
+Whether this field is the one you want — and, if it is, what to do in the next
+twelve months so that someone will pay you to do it.
+:::
+
+## 1. What the field actually is
+
+Quantitative pharmacology is the discipline of writing pharmacology as
+mathematics so that it can make predictions, and using those predictions to
+make decisions about drugs under uncertainty.
+
+That is the whole thing. Everything else — the software, the acronyms, the
+regulatory guidances — is machinery in service of one loop:
+
+> **observe → model → predict → decide → observe again**
+
+A useful test of whether you are doing quantitative pharmacology or just doing
+mathematics near a drug: *name the decision*. If you cannot say which choice
+your model changes — this dose or that one, this trial design or that one,
+go or no-go, label this population or exclude it — you are curve-fitting.
+Every lesson on this site opens by naming the decision for exactly this reason.
+
+### The vocabulary problem, stated plainly
+
+The names overlap, they are used inconsistently between companies, and nobody
+is going to fix this. Here is the honest map:
+
+| Term | What people usually mean | Notes |
+|---|---|---|
+| **Quantitative pharmacology** | The whole field: any mathematical modeling of drug action used for decisions | The broadest term. Common as a department name. |
+| **Pharmacometrics** | Data-driven modeling of clinical data, especially population PK/PD | The most common job title. In practice ≈ PopPK/PD + exposure–response. |
+| **Clinical pharmacology** | The clinical discipline; includes but is wider than modeling | Often the department that *contains* the modelers. Frequently MD/PharmD-led. |
+| **PK/PD modeling** | Structural models linking exposure to effect | The core craft, used everywhere. |
+| **PBPK** | Physiologically based PK — mechanistic, whole-body | Its own sub-specialty, own software, own regulatory track. |
+| **QSP** | Quantitative systems pharmacology — mechanistic models of biology and disease | Closer to systems biology; used earlier, less regulated. |
+| **MIDD** | Model-informed drug development | Not a method — a *framework* for how models enter decisions. A regulatory term. |
+| **M&S** | Modeling and simulation | Generic umbrella, common in job ads and SOPs. |
+
+You will see all of these on job descriptions, sometimes in the same one. Do not
+read too much into the label; read the responsibilities.
+
+## 2. The four questions
+
+Almost every model in this field is answering one of four questions, and it
+helps enormously to know which one you are on.
+
+1. **How much drug gets where, and when?** — pharmacokinetics. Absorption,
+   distribution, metabolism, excretion, expressed as rates.
+2. **What does it do there?** — pharmacodynamics. Target engagement, biomarker
+   movement, clinical effect, toxicity.
+3. **How much does that differ between people, and why?** — variability.
+   Body size, organ function, genetics, co-medication, adherence, and the large
+   remainder we cannot explain.
+4. **How sure are we?** — uncertainty. Parameter uncertainty, structural
+   uncertainty, and the honest gap between "the model says" and "we know".
+
+Beginners are usually taught (1) and (2), get good at them, and then discover
+that in industry the value is concentrated in (3) and (4). Variability is why
+we need population models at all; uncertainty is why a decision-maker needs you
+in the room rather than a spreadsheet.
+
+## 3. The modeling families, and how to choose between them
+
+There is no ranking here. Each family buys you something specific and costs you
+something specific, and the choice is made by the decision, never by taste or
+by what you happen to know.
+
+| Family | What it buys | What it costs | Typical decision |
+|---|---|---|---|
+| **NCA** — non-compartmental analysis | Assumption-free summary (AUC, C~max~, t~½~) | Cannot extrapolate or simulate | Did exposure go up with dose? Is there a food effect? |
+| **Compartmental PK/PD** | A structure you can simulate from | Structural assumptions you must defend | What regimen holds concentration in the target window? |
+| **PopPK / PopPD (NLME)** | Variability quantified and partly explained; sparse data usable | Estimation complexity; heavy diagnostics | Does renal impairment need a dose adjustment in the label? |
+| **PBPK** | Extrapolation to untested situations from physiology | Many parameters from *in vitro* work; platform must be qualified | What happens if this is co-dosed with a strong CYP3A4 inhibitor, without running the study? |
+| **QSP** | Mechanism at the level of biology; hypothesis testing about pathways | Identifiability problems; heavy assumptions | Which target, which combination, which patient subgroup? |
+| **MBMA** — model-based meta-analysis | The competitive landscape as a model | Aggregate data, publication bias | Is our effect size worth a phase 3? |
+| **CTS** — clinical trial simulation | Design performance under assumptions | Only as good as the assumptions | How many patients, which endpoint, which interim rule? |
+| **Bayesian / hierarchical** | Honest uncertainty; prior information used properly | Computation; prior justification | What do we believe after a small phase 1b? |
+| **ML / SciML** | Pattern discovery, fast surrogates, hybrid mechanistic-empirical models | Extrapolates badly; hard to defend to a regulator | Which of 200 candidate covariates deserves a mechanistic look? |
+
+A senior modeler's actual skill is mostly *this table*: matching a question to
+the cheapest family that can answer it credibly. Reaching for QSP when NCA
+would settle the question is as much an error as the reverse.
+
+## 4. Where you sit in drug development
+
+Quantitative pharmacology touches every stage, but the questions change
+completely as a molecule moves.
+
+| Stage | The question you are asked | Typical work |
+|---|---|---|
+| **Discovery** | Which candidate, and what properties does it need? | PK/PD target definition, human dose projection, translational PKPD |
+| **IND-enabling** | What is a safe and informative first dose? | Allometric scaling, MABEL/NOAEL translation, PBPK first-in-human prediction |
+| **Phase 1** | Does it behave as predicted, and what perturbs it? | SAD/MAD PK, food effect, DDI studies and PBPK predictions, formulation bridging |
+| **Phase 2** | What dose, and for whom? | Exposure–response, dose selection, Project Optimus work in oncology |
+| **Phase 3** | Does the dosing hold up across the real population? | PopPK for the label, E–R for efficacy and safety, special populations |
+| **Filing** | Can you defend all of it? | Summary of Clinical Pharmacology, PopPK and E–R reports, labeling language, responses to agency questions |
+| **Post-approval** | What about the populations we did not study? | Pediatric plans, new formulations, real-world dosing, lifecycle commitments |
+
+Two consequences worth internalising early. First, **your deadlines come from
+regulatory milestones, not from convergence** — the filing date does not move
+because your model did not converge. Second, the same molecule will be modeled
+five different ways over ten years by five different people, which is why the
+reproducibility habits in `S0-05` are not optional bureaucracy.
+
+## 5. What the job is actually like
+
+The honest version, which recruiters will not tell you:
+
+- **A large fraction of the work is data.** Assembling, checking, reconciling
+  and documenting the analysis dataset routinely takes longer than the
+  modeling. People who find this beneath them do not become good at this job.
+- **The model is not the deliverable.** The deliverable is a decision, a report,
+  and a defensible answer to "how do you know?" A beautiful model that nobody
+  acts on has produced nothing.
+- **You will usually be the only person in the room who understands the
+  analysis.** That is real influence and real responsibility. It also means
+  your explanation *is* the evidence for everyone else — which is why
+  communication sits in the competency list alongside mathematics.
+- **Most of your models will be wrong in ways that do not matter, and a few
+  will be wrong in ways that do.** Learning to tell which is which is the
+  actual expertise, and it takes years.
+- **It is a small field.** A few thousand people worldwide do this seriously.
+  Your reputation travels, conferences matter more than they do in larger
+  disciplines, and being generous with juniors compounds.
+
+## 6. The skill ladder
+
+Four levels. These are not job titles — titles vary wildly — but they map well
+onto what people can actually do.
+
+::: {.callout-note appearance="simple"}
+### L1 · Literate
+Can read a modeling report and know what the plots claim. Knows the vocabulary,
+can ask a sharp question in a meeting, does not confuse a VPC with a goodness-of-fit
+plot. **Evidence:** you can explain someone else's analysis to a third person and
+name its weakest assumption.
+:::
+
+::: {.callout-note appearance="simple"}
+### L2 · Practitioner
+Can run a defined analysis end to end under supervision: assemble the dataset,
+fit the model somebody specified, produce the standard diagnostics, write the
+section. **Evidence:** you have completed a full analysis where someone else
+chose the approach — and it survived review.
+:::
+
+::: {.callout-note appearance="simple"}
+### L3 · Independent
+Chooses the approach, defends it, owns a compound's modeling strategy, knows
+when the data cannot answer the question. Speaks to regulators. **Evidence:**
+you have said "this analysis will not answer that question" to a senior person
+and been right.
+:::
+
+::: {.callout-note appearance="simple"}
+### L4 · Strategic
+Shapes programme and regulatory strategy, invents or adapts methods, mentors,
+and is trusted when the model and the intuition disagree. **Evidence:** decisions
+worth tens of millions have moved because of your analysis, and you can name
+the ones where you were wrong.
+:::
+
+Most people reach L2 in a year of focused work, L3 in three to five years of
+real programmes, and L4 — if at all — after a decade. The step that stalls
+people is **L2 → L3**, and it stalls almost always for non-technical reasons:
+never having owned a decision, never having been in front of a regulator, never
+having had to say no.
+
+## 7. The six competencies
+
+```
+                 pharmacology & physiology
+                            ▲
+   communication  ◀─────────┼─────────▶  mathematics & statistics
+                            │
+   drug development  ◀──────┼──────▶  computing & data engineering
+                            ▼
+                    scientific judgement
+```
+
+Almost nobody is strong in all six. The people who become genuinely valuable are
+usually strong in two technical competencies and then deliberately close the gap
+on **drug development context** and **communication** — because those two are
+what convert a correct analysis into an actual decision, and they are the two
+that self-taught modelers most often skip.
+
+## 8. Where you are coming from, and what you must close
+
+| Background | You already have | Close this gap first |
+|---|---|---|
+| **PharmD / pharmacy** | Drug knowledge, clinical context, credibility with clinicians | Calculus and differential equations; programming beyond spreadsheets; statistics |
+| **Chemical / biomedical engineering** | ODEs, numerics, transport, systems thinking | Pharmacology and physiology; clinical trial reality; regulatory context |
+| **Statistics / mathematics** | Estimation, inference, uncertainty, study design | Biology and mechanism; why a mechanistic structure beats a flexible fit here |
+| **Biology / pharmacology PhD** | Mechanism, target biology, experimental judgement | Mathematics and computing — usually the largest gap, and the most closable |
+| **Data science / CS** | Programming, workflow, ML, scale | Pharmacology; small-*n* thinking; why extrapolation matters more than prediction accuracy |
+| **MD** | Interpretation, clinical relevance, enormous credibility | Computing and formal modeling; time |
+
+The gap is closable in every row. What is not closable by self-study is
+**drug development context** — that one requires being near real programmes,
+which is why the job-search section below matters as much as the study plan.
+
+## 9. How to become one — a twelve-month route
+
+This assumes five to eight hours a week and no prior modeling experience. It is
+deliberately narrow: one language, one method family, one finished analysis.
+Breadth comes later and comes easily; depth does not.
+
+**Months 1–2 · Foundations.** Work `S0-01` through `S0-06` on this site. By the
+end you should be able to write a two-compartment model as ODEs, simulate it,
+explain why every parameter in an oral dataset carries a `/F`, and assemble a
+dataset that a fitting engine will accept without complaint.
+*Non-negotiable outcome:* one language you are fluent in — R or Python, not both.
+
+**Months 3–4 · PK/PD core.** Strand `S1`. NCA, compartmental models, absorption,
+nonlinear elimination, E~max~ and exposure–response. Simulate before you fit —
+every parameter you can move by hand is a parameter you will later understand
+when an estimate looks wrong.
+*Non-negotiable outcome:* you can predict the shape of a profile before running
+the code, and you are usually right.
+
+**Months 5–8 · Population modeling.** Strand `S2`, the longest stretch and the
+one that makes you employable. Mixed effects, an estimation method you can
+explain, covariate modeling, and the full diagnostic battery. Use `CASE-SM` and
+grade yourself against `truth.yml` — you will not get another chance in your
+career to compare your estimates against the real values.
+*Non-negotiable outcome:* one complete PopPK analysis, from raw data to a
+written report, that a stranger could reproduce from your repository.
+
+**Months 9–10 · Pick one specialisation.** PBPK (`S3`) if you like physiology
+and *in vitro* data; QSP (`S4`) if you like biology and systems; Bayesian
+methods (`S5`) if you like inference. One, not three.
+
+**Months 11–12 · Decisions and communication.** Strand `S6`, plus `S7`. Take
+your months 5–8 analysis and turn it into a fifteen-minute presentation for a
+non-modeler and a written report for a reviewer. Then present it to a real
+audience — a lab meeting, a local chapter, a conference poster.
+*Non-negotiable outcome:* something public with your name on it.
+
+::: {.callout-important appearance="simple"}
+## The five non-negotiables
+Everything above compresses to five things. If you have all five, you are
+employable at L2; if you are missing any, you are not, whatever else you know.
+
+1. **One language, fluently** — you never fight the tool.
+2. **One NLME engine** you can drive end to end.
+3. **One complete analysis** — raw data to written conclusion, not a notebook.
+4. **One written report** in the shape the industry actually uses.
+5. **One public artefact** — a repository, a poster, a talk. Certificates lose
+   to a reproducible analysis every time.
+:::
+
+## 10. Getting the first job
+
+**Where the roles are.** Large pharma (deepest specialisation, most process);
+biotech (broader scope, less support, faster); CROs and consultancies (highest
+volume and variety of compounds — an excellent, underrated first job); regulators
+(FDA, EMA, PMDA — outstanding training and a strong CV line); software vendors
+(Certara, Simulations Plus, Metrum, Pumas-AI); academia (methods and teaching).
+
+**Titles to search.** Pharmacometrician · Clinical Pharmacology Modeler ·
+PKPD Scientist · Quantitative Pharmacologist · Modeling & Simulation Scientist ·
+PBPK Scientist · QSP Scientist · Quantitative Clinical Pharmacologist.
+
+**What interviews actually test.** In practice, three things:
+
+1. *Can you reason about a profile?* You will be shown a concentration–time plot
+   or a diagnostic and asked what it means. Practise this out loud.
+2. *Have you finished something?* One complete analysis you can walk through
+   beats five half-projects.
+3. *Can you explain it to a non-modeler?* Frequently the deciding factor, and
+   the one candidates prepare for least.
+
+**Highest-yield moves, in order.**
+
+- Present a poster at ACoP or PAGE. The field is small enough that this works.
+  Nowhere else can you meet most of your future hiring managers in three days.
+- Do a fellowship or internship: FDA ORISE, industry postdoctoral fellowships
+  (several large sponsors run two-year programmes), ISoP student programmes.
+- Publish your `CASE-SM` analysis publicly, with the code, and put the link in
+  your CV. Almost no applicant does this.
+- Answer questions in the community — the ISoP forum, this site's threads.
+  Being visibly helpful and visibly correct is a hiring signal.
+- Learn the regulatory vocabulary before your first interview. Reading two
+  approved Summary of Clinical Pharmacology reviews on Drugs@FDA will teach you
+  more about what the job produces than any course.
+
+## 11. After L3: the forks
+
+- **Individual contributor / principal scientist** — deepest science, stays
+  hands-on, becomes the person consulted across programmes.
+- **Manager and functional leader** — builds and defends the group; hands-on
+  time drops sharply, and pretending otherwise is the classic new-manager error.
+- **Methodologist** — develops methods and software, usually with academic
+  collaborations and a publication record.
+- **Regulator** — the widest view of the field in existence; you will see
+  hundreds of programmes rather than five.
+- **Consultant** — variety, exposure, and the fastest route to seniority through
+  sheer number of compounds touched.
+- **Academic** — trains the next generation; note that this field's academic
+  positions are heavily concentrated in a handful of programmes.
+
+::: {.callout-warning appearance="simple"}
+## Failure modes — the three ways beginners stall
+**Learning the tool before the model.** People spend six months on NONMEM
+control-stream syntax without being able to sketch what the model does. The
+symptom is being unable to predict what happens to the curve if you double
+`ka`. The fix is simulation: change a parameter by hand, look at the picture,
+before you ever estimate anything.
+
+**Never finishing.** A folder of half-analyses is worth less than one complete,
+mediocre analysis with a written conclusion. Finishing is a separate skill from
+modeling, and it is the one employers screen on.
+
+**Only ever working with clean data.** Textbook datasets have no duplicated
+records, no impossible timestamps, no units changing halfway through, no BLQ
+values and no missing doses. Real ones have all of these at once. `CASE-SM`
+deliberately includes below-quantification samples and four covariates that do
+nothing, because the skill being taught is discrimination, not fitting.
+:::
+
+## Check yourself
+
+::: {.callout-note collapse="true"}
+## 1. A colleague says "we don't need a model, we have the phase 1 data." When are they right?
+When the decision is inside the range of what was directly observed and does not
+require extrapolation across dose, population, regimen or time. If the phase 1
+study measured exactly the regimen you are asking about, in the population you
+are asking about, NCA and a plot may genuinely be enough — and reaching for a
+model anyway is the error described in section 3. They are wrong the moment the
+question involves a population you did not study, a regimen you did not test, or
+a probability rather than a point estimate.
+:::
+
+::: {.callout-note collapse="true"}
+## 2. Why is variability a *first-class* object here, rather than noise to average away?
+Because doses are given to individuals, not to means. A regimen that is optimal
+on average can be toxic in the top decile of exposure and useless in the bottom.
+The entire population-modeling apparatus exists to separate variability we can
+explain and dose-adjust for (body size, organ function, co-medication) from
+variability we cannot, and to quantify what remains — which is exactly what a
+label's dosing section has to survive.
+:::
+
+::: {.callout-note collapse="true"}
+## 3. You have twelve months and a full-time job. What is the single highest-value output?
+One complete, public, reproducible analysis with a written report — not a
+certificate, not a broad survey of five methods. It simultaneously demonstrates
+the language, the engine, the workflow, the judgement and the communication,
+which is the entire L2 checklist in one artefact. Everything else in section 9
+is scaffolding for producing it.
+:::
+
+## Going further
+
+- **Next on this path:** [S0-01 · Compartments and ODEs from first principles](../s0-01-compartments-and-odes/) — where the equations behind everything above come from.
+- **If you are here to read, not to build:** skip to
+  [S0-06 · Reading a model report](../s0-06-reading-a-model-report/), then come back.
+- **External:** the ISoP discussion forum for practitioner questions; Drugs@FDA
+  for real Summary of Clinical Pharmacology reviews; the FDA and EMA guidances on
+  population PK, exposure–response and PBPK, which are short, readable and
+  tell you exactly what the deliverable looks like.
+
+*Seen in the wild:* the most common reason a modeling result fails to change a
+decision is not that the model was wrong. It is that the analysis arrived after
+the decision was made. Timing is a technical skill in this job.

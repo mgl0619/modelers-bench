@@ -1,0 +1,86 @@
+---
+title: "The Modeler's Bench"
+subtitle: "One drug, many models"
+toc: false
+---
+
+An open, reproducible curriculum for quantitative pharmacology.
+
+Learn by rebuilding the same set of decisions about the same molecules — in the
+tools a sponsor would actually use, with data whose **true parameters are
+published**, so you can find out exactly how far your answer landed from the
+truth. No course built on real data can do that.
+
+Everything here is free, the code runs, and every notebook is re-executed on
+every change so it does not quietly rot.
+
+## Pick a path
+
+::: {.grid}
+
+::: {.g-col-12 .g-col-md-4}
+### [A · The New Modeler](paths/path-a-new-modeler.qmd)
+Junior industry scientist with a deliverable due.
+
+*Your first defensible population PK analysis in eight weeks.* Workflow, data
+assembly, diagnostics, and how the result gets used. Ends at a written report,
+not a converged run.
+:::
+
+::: {.g-col-12 .g-col-md-4}
+### [B · The Trainee](paths/path-b-trainee.qmd)
+Graduate student, postdoc, academic modeler.
+
+*From ODEs to a model you can defend in a viva.* Theory, estimation mechanics,
+identifiability and uncertainty. Ends at a reproducible, citable analysis.
+:::
+
+::: {.g-col-12 .g-col-md-4}
+### [C · The Crossover](paths/path-c-crossover.qmd)
+Bench pharmacologist, clinician, DMPK, statistician, data scientist.
+
+*Read a modeling report without bluffing.* Interpretation and vocabulary first,
+then branch deeper — or stop satisfied. Both are wins.
+:::
+
+:::
+
+## Or start at the beginning
+
+[**S0-00 · What quantitative pharmacology is, and how to become one**](lessons/s0-00-what-is-qp/index.qmd)
+— the field, the job, the skill ladder, and a concrete twelve-month route in.
+
+## What is here today
+
+| Strand | Status |
+|---|---|
+| **S0 · Foundations** | 7 lessons — complete |
+| S1 · PK/PD core | planned |
+| S2 · Population PK/PD | planned |
+| S3 · PBPK | planned |
+| S4 · QSP and systems | planned |
+| S5 · Statistics, Bayes and ML | planned |
+| S6 · Decisions and MIDD | planned |
+| S7 · Practice and craft | planned |
+
+Every runnable lesson ships in **both R and Python**, and every lesson names the
+development decision it serves before it teaches anything.
+
+## How a lesson is built
+
+Seven slots, every time:
+
+1. **The decision it serves** — one sentence. If it cannot be written, the lesson does not exist yet.
+2. **Concept** — 800–1,200 words, one figure, no derivation for its own sake.
+3. **Runnable notebook** — open tools, real case data, executed in CI.
+4. **Rosetta panel** — the same thing in a second language or engine.
+5. **Failure mode** — broken on purpose, with the diagnostic that catches it.
+6. **Self-check** — three questions, folded answers.
+7. **Discussion and citations** — a thread per lesson, and where this shows up in practice.
+
+## The cases
+
+Four fictional molecules carried through every strand, each simulated from a
+documented generative model published alongside the data. See
+[Cases](cases.qmd) — [`CASE-SM` "Ozanib"](cases.qmd#case-sm) is live and used
+throughout `S0`.

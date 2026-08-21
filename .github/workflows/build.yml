@@ -1,0 +1,55 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: 1.6.42
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            any::deSolve
+            any::dplyr
+            any::ggplot2
+            any::MASS
+            any::knitr
+            any::rmarkdown
+
+      - name: Regenerate case data
+        run: |
+          python cases/case-sm/generate.py
+          python cases/case-sm/make_messy.py
+
+      - name: Verify the shipped data match the generator
+        run: git diff --exit-code --stat cases/case-sm/data/ || (echo "::error::Case data differ from the generator output. Re-run generate.py and commit." && exit 1)
+
+      - name: Render the site (executes every notebook)
+        run: quarto render
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: _site

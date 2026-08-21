@@ -1,0 +1,12 @@
+code,detail,ids
+DUP_RECORDS,4 observation rows duplicated exactly,3
+UNIT_SWITCH,DV reported in ug/mL instead of ng/mL after t=240 h,11;12;13;14
+ZERO_MEANS_MISSING,missing DV recorded as 0 rather than NA,22
+BLQ_IMPUTED,BLQ values silently replaced by LLOQ/2 and the flag cleared,31
+MISSING_DOSE,day-5 dose record absent while observations continue,8
+IMPOSSIBLE_COVARIATE,adult body weight recorded as 7.8 kg,44
+TIME_VARYING_BASELINE,baseline AGE changes mid-study within one subject,5
+DOSE_UNIT,AMT recorded in ug rather than mg,19
+NEGATIVE_TIME,screening sample given a negative time,27
+DOSE_ORDER,dose record sorts after the observation at the same time,36
+ID_FORMAT,one subject's ID zero-padded to a string,50

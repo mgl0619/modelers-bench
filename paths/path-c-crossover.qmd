@@ -1,0 +1,44 @@
+---
+title: "Path C · The Crossover"
+subtitle: "Read a modeling report without bluffing"
+---
+
+**For:** bench pharmacologists, clinicians, DMPK and translational scientists,
+statisticians, data scientists, project leaders — anyone who has to act on
+modeling results without producing them.
+
+**Promise:** you can read a population PK report, know what each plot does and
+does not establish, and ask the questions that find the problems.
+
+**Ends at:** competence as a reader and a reviewer. That is a complete,
+legitimate destination. Branch into Path A or B afterwards if you want to build
+models yourself.
+
+## The short route — about four hours
+
+| | Lesson | Read for |
+|---|---|---|
+| 1 | [S0-00 · What quantitative pharmacology is](../lessons/s0-00-what-is-qp/index.qmd) | Sections 1–4: the vocabulary, the four questions, the modeling families, and where models enter a programme. Skip the career sections unless they interest you. |
+| 2 | [S0-06 · Reading a model report](../lessons/s0-06-reading-a-model-report/index.qmd) | All of it. This is the keystone lesson. |
+| 3 | [S0-02 · Units, scaling and allometry](../lessons/s0-02-units-scaling-and-allometry/index.qmd) | Sections 3–7: molar versus mass, free versus total, and the honest answer to "should we dose per kilogram?" |
+
+Take the twelve questions from S0-06 into your next model review meeting. They
+work without any modeling ability at all, and question 9 — *is the simulated
+scenario inside the range of the observed data?* — finds more real problems than
+the rest combined.
+
+## If you want a little more
+
+| | Lesson | Why |
+|---|---|---|
+| 4 | [S0-01 · Compartments and ODEs](../lessons/s0-01-compartments-and-odes/index.qmd) | Sections 1–4. Enough to know what a compartment claims and why terminal half-life is a trap. Skip the notebook. |
+| 5 | [S0-03 · Data assembly](../lessons/s0-03-data-assembly/index.qmd) | If you supply data to modelers, this explains what they need and why they keep asking. |
+
+## The three things worth remembering
+
+1. **A compartment is not an organ.** It is a kinetically homogeneous space
+   chosen to reproduce the data, not a claim about anatomy.
+2. **Clearance sets the maintenance dose; volume sets the loading dose.**
+   Half-life is derived from both and is a poor thing to reason with.
+3. **Statistical significance of a covariate is not a dose recommendation.**
+   The question is always magnitude relative to the therapeutic window.

@@ -1,0 +1,111 @@
+project:
+  type: website
+  output-dir: _site
+  render:
+    - "*.qmd"
+    - "lessons/**/*.qmd"
+    - "paths/**/*.qmd"
+    - "!README.md"
+
+website:
+  title: "The Modeler's Bench"
+  description: "An open, reproducible curriculum for quantitative pharmacology."
+  favicon: assets/favicon.png
+  site-url: "https://example.org"          # replace at Phase 0
+  repo-url: "https://github.com/USER/modelers-bench"   # replace at Phase 0
+  repo-actions: [edit, issue]
+  page-navigation: true
+  back-to-top-navigation: true
+
+  navbar:
+    left:
+      - text: "Start here"
+        href: lessons/s0-00-what-is-qp/index.qmd
+      - text: "Paths"
+        menu:
+          - text: "A · The New Modeler"
+            href: paths/path-a-new-modeler.qmd
+          - text: "B · The Trainee"
+            href: paths/path-b-trainee.qmd
+          - text: "C · The Crossover"
+            href: paths/path-c-crossover.qmd
+      - text: "Cases"
+        href: cases.qmd
+      - text: "About"
+        href: about.qmd
+    tools:
+      - icon: github
+        href: "https://github.com/USER/modelers-bench"
+
+  sidebar:
+    style: floating
+    collapse-level: 2
+    contents:
+      - text: "Home"
+        href: index.qmd
+      - section: "S0 · Foundations"
+        contents:
+          - text: "S0-00 · What quantitative pharmacology is"
+            href: lessons/s0-00-what-is-qp/index.qmd
+          - section: "S0-01 · Compartments and ODEs"
+            href: lessons/s0-01-compartments-and-odes/index.qmd
+            contents:
+              - text: "Notebook — R"
+                href: lessons/s0-01-compartments-and-odes/notebook-r.qmd
+              - text: "Notebook — Python"
+                href: lessons/s0-01-compartments-and-odes/notebook-py.qmd
+          - section: "S0-02 · Units, scaling, allometry"
+            href: lessons/s0-02-units-scaling-and-allometry/index.qmd
+            contents:
+              - text: "Notebook — R"
+                href: lessons/s0-02-units-scaling-and-allometry/notebook-r.qmd
+              - text: "Notebook — Python"
+                href: lessons/s0-02-units-scaling-and-allometry/notebook-py.qmd
+          - section: "S0-03 · Data assembly"
+            href: lessons/s0-03-data-assembly/index.qmd
+            contents:
+              - text: "Notebook — R"
+                href: lessons/s0-03-data-assembly/notebook-r.qmd
+              - text: "Notebook — Python"
+                href: lessons/s0-03-data-assembly/notebook-py.qmd
+          - text: "S0-04 · Choosing a stack"
+            href: lessons/s0-04-choosing-a-stack/index.qmd
+          - text: "S0-05 · Git for modelers"
+            href: lessons/s0-05-git-for-modelers/index.qmd
+          - text: "S0-06 · Reading a model report"
+            href: lessons/s0-06-reading-a-model-report/index.qmd
+      - section: "Paths"
+        contents:
+          - paths/path-a-new-modeler.qmd
+          - paths/path-b-trainee.qmd
+          - paths/path-c-crossover.qmd
+      - text: "Cases"
+        href: cases.qmd
+      - text: "About"
+        href: about.qmd
+
+  page-footer:
+    left: "Content CC BY-SA 4.0 · code MIT"
+    right: "Built with [Quarto](https://quarto.org)"
+
+format:
+  html:
+    theme:
+      - cosmo
+      - assets/theme.scss
+    toc: true
+    toc-depth: 3
+    toc-title: "On this page"
+    number-sections: false
+    code-copy: true
+    code-overflow: scroll
+    fig-align: center
+    df-print: kable
+    link-external-newwindow: true
+    anchor-sections: true
+
+execute:
+  freeze: auto
+  warning: false
+
+bibliography: []

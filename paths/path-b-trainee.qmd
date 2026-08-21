@@ -1,0 +1,53 @@
+---
+title: "Path B · The Trainee"
+subtitle: "From ODEs to a model you can defend in a viva"
+---
+
+**For:** graduate students, postdocs and academic modelers who need depth and a
+defensible method, not just a working pipeline.
+
+**Promise:** you understand what the estimation is doing, what the data can and
+cannot identify, and how to quantify what you do not know.
+
+**Ends at:** a reproducible, citable analysis with a DOI — something that counts
+on a CV as well as in a job interview.
+
+## Foundations — available now
+
+| | Lesson | Emphasis for this path |
+|---|---|---|
+| 1 | [S0-00 · What quantitative pharmacology is](../lessons/s0-00-what-is-qp/index.qmd) | Read section 3 closely: choosing a modeling family by the decision, not by taste |
+| 2 | [S0-01 · Compartments and ODEs](../lessons/s0-01-compartments-and-odes/index.qmd) | Derive rather than skim. Do the conditioning exercise in section 5 of the notebook |
+| 3 | [S0-02 · Units, scaling and allometry](../lessons/s0-02-units-scaling-and-allometry/index.qmd) | The confounding demonstration is the one to sit with |
+| 4 | [S0-03 · Data assembly](../lessons/s0-03-data-assembly/index.qmd) | Less glamorous than it looks and more consequential than you expect |
+| 5 | [S0-05 · Git for modelers](../lessons/s0-05-git-for-modelers/index.qmd) | Reproducibility is what makes the work citable |
+| 6 | [S0-06 · Reading a model report](../lessons/s0-06-reading-a-model-report/index.qmd) | You will review before you are reviewed |
+
+[S0-04 · Choosing a stack](../lessons/s0-04-choosing-a-stack/index.qmd) is
+optional here — academic groups usually have a stack already, and inheriting it
+is the right default.
+
+## The exercise that defines this path
+
+`CASE-SM` publishes its true parameters. Use that properly, because you will
+not get the opportunity again:
+
+1. Fit the model and compare each estimate to the truth.
+2. Ask *why* the miss is the size it is — design, variability, or identifiability.
+3. Change the design (drop the rich day-14 profile, halve the subjects) and
+   measure how the miss grows.
+
+That third step is a study-design analysis, and it is the difference between
+using a model and understanding one.
+
+## What comes next
+
+| Strand | On this path | Status |
+|---|---|---|
+| S1 · PK/PD core | Full depth, including TMDD and turnover models | planned |
+| S2 · Population PK/PD | Estimation methods, covariate theory, evaluation | planned |
+| S4 · QSP | Identifiability, sensitivity analysis, model reduction | planned |
+| S5 · Bayes and ML | Priors, MCMC diagnostics, uncertainty quantification | planned |
+
+Choose **one** of S3, S4 or S5 to go deep in. Depth is what a viva tests;
+breadth is what a job interview tests, and it comes later and more easily.

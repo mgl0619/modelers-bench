@@ -1,0 +1,230 @@
+---
+title: "Reading a model report"
+subtitle: "Lesson S0-06"
+description: >
+  How to review a population PK report in thirty minutes without being a
+  modeler: what each section claims, what each plot can and cannot show, and
+  the twelve questions that find most of the problems.
+categories: [foundations, interpretation, review]
+---
+
+::: {.callout-tip appearance="simple"}
+## The decision this serves
+Should you act on this analysis? Most people who need to answer that — clinicians,
+statisticians, project leaders, regulators, and modelers reviewing each other —
+are not going to re-run it. This lesson is how you interrogate it instead.
+:::
+
+::: {.callout-note appearance="simple"}
+This is the keystone lesson of **PATH-C**. If you are here to understand models
+rather than build them, you can stop after this one and have gained most of the
+value on offer.
+:::
+
+## 1. The shape of the document
+
+Population PK reports vary less than you would expect, because regulatory
+expectations have converged. Learn the skeleton and you can navigate any of them.
+
+| Section | What it claims | What to check |
+|---|---|---|
+| Objectives | What question this analysis answers | Is a *decision* named? Vague objectives produce unfalsifiable conclusions. |
+| Data | Studies, subjects, samples, exclusions | Exclusion count and reasons. High or unexplained exclusions are the loudest single signal. |
+| Model development | The sequence of models tried | Is the sequence pre-specified or exploratory? Both are legitimate; only one supports a p-value. |
+| Final model | Structure, parameters, uncertainty | Precision of estimates, and whether the structure is justified rather than merely fitted. |
+| Evaluation | Diagnostics, VPC, bootstrap | Whether the model predicts what it will be *used* to predict. |
+| Simulations | Dosing scenarios, special populations | Whether the simulated scenario is inside the observed range or an extrapolation. |
+| Conclusions | The recommendation | Whether it follows from the evaluation section or exceeds it. |
+
+**Read it backwards.** Conclusions first, then evaluation, then data. Model
+development last, and only if something upstream did not add up. Reading forward
+means arriving at the conclusions with your judgement already anchored by the
+author's narrative.
+
+## 2. The plots, and what each one can actually tell you
+
+### Goodness-of-fit: observed versus predicted
+
+Two versions, and confusing them is the most common misreading in the field.
+
+- **DV vs PRED** — observations against *population* predictions, ignoring
+  individual random effects. Scatter is expected and appropriate. This plot
+  addresses the structural model.
+- **DV vs IPRED** — observations against *individual* predictions, using each
+  subject's fitted random effects. This will look good in almost any model with
+  enough flexibility. **A tight DV vs IPRED plot is close to meaningless as
+  evidence** — it mostly demonstrates that the model has enough parameters, and
+  it is routinely presented as though it validated something.
+
+What to look for: systematic curvature (structural misspecification), a fan
+shape (residual error model wrong), points clustered off the line at high or
+low concentrations (nonlinearity, or a BLQ handling problem).
+
+### Conditional weighted residuals
+
+CWRES against time and against population prediction. Should be centred on zero
+with no trend and roughly constant spread. Trends over time suggest a missing
+time-dependent process; trends over prediction suggest the error model or the
+structure is wrong. A handful of points beyond ±5 deserve individual
+explanation, not a note that they were "retained".
+
+### Visual predictive check
+
+The most informative diagnostic in the report, and the one to look at first.
+Simulate many replicates from the model, plot the prediction intervals, overlay
+the observed percentiles. If the observed median wanders outside the simulated
+median interval, the model does not reproduce the central tendency; if the
+observed 5th and 95th percentiles fall outside theirs, it does not reproduce
+variability — which matters enormously, because variability is what dosing
+recommendations rest on.
+
+The **prediction-corrected VPC (pcVPC)** normalises for differences in dose and
+covariates across the pooled data. With multiple dose levels and study designs a
+plain VPC can look poor purely from pooling, and a pcVPC is the fairer test.
+
+### Eta shrinkage — the number that invalidates other plots
+
+Shrinkage measures how far individual random-effect estimates have been pulled
+toward the population mean because the individual data were uninformative.
+
+$$\text{shrinkage} = 1 - \frac{SD(\eta_i)}{\omega}$$
+
+At high shrinkage — conventionally above about 30% — individual parameter
+estimates are largely the population value in disguise. That has a hard
+consequence: **any plot built on individual estimates becomes uninterpretable**.
+That includes DV vs IPRED, and it includes the eta-versus-covariate plots
+frequently used to justify covariate selection. A report with 45% shrinkage and
+a page of eta-covariate scatter plots is showing you an artefact.
+
+Shrinkage is often relegated to an appendix. Find it.
+
+### Covariate effects
+
+Usually a forest plot: the effect of each covariate at, say, the 5th and 95th
+percentile of its distribution, relative to a typical subject, with confidence
+intervals. The question is never statistical significance. It is
+**magnitude relative to the therapeutic window**: a covariate that changes
+exposure by 15% is statistically detectable and clinically irrelevant for a
+wide-index drug, and decisive for a narrow one. The plot usually shows a
+reference band (often 80–125%) for exactly this reason.
+
+## 3. The parameter table
+
+| Look at | Because |
+|---|---|
+| Relative standard errors | Above ~30% on a fixed effect, or ~50% on a variance, means the parameter is poorly determined. |
+| Confidence intervals | An interval crossing 1 for a ratio-scale covariate effect means the data did not establish it. |
+| Condition number | Above ~1000 indicates over-parameterisation or strong correlations. Frequently omitted; ask. |
+| Fixed parameters | Which were fixed, to what, and on what evidence? Fixing allometric exponents at 0.75/1 is standard and defensible; fixing a covariate effect to a value that drives the conclusion is not. |
+| Between-subject variability | Large unexplained IIV is honest, not a flaw. Suspiciously small IIV alongside high shrinkage suggests the data could not support the random effect at all. |
+
+## 4. Twelve questions that find most problems
+
+1. What decision does this analysis support, and is that stated?
+2. How many subjects and samples were excluded, and why?
+3. Is the final model's structure justified by data, or inherited by convention?
+4. What is the eta shrinkage on every random effect?
+5. Does the VPC reproduce variability, not just the median?
+6. Were covariates selected by a pre-specified procedure or by searching?
+7. Are the covariate effects large relative to the therapeutic window?
+8. How were BLQ samples handled, and what fraction were they?
+9. Is the simulated scenario inside the range of the observed data?
+10. What is the uncertainty on the recommendation, not just on the parameters?
+11. What would falsify the conclusion, and was that checked?
+12. Can the analysis be re-run from what is documented here?
+
+Question 9 catches more errors than the rest combined. Models are routinely used
+to simulate doses, durations or populations that were never studied, and the
+extrapolation is where confidence and evidence part company.
+
+## 5. Red flags
+
+- **Only DV vs IPRED shown**, no VPC. The weakest diagnostic promoted to the
+  headline.
+- **Shrinkage not reported.** Sometimes an oversight; often not.
+- **A covariate effect that exactly rescues the conclusion**, discovered late in
+  development.
+- **"The model was able to describe the data well"** with no evaluation of the
+  predictions the model is actually used for.
+- **Simulations far outside the observed range** presented with the same
+  confidence as interpolation.
+- **No exclusion log**, or exclusions described as "outliers" with no mechanism.
+- **A final model that appeared in the last iteration** of a long search, with no
+  independent check.
+- **Precision quoted to four significant figures** on an estimate with a 40% RSE.
+
+## 6. Reviewing in thirty minutes
+
+1. **(2 min)** Read the conclusions. Write down what is being claimed.
+2. **(3 min)** Data section: how many subjects, how many excluded, why.
+3. **(5 min)** Go to the VPC. Does it reproduce median *and* spread?
+4. **(3 min)** Find the shrinkage table. Note which plots it invalidates.
+5. **(5 min)** Parameter table: RSEs, fixed parameters, condition number.
+6. **(5 min)** Covariate forest plot: magnitude against the therapeutic window.
+7. **(5 min)** Simulation section: is the scenario inside the observed range?
+8. **(2 min)** Return to the conclusions. Do they still follow?
+
+If steps 3, 4 and 7 are clean, the analysis is probably sound. If any of the
+three is missing from the document, that absence is your first question.
+
+::: {.callout-warning appearance="simple"}
+## Failure mode — the beautiful report that answers a different question
+The most dangerous report is not a bad one. It is a technically excellent
+analysis of a question adjacent to the one that was asked.
+
+The pattern is consistent: the team needed to know whether renal-impaired
+patients require a dose adjustment. The analysis established that creatinine
+clearance is a statistically significant covariate on drug clearance. Those are
+different claims. The second does not establish the first without a simulation
+of exposures in the impaired population against the therapeutic window, and
+without asking whether the study enrolled anyone with severe impairment at all.
+
+Statistical significance of a covariate is not a dose recommendation. Ask
+question 1, and then check that the evaluation section addresses the same
+question that question 1 named.
+:::
+
+## Check yourself
+
+::: {.callout-note collapse="true"}
+## 1. A report shows a superb DV vs IPRED plot and reports 52% eta shrinkage on clearance. What have you learned?
+Essentially nothing from that plot. At 52% shrinkage the individual clearance
+estimates have been pulled halfway to the population value, so IPRED is
+substantially the population prediction reshaped by the observations — the plot
+is close to self-fulfilling. Any eta-versus-covariate plot in that report is
+similarly compromised. Ask for the VPC, which does not depend on individual
+estimates, and ask what sampling design produced so little individual
+information.
+:::
+
+::: {.callout-note collapse="true"}
+## 2. The VPC median tracks well but the observed 90th percentile sits above the simulated interval. What does that mean, and does it matter?
+The model reproduces the typical patient but under-predicts the upper tail of
+exposure — most likely because between-subject variability is underestimated,
+or a subgroup with higher exposure is not captured. It matters a great deal:
+safety decisions live in that tail. A model that is right on average and wrong
+at the 90th percentile is precisely the wrong shape for a dosing recommendation.
+:::
+
+::: {.callout-note collapse="true"}
+## 3. Covariate analysis finds a statistically significant effect of age that changes exposure by 12% across the observed range. Do you change the dose?
+Almost certainly not, and the reason is not statistics. 12% sits comfortably
+inside the usual 80–125% reference band and is far smaller than the unexplained
+between-subject variability in any real compound. Significance here reflects
+sample size, not clinical importance. The exception is a narrow therapeutic
+index where 12% moves patients across a defined threshold — which is a
+question about the drug, not about the p-value.
+:::
+
+## Going further
+
+- **You have finished the Foundations strand.** Next is
+  [`S1` · PK/PD core](../../paths/path-a-new-modeler.qmd), or return to a path page.
+- **Reference:** the FDA and EMA population pharmacokinetics guidances — short
+  and unusually readable, and they tell you exactly what a reviewer expects to
+  find; Drugs@FDA for real Summary of Clinical Pharmacology reviews, which are
+  the best free source of worked examples in existence.
+
+*Seen in the wild:* the single most useful question anyone has asked in a model
+review meeting was "what would this plot look like if the model were wrong?"
+Nobody could answer, which turned out to be the finding.

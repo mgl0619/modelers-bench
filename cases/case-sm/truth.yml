@@ -1,0 +1,91 @@
+# CASE-SM "Ozanib" — the true generating model
+#
+# Ozanib is a FICTIONAL compound. Nothing here comes from any real programme,
+# company dataset, or patient. That is the point: because the truth is known
+# and published, every exercise built on this case can be graded.
+#
+# If you change generate.py, regenerate the data and bump `version`.
+
+case: CASE-SM
+name: Ozanib
+version: 1.0.0
+generated_by: cases/case-sm/generate.py
+seed: 20260821
+
+description: >
+  Oral small molecule, CYP3A4 substrate, once daily for 21 days.
+  Two-compartment disposition with first-order absorption. Apparent
+  (X/F) parameters: bioavailability is not identifiable from oral-only data.
+
+design:
+  n_subjects: 60
+  doses_mg: [25, 50, 100]
+  regimen: once daily, 21 doses
+  rich_sampling_days: [1, 14]
+  rich_sampling_times_h: [0, 0.5, 1, 2, 3, 4, 6, 8, 12, 24]
+  trough_only_days: [7, 10, 21]
+
+structural_model:
+  form: two-compartment, first-order absorption, linear elimination
+  equations: |
+    dA_gut/dt = -ka * A_gut
+    dA_c/dt   =  ka * A_gut - (CL/Vc)*A_c - (Q/Vc)*A_c + (Q/Vp)*A_p
+    dA_p/dt   =  (Q/Vc)*A_c - (Q/Vp)*A_p
+    C         =  A_c / Vc
+
+typical_values:          # at WT = 70 kg, no CYP3A4 inhibitor
+  CL_F:  {value: 12.0, units: L/h}
+  Vc_F:  {value: 60.0, units: L}
+  Q_F:   {value:  8.0, units: L/h}
+  Vp_F:  {value: 90.0, units: L}
+  ka:    {value:  1.2, units: 1/h}
+
+covariate_model:
+  weight:
+    reference_kg: 70
+    exponent_on_CL_and_Q: 0.75
+    exponent_on_Vc_and_Vp: 1.00
+  strong_cyp3a4_inhibitor:
+    parameter: CL_F
+    multiplier: 0.45        # i.e. a 2.2-fold AUC increase
+    prevalence: 0.25
+  deliberately_absent:
+    # CRCL, AGE, SEX and ALT are recorded but have NO true effect.
+    # They exist so that covariate-selection lessons have real false
+    # positives to find. Do not "fix" this.
+    - CRCL
+    - AGE
+    - SEX
+    - ALT
+
+between_subject_variability:   # exponential, on the log scale
+  omega_CL: 0.30
+  omega_Vc: 0.25
+  omega_ka: 0.45
+  corr_CL_Vc: 0.5
+  note: Q and Vp carry no IIV in the truth.
+
+residual_error:
+  form: combined proportional + additive
+  proportional_cv: 0.20
+  additive_ng_per_mL: 0.5
+  lloq_ng_per_mL: 1.0
+  blq_handling_in_shipped_data: DV set to NA, BLQ flag = 1, MDV = 1
+
+compound_properties:
+  molecular_weight_g_per_mol: 465.0
+  fraction_unbound_plasma: 0.08
+
+derived_quantities:            # computed from the typical values above
+  half_life_distribution_h: 1.85    # alpha phase
+  half_life_terminal_h: 14.61       # beta phase
+  tmax_h: 1.5
+  auc_tau_ss_ng_h_per_mL_at_50mg: 4166.7   # exactly Dose/CL, as superposition requires
+  accumulation_ratio_auc: 1.22
+  accumulation_ratio_trough: 1.47
+  trough_within_5pct_of_ss_by_day: 4
+  auc_ratio_with_strong_inhibitor: 2.22    # 1 / 0.45
+
+files:
+  observations: data/ozanib_pk.csv
+  individual_truth: data/ozanib_individual_truth.csv

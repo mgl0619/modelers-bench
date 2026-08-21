@@ -1,0 +1,290 @@
+---
+title: "Units, scaling and allometry"
+subtitle: "Lesson S0-02"
+description: >
+  The errors that survive peer review. Dimensional discipline, mass and molar
+  concentrations, per-kilogram versus flat dosing, and what allometric scaling
+  can and cannot deliver.
+categories: [foundations, units, allometry]
+---
+
+::: {.callout-tip appearance="simple"}
+## The decision this serves
+Two decisions, both consequential. *Is this number comparable to that number?* —
+across studies, species, assays and papers. And *should this drug be dosed per
+kilogram or flat?* — which determines every dose in every protocol that follows.
+:::
+
+## 1. Why this lesson exists
+
+Unit errors are the most common serious mistake in this field, and the most
+embarrassing, because they are invisible: the model converges, the plots look
+fine, the report reads well, and the number is wrong by a factor of a thousand.
+
+They survive review because reviewers check the *modeling* and assume the
+*arithmetic*. Nobody re-derives your ng/mL. So the defence has to be structural,
+not vigilance:
+
+::: {.callout-important appearance="simple"}
+**Three rules that prevent almost all of it.**
+
+1. **Units live in the variable name or the column metadata, never in your
+   head.** `conc_ng_ml`, not `conc`. `CL_L_h`, not `CL`.
+2. **Do dimensional analysis on every equation before you trust it.** If the
+   left side is L/h, the right side must be too. This takes ten seconds and
+   catches most structural mistakes as well as unit ones.
+3. **Convert once, at the boundary.** Convert on the way into the analysis
+   dataset and never again. Mixed units inside an analysis are how a factor of
+   1000 gets in.
+:::
+
+## 2. Amounts, concentrations, and one convenient coincidence
+
+Differential equations track **amounts**; observations are **concentrations**.
+Keeping the two straight in your head is the single most useful habit in
+`S0-01`'s notebook.
+
+There is a coincidence worth exploiting deliberately:
+
+$$\frac{\mu\text{g}}{\text{L}} = \frac{\text{ng}}{\text{mL}}$$
+
+So if you express doses in micrograms and volumes in litres, the compartment
+amount divided by the volume comes out directly in ng/mL — the unit almost every
+bioanalytical laboratory reports for a small molecule. Every simulation in these
+lessons does this, and it is why `50 mg` appears in the code as `50 * 1000`.
+
+For a large molecule the natural unit is usually mg/L (= µg/mL), so express
+doses in mg and keep volumes in L. Pick the convention per compound, write it in
+the header of the script, and do not mix.
+
+## 3. Mass versus molar
+
+Mass concentration is what the assay reports. Molar concentration is what
+pharmacology means — receptor occupancy, K~i~, K~d~, IC~50~ and every *in vitro*
+number you will want to compare against are molar.
+
+$$C\,[\text{nM}] = \frac{C\,[\text{ng/mL}]}{MW\,[\text{g/mol}]} \times 1000$$
+
+For Ozanib ($MW = 465$ g/mol), a steady-state trough of 51.9 ng/mL is 112 nM and
+a peak of 560.7 ng/mL is 1206 nM. If the *in vitro* IC~50~ is 200 nM, you now
+know something real: the trough sits below it and the peak well above, so this
+is a compound whose coverage question is about time above threshold, not about
+peak. **That inference is unavailable until you convert.**
+
+Two traps:
+
+- **Biologics.** A monoclonal antibody has MW ≈ 150,000 g/mol, so 10 µg/mL is
+  only ~67 nM. Mass concentrations that sound enormous are molar concentrations
+  that are not. Target-mediated disposition arithmetic (`S1`) is molar and
+  cannot be done in mass units.
+- **Salt factor.** A dose stated as the salt is not the dose of the free base.
+  A 100 mg salt dose of a compound with a salt factor of 1.18 delivers 84.7 mg
+  of active moiety. Get this wrong and every clearance estimate is off by 18%.
+  It is written in the investigator's brochure, not in the dataset.
+
+## 4. Free versus total
+
+Assays usually report **total** drug; only unbound drug is pharmacologically
+active and only unbound drug is what a mechanistic model should compare against
+an *in vitro* potency.
+
+$$C_u = f_u \times C_{total}$$
+
+Ozanib's $f_u$ is 0.08, so a 1206 nM total peak is a 96 nM free peak — below a
+200 nM IC~50~ rather than six-fold above it. Same data, opposite conclusion.
+Whenever you compare a clinical concentration to an *in vitro* potency, state
+explicitly which of the four combinations you are using (total or free,
+clinical or *in vitro*); the mismatch is a standard reviewer question and a
+standard source of over-optimistic translational claims.
+
+## 5. Units of clearance, and the per-kilogram question
+
+Clearance is a volume per time. Three conventions coexist and all three appear
+in the literature:
+
+| Convention | Ozanib | Where you see it |
+|---|---|---|
+| L/h | 12 L/h | Population PK reports, labels |
+| mL/min | 200 mL/min | Physiology, renal and hepatic comparisons |
+| L/h/kg | 0.171 L/h/kg | Preclinical work, interspecies scaling |
+
+Comparing a clearance to physiology is one of the most useful sanity checks
+available: hepatic blood flow is roughly 90 L/h (1500 mL/min) and glomerular
+filtration around 7.5 L/h (125 mL/min). An apparent oral clearance of 12 L/h is
+comfortably below hepatic blood flow, so nothing is obviously impossible. An
+estimate of 200 L/h would mean either extra-hepatic elimination or — far more
+likely — an error. Note the word *apparent*: with $CL/F$ you can only conclude
+that $CL \le CL/F$, since $F \le 1$.
+
+## 6. Allometry — what it is, and what it is not
+
+Larger animals clear drugs faster in absolute terms and slower per kilogram.
+The empirical regularity is a power law in body weight:
+
+$$P_i = P_{ref} \left(\frac{W_i}{W_{ref}}\right)^{\theta}$$
+
+with $\theta \approx 0.75$ for flow-like parameters ($CL$, $Q$) and
+$\theta \approx 1$ for volumes ($V_c$, $V_p$). `CASE-SM` is generated with
+exactly these values, so you can check your own recovery of them.
+
+**Where it works.** As a prior structure for a covariate model in adults; as a
+first-pass interspecies projection for first-in-human dose; as the standard,
+expected parameterisation that a reviewer will look for.
+
+**Where it fails — and these matter.**
+
+- **Young children.** Below roughly two years, organ *maturation* dominates
+  size. Clearance per kilogram rises through infancy and then falls; a pure
+  size model will badly under-dose neonates. The standard fix is a maturation
+  function on top of allometry.
+- **Obesity.** Total body weight over-predicts clearance for many drugs because
+  adipose tissue is not metabolically equivalent. Lean or fat-free mass often
+  performs better, and which descriptor wins is an empirical question, not a
+  theoretical one.
+- **Narrow weight ranges.** This is the one that catches everyone, and the
+  notebook demonstrates it on real generated data. Fitting $\theta$ freely in a
+  typical adult population — where weight spans maybe 50 to 120 kg — gives an
+  estimate with wide uncertainty. In `CASE-SM`, a regression on the *true*
+  individual clearances of the 46 subjects without a CYP3A4 inhibitor recovers
+  $\theta = 0.93$ against a truth of 0.75. Not because the model is wrong, but
+  because 30% between-subject variability over a two-fold weight range does not
+  contain enough information.
+
+::: {.callout-note appearance="simple"}
+This is why most population PK analyses **fix** the allometric exponents at
+0.75 and 1 rather than estimating them, and it is a defensible choice you should
+be able to justify out loud: the exponents are supported by broad external
+evidence, and the data in a single adult study cannot improve on that.
+:::
+
+### Confounding, demonstrated
+
+Run the same regression on all 60 subjects, ignoring that a quarter of them are
+on a strong CYP3A4 inhibitor, and the estimated exponent inflates to 1.15. The
+inhibitor lowers clearance; in this dataset the inhibitor-treated subjects also
+happen to sit slightly differently on the weight axis, and weight absorbs the
+effect. **A covariate you omit does not disappear — it redistributes itself into
+the covariates you kept.** This is the central hazard of covariate modeling and
+you will meet it properly in `S2`.
+
+## 7. Per-kilogram or flat dosing?
+
+An old argument with a quantitative answer: weight-based dosing is worth the
+operational cost only if body weight explains enough of the variability in
+exposure to matter.
+
+For `CASE-SM`, using the true individual clearances, AUC across the population
+has a CV of **51.5%** under flat 50 mg dosing and **44.1%** under weight-based
+0.7 mg/kg dosing. The 95th-to-5th percentile spread narrows from 4.3-fold to
+3.5-fold. Real, but modest — because body weight explains only part of the
+variability and the rest is unexplained between-subject variation that no dosing
+rule can touch.
+
+Whether that improvement justifies per-kilogram dosing depends on the
+therapeutic index, not on the CV. For a wide-index compound, flat dosing wins on
+every practical ground: fewer dosing errors, simpler packaging, no weighing, no
+compounding. For a narrow-index compound the same 7 percentage points may be
+decisive. **The analysis tells you the size of the effect; the therapeutic
+window tells you whether it matters.** Confusing those two is a common error in
+early clinical development.
+
+## Work through it
+
+- [Notebook — R](notebook-r.qmd)
+- [Notebook — Python](notebook-py.qmd)
+
+::: {.panel-tabset}
+
+### R
+
+```r
+MW <- 465                                   # g/mol
+ng_ml_to_nM <- function(x, mw) x / mw * 1000
+
+conc <- c(trough = 51.9, peak = 560.7)      # ng/mL
+ng_ml_to_nM(conc, MW)                       # -> 111.6, 1205.8 nM
+ng_ml_to_nM(conc * 0.08, MW)                # free, fu = 0.08
+```
+
+### Python
+
+```python
+MW = 465.0                                  # g/mol
+
+def ng_ml_to_nM(x, mw):
+    return x / mw * 1000
+
+conc = {"trough": 51.9, "peak": 560.7}      # ng/mL
+{k: ng_ml_to_nM(v, MW) for k, v in conc.items()}      # -> 111.6, 1205.8 nM
+{k: ng_ml_to_nM(v * 0.08, MW) for k, v in conc.items()}  # free, fu = 0.08
+```
+
+:::
+
+::: {.callout-warning appearance="simple"}
+## Failure mode — the assay that changed units mid-study
+A long study switches bioanalytical laboratories at month 14. The new laboratory
+reports in µg/L; the old one reported in ng/mL. These are numerically identical,
+so nothing breaks — this time.
+
+Now imagine the new laboratory reports µg/mL. The last third of the dataset is
+1000-fold lower than the first two thirds. Every diagnostic will look strange,
+the residual error will inflate, and a modeler under deadline pressure will
+reach for a time-varying clearance term or a second error model and *find one
+that fits*. The model will be wrong and defensible-looking.
+
+The defence is not vigilance. It is a **units column carried through the
+assembly pipeline**, and a data check that fails loudly when more than one unit
+appears for one analyte. `S0-03` builds exactly that check.
+:::
+
+## Check yourself
+
+::: {.callout-note collapse="true"}
+## 1. A paper reports an mAb trough of 10 µg/mL and an in vitro K~d~ of 2 nM. Is the target saturated?
+Convert first. At MW ≈ 150,000 g/mol, 10 µg/mL = 10 mg/L ÷ 150,000 g/mol ≈
+67 nM total — about 33-fold above a 2 nM K~d~ on a total basis. But the
+comparison should be made on free drug, and for a target-mediated compound a
+large fraction may be bound to target at low concentrations. The honest answer:
+probably yes at this trough, and the right way to confirm it is a
+target-mediated disposition model with target occupancy as an output, not a
+ratio of two numbers.
+:::
+
+::: {.callout-note collapse="true"}
+## 2. Your PopPK gives $CL/F$ = 250 L/h. What do you check before believing it?
+250 L/h is nearly three times hepatic blood flow, so as a *true* clearance it
+would require substantial extra-hepatic elimination. With `/F` it is not
+impossible — low bioavailability inflates apparent clearance, and $F = 0.05$
+would make true clearance 12.5 L/h. So: check the units of the dose column,
+check for a salt-factor correction, check whether dose was recorded in mg while
+concentration was in µg/mL, and only then consider low bioavailability. In
+practice the unit error is far more common than the biology.
+:::
+
+::: {.callout-note collapse="true"}
+## 3. You estimate an allometric exponent of 1.15 in adults. What are the three explanations, in order of likelihood?
+(a) There is not enough information in the weight range to estimate it — the
+confidence interval almost certainly includes 0.75; (b) an omitted covariate
+correlated with weight is loading onto the weight term, which is exactly what
+happens in `CASE-SM` when the CYP3A4 inhibitor is ignored; (c) the true
+relationship really is steeper than 0.75, which does occur but is the last
+explanation to reach for, not the first. Fix the exponent at 0.75, model the
+missing covariate, and see whether anything remains.
+:::
+
+## Going further
+
+- **Next:** [S0-03 · Data assembly](../s0-03-data-assembly/) — where the units
+  actually get fixed.
+- **Uses this:** `S1` (molar arithmetic for TMDD), `S3` (allometry and
+  maturation in pediatric PBPK), `S2` (covariate modeling and confounding).
+- **Reference:** Anderson & Holford on size and maturation in children; Holford's
+  work on the standardised allometric approach; Rowland & Tozer for the
+  physiological reference values.
+
+*Seen in the wild:* a first-in-human dose was once calculated from a preclinical
+clearance reported in mL/min/kg and read as L/h/kg. The error was caught at a
+protocol review by someone who compared the projected clearance to hepatic blood
+flow and said "that can't be right." That comparison takes five seconds and
+should be reflexive.

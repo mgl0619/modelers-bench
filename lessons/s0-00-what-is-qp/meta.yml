@@ -1,0 +1,8 @@
+id: s0-00
+strand: S0
+title: What quantitative pharmacology is, and how to become one
+paths: [PATH-A, PATH-B, PATH-C]
+prereqs: []
+next: s0-01
+runnable: false
+reviewed: 2026-08-21

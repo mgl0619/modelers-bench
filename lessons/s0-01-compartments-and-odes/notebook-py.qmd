@@ -1,0 +1,258 @@
+---
+title: "S0-01 notebook — Python"
+subtitle: "Compartments and ODEs from first principles"
+jupyter: python3
+execute:
+  freeze: auto
+---
+
+Everything in the lesson, built from scratch and checked. Run it top to bottom.
+
+```{python}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+from scipy.optimize import least_squares
+
+plt.rcParams.update({"figure.figsize": (7, 4.2), "axes.grid": True,
+                     "grid.alpha": 0.25, "font.size": 10})
+```
+
+## 1. One compartment, IV bolus — and a check you should always run
+
+Work in **amounts** inside the ODE and convert to concentration at the end.
+Doses in µg with volumes in L means µg/L, which reads directly as ng/mL.
+
+```{python}
+CL, V = 12.0, 60.0          # L/h, L
+D = 50 * 1000.0             # 50 mg as ug
+k = CL / V
+
+t = np.linspace(0, 48, 481)
+sol = solve_ivp(lambda t, y: [-k * y[0]], (0, 48), [D], t_eval=t,
+                method="LSODA", rtol=1e-10, atol=1e-12)
+numeric = sol.y[0] / V
+analytic = (D / V) * np.exp(-k * t)
+
+print(f"max relative error vs analytic : {np.max(np.abs(numeric - analytic) / analytic):.2e}")
+print(f"half-life                      : {np.log(2) / k:.2f} h")
+print(f"AUC(0-inf) numeric             : {np.trapezoid(numeric, t) + numeric[-1] / k:.1f} ng*h/mL")
+print(f"D / CL                         : {D / CL:.1f} ng*h/mL")
+```
+
+Two habits worth forming now. **Always validate numerics against an analytical
+solution when one exists** — an error of 1e-10 means the solver settings are
+fine; an error of 1e-3 means they are not. And **`AUC(0-inf) = D/CL` is exact
+for any linear model**, so it is a free correctness check on every simulation
+you ever write.
+
+```{python}
+fig, ax = plt.subplots(1, 2)
+ax[0].plot(t, numeric); ax[0].set(xlabel="Time (h)", ylabel="Conc (ng/mL)", title="linear")
+ax[1].semilogy(t, numeric); ax[1].set(xlabel="Time (h)", title="semi-log — a straight line")
+plt.tight_layout()
+```
+
+## 2. Add absorption
+
+```{python}
+def one_cmt_oral(t, y, ka, CL, V):
+    a_gut, a_c = y
+    return [-ka * a_gut, ka * a_gut - (CL / V) * a_c]
+
+ka = 1.2
+tt = np.linspace(0, 48, 4801)
+s = solve_ivp(one_cmt_oral, (0, 48), [D, 0.0], t_eval=tt, args=(ka, CL, V),
+              method="LSODA", rtol=1e-10, atol=1e-12)
+c = s.y[1] / V
+
+tmax_numeric = tt[c.argmax()]
+tmax_analytic = np.log(ka / k) / (ka - k)
+print(f"tmax numeric {tmax_numeric:.3f} h   analytic {tmax_analytic:.3f} h   Cmax {c.max():.1f} ng/mL")
+```
+
+### Flip-flop: when the terminal slope is absorption
+
+```{python}
+fig, ax = plt.subplots()
+for ka_i, label in [(1.2, "ka = 1.2 /h  (absorption fast)"),
+                    (0.05, "ka = 0.05 /h (absorption slow)")]:
+    tg = np.linspace(0, 120, 1201)
+    si = solve_ivp(one_cmt_oral, (0, 120), [D, 0.0], t_eval=tg, args=(ka_i, CL, V),
+                   method="LSODA", rtol=1e-10, atol=1e-12)
+    ci = si.y[1] / V
+    m = (tg > 72) & (ci > 0)
+    slope = np.polyfit(tg[m], np.log(ci[m]), 1)[0]
+    print(f"{label:35s} terminal t1/2 from slope = {np.log(2) / -slope:5.2f} h")
+    ax.semilogy(tg, ci, label=label)
+ax.set(xlabel="Time (h)", ylabel="Conc (ng/mL)"); ax.legend(); plt.tight_layout()
+
+print(f"\nelimination t1/2 = {np.log(2) / k:.2f} h    absorption t1/2 (ka=0.05) = {np.log(2) / 0.05:.2f} h")
+```
+
+The slow-absorption curve's terminal slope reports **13.9 h**, which is the
+absorption half-life, not the 3.5 h elimination half-life. Nothing in the fit
+tells you which one you are looking at. Only an IV arm does.
+
+## 3. Two compartments — the CASE-SM structure
+
+```{python}
+def hybrid(CL, Vc, Q, Vp):
+    """Return (alpha, beta, k21) — the hybrid rate constants."""
+    k10, k12, k21 = CL / Vc, Q / Vc, Q / Vp
+    s = k10 + k12 + k21
+    d = np.sqrt(s * s - 4 * k10 * k21)
+    return (s + d) / 2, (s - d) / 2, k21
+
+
+def conc_sd(t, dose_mg, ka, CL, Vc, Q, Vp):
+    """Analytic two-compartment oral single dose, ng/mL."""
+    t = np.asarray(t, float)
+    a, b, k21 = hybrid(CL, Vc, Q, Vp)
+    A = dose_mg * 1000.0 * ka / Vc
+    term = (((k21 - a) / ((ka - a) * (b - a))) * np.exp(-a * t)
+            + ((k21 - b) / ((ka - b) * (a - b))) * np.exp(-b * t)
+            + ((k21 - ka) / ((a - ka) * (b - ka))) * np.exp(-ka * t))
+    return np.where(t >= 0, A * term, 0.0)
+
+
+TRUE = dict(ka=1.2, CL=12.0, Vc=60.0, Q=8.0, Vp=90.0)   # CASE-SM typical values
+
+def ode_sd(t, dose_mg, ka, CL, Vc, Q, Vp):
+    def rhs(tt, y):
+        ag, ac, ap = y
+        return [-ka * ag,
+                ka * ag - (CL / Vc) * ac - (Q / Vc) * ac + (Q / Vp) * ap,
+                (Q / Vc) * ac - (Q / Vp) * ap]
+    s = solve_ivp(rhs, (0, max(t)), [dose_mg * 1000.0, 0, 0], t_eval=t,
+                  method="LSODA", rtol=1e-11, atol=1e-13)
+    return s.y[1] / Vc
+
+tg = np.linspace(0.01, 72, 200)
+err = np.max(np.abs(conc_sd(tg, 50, **TRUE) - ode_sd(tg, 50, **TRUE)) / ode_sd(tg, 50, **TRUE))
+a, b, _ = hybrid(TRUE["CL"], TRUE["Vc"], TRUE["Q"], TRUE["Vp"])
+print(f"analytic vs ODE, max relative error : {err:.1e}")
+print(f"distribution t1/2 (alpha)           : {np.log(2) / a:.2f} h")
+print(f"terminal     t1/2 (beta)            : {np.log(2) / b:.2f} h")
+```
+
+Two half-lives, differing eight-fold. Quoting "the" half-life of this compound
+without saying which one is meaningless.
+
+## 4. Multiple dosing by superposition
+
+For a **linear** model, the response to repeated doses is the sum of the
+responses to each dose alone. That is not an approximation — and it gives you a
+fast simulator and an exact check at once.
+
+```{python}
+def conc_md(t, dose_mg, ka, CL, Vc, Q, Vp, n_doses=21, tau=24.0):
+    t = np.asarray(t, float)
+    out = np.zeros_like(t)
+    for i in range(n_doses):
+        dt = t - i * tau
+        out += np.where(dt >= 0, conc_sd(np.maximum(dt, 0), dose_mg, ka, CL, Vc, Q, Vp), 0.0)
+    return out
+
+g_day1 = np.linspace(0, 24, 24001)
+g_ss = np.linspace(480, 504, 24001)
+auc_1 = np.trapezoid(conc_md(g_day1, 50, **TRUE), g_day1)
+auc_ss = np.trapezoid(conc_md(g_ss, 50, **TRUE), g_ss)
+css = conc_md(g_ss, 50, **TRUE)
+
+print(f"AUC(0-24) day 1        : {auc_1:8.1f} ng*h/mL")
+print(f"AUC(tau) steady state  : {auc_ss:8.1f} ng*h/mL")
+print(f"Dose / CL              : {50000 / TRUE['CL']:8.1f} ng*h/mL   <- must match exactly")
+print(f"accumulation ratio     : {auc_ss / auc_1:8.3f}")
+print(f"steady-state Cmax {css.max():.1f}, Cmin {css.min():.1f} ng/mL")
+```
+
+```{python}
+tfull = np.linspace(0, 504, 5041)
+plt.semilogy(tfull / 24, conc_md(tfull, 50, **TRUE))
+plt.xlabel("Day"); plt.ylabel("Conc (ng/mL)")
+plt.title("CASE-SM, 50 mg once daily — approach to steady state")
+plt.tight_layout()
+```
+
+Note how quickly the troughs plateau despite a 14.6 h terminal half-life: the
+accumulation ratio is 1.22, not the ~3 that a single-exponential intuition would
+predict.
+
+## 5. Failure mode — a converged, meaningless fit
+
+Fit the five-parameter model to one subject's rich day-1 profile, then to three
+points from the same profile. Watch what the residuals do.
+
+```{python}
+df = pd.read_csv("../../cases/case-sm/data/ozanib_pk.csv")
+truth = pd.read_csv("../../cases/case-sm/data/ozanib_individual_truth.csv")
+
+obs = df[(df.EVID == 0) & (df.DV.notna()) & (df.DAY == 1) & (df.TIME > 0)]
+sid = int(obs.groupby("ID").size().idxmax())
+sub = obs[obs.ID == sid]
+dose = float(sub.DOSE.iloc[0])
+tr = truth[truth.ID == sid].iloc[0]
+sparse = sub[sub.TIME.isin([0.5, 4.0, 12.0])]
+
+def resid(logp, tt, yy):
+    ka, CL, Vc, Q, Vp = np.exp(np.clip(logp, -6, 8))
+    return np.log(np.maximum(conc_sd(tt, dose, ka, CL, Vc, Q, Vp), 1e-8)) - np.log(yy)
+
+p0 = np.log([1.0, 10.0, 50.0, 6.0, 80.0])
+print(f"subject {sid} at {dose:g} mg")
+print(f"{'TRUTH':<18} ka {tr.KA:5.2f}  CL {tr.CL:6.2f}  Vc {tr.VC:6.1f}  Q {tr.Q:6.2f}  Vp {tr.VP:7.1f}")
+
+for label, d in [(f"rich, {len(sub)} points", sub), ("sparse, 3 points", sparse)]:
+    r = least_squares(resid, p0, args=(d.TIME.values, d.DV.values),
+                      method="trf", max_nfev=8000)
+    e = np.exp(r.x)
+    cond = np.linalg.cond(r.jac.T @ r.jac)
+    print(f"{label:<18} ka {e[0]:5.2f}  CL {e[1]:6.2f}  Vc {e[2]:6.1f}  Q {e[3]:6.2f}  Vp {e[4]:7.1f}"
+          f"  | rmse(log) {np.sqrt(np.mean(r.fun**2)):.3f}  cond {cond:.0e}")
+```
+
+The three-point fit has a residual error of **exactly zero** and a condition
+number around 1e18 — numerically singular. Five parameters passing through three
+points can always be made to fit perfectly, and the optimiser reports success.
+
+The rich fit is honest but still imperfect: `Q` and `Vp` are recovered poorly
+from eight oral samples in one individual. That is not a bug in your code — it
+is why population modeling (`S2`) exists. Borrowing strength across subjects is
+what makes those parameters estimable at all.
+
+::: {.callout-important}
+Three things this section should leave you with: convergence is not evidence,
+a perfect fit is a warning sign rather than a triumph, and you should look at
+the condition number of $J^\top J$ before you look at the parameter estimates.
+:::
+
+## 6. A trap that is really in the data
+
+```{python}
+predose = df[(df.EVID == 0) & (df.DAY == 1) & (df.TIME == 0)]
+survivors = predose[predose.DV.notna()]          # assay noise pushed these above the LLOQ
+print(f"pre-dose samples: {len(predose)}   flagged BLQ: {int(predose.BLQ.sum())}   "
+      f"reported as a real number: {len(survivors)}")
+print(survivors[["ID", "TIME", "DV", "IPRED_TRUE", "BLQ"]].head(8).to_string(index=False))
+```
+
+The true concentration before the first dose is exactly zero, but the assay has
+additive error, so some pre-dose samples come back as small positive numbers.
+Feed one of those into a log-scale objective and it will contribute a residual of
+`log(1.5) - log(1e-8)` — around 18 — and drag the whole fit with it.
+
+This is why section 5 filters `TIME > 0`. Real datasets are full of this: a
+pre-dose sample that is not really zero, a "0.00" that means missing, an assay
+result below quantification recorded as half the LLOQ. `S0-03` is about
+catching them before they reach the model.
+
+## What to try next
+
+1. Refit the rich profile with `Q` and `Vp` fixed at the truth. How much better
+   are `CL` and `Vc`? That is the value of borrowing strength, measured.
+2. Simulate a missed dose on day 10 (drop one term from the superposition sum)
+   and see how long the trough takes to recover.
+3. Set `ka = 0.15` and refit. Can you tell from the fit alone that you are in
+   flip-flop?

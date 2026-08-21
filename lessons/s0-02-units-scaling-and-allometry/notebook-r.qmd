@@ -1,0 +1,135 @@
+---
+title: "S0-02 notebook — R"
+subtitle: "Units, scaling and allometry"
+execute:
+  freeze: auto
+---
+
+```{r setup}
+#| message: false
+library(dplyr)
+library(ggplot2)
+theme_set(theme_minimal(base_size = 11))
+
+truth <- read.csv("../../cases/case-sm/data/ozanib_individual_truth.csv")
+MW <- 465; FU <- 0.08          # g/mol, fraction unbound
+```
+
+## 1. Conversions, written once
+
+```{r}
+ng_ml_to_nM       <- function(x, mw) x / mw * 1000
+nM_to_ng_ml       <- function(x, mw) x * mw / 1000
+L_per_h_to_mL_min <- function(x) x * 1000 / 60
+
+conc <- c(`steady-state trough` = 51.9, `steady-state peak` = 560.7)
+for (nm in names(conc)) {
+  cat(sprintf("%-22s %7.1f ng/mL = %7.1f nM total = %6.1f nM free\n",
+              nm, conc[[nm]], ng_ml_to_nM(conc[[nm]], MW),
+              ng_ml_to_nM(conc[[nm]] * FU, MW)))
+}
+cat(sprintf("\nCL/F = 12 L/h = %.0f mL/min = %.3f L/h/kg at 70 kg\n",
+            L_per_h_to_mL_min(12), 12 / 70))
+cat(sprintf("hepatic blood flow ~ 90 L/h (%.0f mL/min)\n", L_per_h_to_mL_min(90)))
+cat(sprintf("GFR                ~ 7.5 L/h (%.0f mL/min)\n", L_per_h_to_mL_min(7.5)))
+```
+
+An *in vitro* IC~50~ of 200 nM sits **above** the free peak of 96 nM. Compare
+against total concentrations and you would conclude the opposite.
+
+## 2. Recovering the allometric exponent — from the truth itself
+
+```{r}
+clean <- truth |> filter(DDI == 0)
+fit <- lm(log(CL) ~ log(WT / 70), data = clean)
+ci  <- confint(fit)["log(WT/70)", ]
+
+cat(sprintf("n = %d subjects, weight range %.0f-%.0f kg\n",
+            nrow(clean), min(clean$WT), max(clean$WT)))
+cat(sprintf("exponent on CL : %.3f  (truth 0.75)  95%% CI %.2f to %.2f\n",
+            coef(fit)[2], ci[1], ci[2]))
+cat(sprintf("CL at 70 kg    : %.2f L/h  (truth 12.0)\n", exp(coef(fit)[1])))
+
+fit_v <- lm(log(VC) ~ log(WT / 70), data = clean)
+cat(sprintf("exponent on Vc : %.3f  (truth 1.00)  Vc at 70 kg %.1f L (truth 60.0)\n",
+            coef(fit_v)[2], exp(coef(fit_v)[1])))
+```
+
+The point estimate for clearance misses 0.75 substantially, and the interval is
+wide enough to contain both 0.75 and 1.0 — on **error-free** individual
+parameters. That is the argument for fixing the exponents rather than
+estimating them.
+
+## 3. Confounding: what an omitted covariate does
+
+```{r}
+fit_all <- lm(log(CL) ~ log(WT / 70), data = truth)
+cat(sprintf("exponent ignoring the DDI covariate : %.3f  (truth 0.75)\n", coef(fit_all)[2]))
+cat(sprintf("CL at 70 kg                          : %.2f L/h (truth 12.0)\n", exp(coef(fit_all)[1])))
+
+fit_adj <- lm(log(CL) ~ log(WT / 70) + factor(DDI), data = truth)
+cat(sprintf("exponent WITH the DDI covariate      : %.3f\n", coef(fit_adj)[2]))
+cat(sprintf("inhibitor effect on CL               : x%.2f (truth 0.45)\n", exp(coef(fit_adj)[3])))
+```
+
+```{r}
+#| fig-height: 3.8
+truth |>
+  mutate(arm = ifelse(DDI == 1, "strong CYP3A4 inhibitor", "no inhibitor")) |>
+  ggplot(aes(WT, CL, shape = arm, colour = arm)) +
+  geom_point(alpha = 0.85) +
+  stat_function(fun = function(w) 12 * (w / 70)^0.75, colour = "black", linewidth = 0.4) +
+  stat_function(fun = function(w) 12 * 0.45 * (w / 70)^0.75, colour = "black",
+                linetype = 2, linewidth = 0.4) +
+  scale_x_log10() + scale_y_log10() +
+  labs(x = "Weight (kg)", y = "True CL/F (L/h)", colour = NULL, shape = NULL) +
+  theme(legend.position = "top")
+```
+
+The inhibitor-treated subjects sit on a lower line. Fit one line through both
+clouds and the slope tilts. **An omitted covariate does not vanish; it
+redistributes into the covariates you kept.**
+
+## 4. Flat versus weight-based dosing
+
+Because the model is linear, `AUC(tau,ss) = D / CL` exactly — no simulation
+needed.
+
+```{r}
+cv_pct <- function(x) 100 * sd(x) / mean(x)
+
+auc_flat <- 50 * 1000 / truth$CL
+auc_wb   <- (0.7 * truth$WT) * 1000 / truth$CL
+
+data.frame(
+  strategy = c("flat 50 mg", "weight-based 0.7 mg/kg"),
+  mean_AUC = c(mean(auc_flat), mean(auc_wb)),
+  CV_pct   = c(cv_pct(auc_flat), cv_pct(auc_wb)),
+  p5       = c(quantile(auc_flat, .05), quantile(auc_wb, .05)),
+  p95      = c(quantile(auc_flat, .95), quantile(auc_wb, .95)),
+  spread   = c(quantile(auc_flat, .95) / quantile(auc_flat, .05),
+               quantile(auc_wb, .95) / quantile(auc_wb, .05))
+) |> mutate(across(where(is.numeric), \(x) round(x, 1)))
+```
+
+Weight-based dosing narrows the distribution by about 7 percentage points of CV.
+Whether that is worth the operational cost is a **therapeutic-index** question,
+not a statistical one.
+
+## 5. How much of the variability is weight at all?
+
+```{r}
+r2 <- summary(lm(log(CL) ~ log(WT), data = clean))$r.squared
+cat(sprintf("R^2 of log(WT) on log(CL), inhibitor-free subjects: %.3f\n", r2))
+cat(sprintf("-> weight explains about %.0f%% of between-subject variation in clearance\n", 100 * r2))
+```
+
+Usually smaller than people expect, and the honest answer to "should we dose per
+kilogram?"
+
+## What to try next
+
+1. Repeat section 2 on subjects between 60 and 85 kg. How wide does the interval get?
+2. Compare `fit_adj` to `fit_all` — that is covariate modeling in one line.
+3. Find the mg/kg dose matching the median AUC of flat 50 mg, then compare the
+   fraction above a hypothetical toxicity threshold of 8000 ng·h/mL under each.

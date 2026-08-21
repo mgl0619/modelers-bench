@@ -1,0 +1,8 @@
+id: s0-05
+strand: S0
+title: Git and project structure for modelers
+paths: [PATH-A, PATH-B]
+prereqs: []
+next: s0-06
+runnable: false
+reviewed: 2026-08-21
