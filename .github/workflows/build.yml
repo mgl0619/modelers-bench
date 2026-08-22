@@ -1,10 +1,16 @@
 name: build
 
+# Manual only. Local `make all` is the primary build — see LOCAL.md.
+# Run this from the Actions tab when you want an independent check on a
+# clean machine, or before a release.
+
 on:
-  push:
-    branches: [main]
-  pull_request:
   workflow_dispatch:
+    inputs:
+      run_r:
+        description: "Also execute the R notebooks (slower — installs R packages)"
+        type: boolean
+        default: true
 
 jobs:
   build:
@@ -24,11 +30,22 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
+      - name: Regenerate case data
+        run: make data
+
+      - name: Verify the case against its published truth
+        run: make verify
+
+      - name: Run the data-check battery
+        run: make battery
+
       - uses: r-lib/actions/setup-r@v2
+        if: ${{ inputs.run_r }}
         with:
           use-public-rspm: true
 
       - uses: r-lib/actions/setup-r-dependencies@v2
+        if: ${{ inputs.run_r }}
         with:
           packages: |
             any::deSolve
@@ -38,15 +55,7 @@ jobs:
             any::knitr
             any::rmarkdown
 
-      - name: Regenerate case data
-        run: |
-          python cases/case-sm/generate.py
-          python cases/case-sm/make_messy.py
-
-      - name: Verify the shipped data match the generator
-        run: git diff --exit-code --stat cases/case-sm/data/ || (echo "::error::Case data differ from the generator output. Re-run generate.py and commit." && exit 1)
-
-      - name: Render the site (executes every notebook)
+      - name: Render the site
         run: quarto render
 
       - uses: actions/upload-artifact@v4

@@ -25,22 +25,25 @@ built on real data can tell you how far your estimate landed from the answer.
 ## Quick start
 
 ```bash
-# generate the case data (Python 3.10+, numpy/pandas/scipy)
-python cases/case-sm/generate.py
-python cases/case-sm/make_messy.py
-
-# build the site
-quarto preview
+make doctor       # what is installed, what is missing
+make setup        # install Python and R packages
+make check        # regenerate and verify the case data   (~20 s)
+make preview      # live-reloading site at localhost:4200
 ```
 
+**The build is local.** `make all` runs everything CI would; the GitHub Actions
+workflow is manual-only, triggered from the Actions tab when you want an
+independent check on a clean machine. See [LOCAL.md](LOCAL.md) for setup,
+every target, and troubleshooting.
+
 Runnable lessons ship in **both R and Python**. Pick one; the other is there
-when you need it.
+when you need it. No R? `make render-py` builds the site without it.
 
 ### Requirements
 
-- **Quarto** ≥ 1.4
-- **Python** ≥ 3.10 with `numpy`, `pandas`, `scipy`, `matplotlib` (`requirements.txt`)
-- **R** ≥ 4.2 with `deSolve`, `dplyr`, `ggplot2` — only if you run the R notebooks
+- **Quarto** ≥ 1.4 — `brew install --cask quarto`
+- **Python** ≥ 3.10 with the packages in `requirements.txt`
+- **R** ≥ 4.2 with `deSolve`, `dplyr`, `ggplot2`, `MASS` — only for the R notebooks
 
 ## How a lesson is built
 
@@ -70,7 +73,11 @@ Seven slots, every time. See `CONTRIBUTING.md` for the template.
 │       ├── notebook-py.qmd slot 3 (Python)
 │       └── meta.yml       strand, paths, prereqs, reviewed date
 ├── cases/case-sm/         generator, truth, data
-└── .github/workflows/     build, execute, staleness
+├── scripts/
+│   ├── verify_case.py     22 checks of the case against truth.yml
+│   └── check_data.py      the S0-03 battery, as a standalone script
+├── Makefile               the local build
+└── .github/workflows/     manual build, monthly staleness check
 ```
 
 `meta.yml` carries a `reviewed:` date. A scheduled CI job opens an issue for any

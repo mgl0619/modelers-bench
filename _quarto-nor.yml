@@ -1,0 +1,11 @@
+# Profile: build without R.
+#
+#   QUARTO_PROFILE=nor quarto render      (or: make render-py)
+#
+# Skips the R notebooks so the site builds on a machine with only Python.
+# The R notebook links in the sidebar will 404 in this build — that is
+# expected, and why the full build is the one you publish.
+
+project:
+  render:
+    - "!lessons/**/notebook-r.qmd"
