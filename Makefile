@@ -35,12 +35,22 @@ help:
 	@echo ""
 
 doctor:
-	@echo "python3 : $$($(PY) --version 2>&1 || echo MISSING)"
-	@echo "quarto  : $$(quarto --version 2>/dev/null || echo 'MISSING  -> brew install --cask quarto')"
-	@echo "R       : $$(R --version 2>/dev/null | head -1 || echo 'MISSING  -> brew install --cask r   (only for the R notebooks)')"
+	@if command -v $(PY) >/dev/null 2>&1; then \
+	  echo "python3 : $$($(PY) --version 2>&1)   [$$(command -v $(PY))]"; \
+	else echo "python3 : MISSING"; fi
+	@if command -v quarto >/dev/null 2>&1; then \
+	  echo "quarto  : $$(quarto --version)"; \
+	else echo "quarto  : MISSING  -> brew install --cask quarto"; fi
+	@if command -v R >/dev/null 2>&1; then \
+	  echo "R       : $$(R --version | head -1)"; \
+	else echo "R       : MISSING  -> brew install --cask r        (only for the R notebooks; make render-py works without it)"; fi
 	@echo ""
-	@$(PY) -c "import importlib,sys; miss=[m for m in ['numpy','pandas','scipy','matplotlib','yaml','nbclient','jupyter_client','ipykernel'] if not importlib.util.find_spec(m)]; print('python packages: OK' if not miss else 'python packages MISSING: '+', '.join(miss)+'   -> make setup')"
-	@Rscript -e 'p <- c("deSolve","dplyr","ggplot2","MASS","knitr","rmarkdown"); m <- p[!p %in% rownames(installed.packages())]; cat(if (length(m)) paste0("R packages MISSING: ", paste(m, collapse=", "), "   -> make setup\n") else "R packages: OK\n")' 2>/dev/null || echo "R packages: skipped (no R)"
+	@$(PY) -c "import importlib.util as u; miss=[m for m in ['numpy','pandas','scipy','matplotlib','yaml','nbclient','jupyter_client','ipykernel'] if not u.find_spec(m)]; print('python packages : OK' if not miss else 'python packages : MISSING '+', '.join(miss)+'   -> make setup')" 2>/dev/null || echo "python packages : cannot check"
+	@if command -v Rscript >/dev/null 2>&1; then \
+	  Rscript -e 'p <- c("deSolve","dplyr","ggplot2","MASS","knitr","rmarkdown"); m <- p[!p %in% rownames(installed.packages())]; cat(if (length(m)) paste0("R packages      : MISSING ", paste(m, collapse=", "), "   -> make setup\n") else "R packages      : OK\n")'; \
+	else echo "R packages      : skipped (no R)"; fi
+	@echo ""
+	@$(PY) -c "import importlib.util as u; ok = u.find_spec('scipy') and u.find_spec('pandas'); print('can run: make battery' + ('  make data  make verify' if ok else '   (data/verify need scipy)'))"
 
 setup:
 	$(PY) -m pip install -r requirements.txt
