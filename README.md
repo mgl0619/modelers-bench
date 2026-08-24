@@ -42,7 +42,9 @@ when you need it. No R? `make render-py` builds the site without it.
 ### Requirements
 
 - **Quarto** ≥ 1.4 — `brew install --cask quarto`
-- **Python** ≥ 3.10 with the packages in `requirements.txt`
+- **Python** ≥ 3.10 with the packages in `requirements.txt`. If your system
+  `python3` is older, `mamba env create -f environment.yml` gives you a working
+  one; `make` will tell you plainly if the interpreter it finds is too old.
 - **R** ≥ 4.2 with `deSolve`, `dplyr`, `ggplot2`, `MASS` — only for the R notebooks
 
 ## How a lesson is built
