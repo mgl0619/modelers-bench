@@ -9,10 +9,18 @@
 #
 # Run `make` on its own for the list.
 
-PY ?= python3
+# Pick the newest suitable interpreter unless the caller overrides PY.
+# Override explicitly with:  make check PY=python3.11
+PY ?= $(shell for c in python3.13 python3.12 python3.11 python3.10 python3; do \
+	  command -v $$c >/dev/null 2>&1 && $$c -c 'import sys; raise SystemExit(0 if sys.version_info >= (3,10) else 1)' >/dev/null 2>&1 && { echo $$c; break; }; \
+	done)
+ifeq ($(strip $(PY)),)
+PY := python3
+endif
+
 .DEFAULT_GOAL := help
 
-.PHONY: help setup data verify battery check render render-py preview clean distclean doctor
+.PHONY: help setup data verify battery check render render-py preview clean distclean doctor guard-python
 
 help:
 	@echo ""
@@ -36,8 +44,8 @@ help:
 
 doctor:
 	@if command -v $(PY) >/dev/null 2>&1; then \
-	  echo "python3 : $$($(PY) --version 2>&1)   [$$(command -v $(PY))]"; \
-	else echo "python3 : MISSING"; fi
+	  echo "python  : $$($(PY) --version 2>&1)   [$$(command -v $(PY))]$$($(PY) -c 'import sys; print("" if sys.version_info >= (3,10) else "   TOO OLD — needs 3.10+")')"; \
+	else echo "python  : MISSING"; fi
 	@if command -v quarto >/dev/null 2>&1; then \
 	  echo "quarto  : $$(quarto --version)"; \
 	else echo "quarto  : MISSING  -> brew install --cask quarto"; fi
@@ -51,19 +59,43 @@ doctor:
 	else echo "R packages      : skipped (no R)"; fi
 	@echo ""
 	@$(PY) -c "import importlib.util as u; ok = u.find_spec('scipy') and u.find_spec('pandas'); print('can run: make battery' + ('  make data  make verify' if ok else '   (data/verify need scipy)'))"
+	@echo ""
+	@echo "interpreters on PATH:"
+	@for c in python3.13 python3.12 python3.11 python3.10 python3 python; do \
+	  command -v $$c >/dev/null 2>&1 && echo "  $$c  ->  $$($$c -V 2>&1)"; \
+	done; true
 
-setup:
+guard-python:
+	@$(PY) -c 'import sys; raise SystemExit(0 if sys.version_info >= (3,10) else 1)' 2>/dev/null || { \
+	  echo ""; \
+	  echo "  ERROR  $(PY) is $$($(PY) -V 2>&1), but this project needs Python 3.10 or newer."; \
+	  echo "         (NumPy 1.26+ and SciPy 1.11+ do not build for older versions — that is why"; \
+	  echo "          pip offered you nothing past numpy 1.24.4.)"; \
+	  echo ""; \
+	  echo "  Fixes, best first:"; \
+	  echo "    conda activate <an env with 3.10+>   then re-run make"; \
+	  echo "    make setup PY=python3.11             point make at a specific interpreter"; \
+	  echo "    brew install python@3.12             if you have none"; \
+	  echo ""; \
+	  echo "  Interpreters on your PATH:"; \
+	  for c in python3.13 python3.12 python3.11 python3.10 python3 python; do \
+	    command -v $$c >/dev/null 2>&1 && echo "    $$c  ->  $$($$c -V 2>&1)"; \
+	  done; \
+	  echo ""; \
+	  exit 1; }
+
+setup: guard-python
 	$(PY) -m pip install -r requirements.txt
 	@Rscript -e 'p <- c("deSolve","dplyr","ggplot2","MASS","knitr","rmarkdown"); m <- p[!p %in% rownames(installed.packages())]; if (length(m)) install.packages(m, repos="https://cloud.r-project.org")' 2>/dev/null || echo "(no R found — skipping R packages; the Python notebooks will still build)"
 
-data:
+data: guard-python
 	$(PY) cases/case-sm/generate.py
 	$(PY) cases/case-sm/make_messy.py
 
-verify:
+verify: guard-python
 	$(PY) scripts/verify_case.py
 
-battery:
+battery: guard-python
 	$(PY) scripts/check_data.py
 
 check: data verify battery

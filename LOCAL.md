@@ -19,6 +19,43 @@ make doctor       # what is installed, what is missing
 make setup        # install Python and R packages
 ```
 
+### Python 3.10 or newer is required
+
+`make` picks the newest suitable interpreter it can find on your PATH
+(`python3.13`, `python3.12`, … then plain `python3`). If none of them is 3.10+
+it stops with an explanation rather than a confusing pip error, and lists every
+interpreter you have.
+
+The failure this prevents looks like:
+
+```
+ERROR: Could not find a version that satisfies the requirement numpy>=1.26
+       (from versions: 1.3.0, ... 1.24.4)
+```
+
+That version list ending at **1.24.4** is the tell: NumPy stopped supporting
+Python 3.8 after 1.24.x, so pip is offering you everything that still builds for
+your interpreter and nothing newer. The project needs 3.10+.
+
+Three ways out, best first:
+
+```bash
+# 1. a conda environment (you have mambaforge)
+mamba env create -f environment.yml
+conda activate modelers-bench
+make check
+
+# 2. point make at an interpreter you already have
+make setup PY=python3.11
+make check PY=python3.11
+
+# 3. install one
+brew install python@3.12
+```
+
+`make doctor` now prints your interpreter's version, flags it if it is too old,
+and lists every `python*` on your PATH so you can pick.
+
 `make doctor` is the one to run first. It prints the version of every tool and
 names exactly what is missing, so you are never guessing.
 
@@ -57,7 +94,7 @@ to tell you — which is the point of running locally.
 
 | Target | What it does |
 |---|---|
-| `make doctor` | Report installed tools and missing dependencies |
+| `make doctor` | Report installed tools, Python version, and missing dependencies |
 | `make setup` | Install Python and R packages |
 | `make data` | Regenerate `CASE-SM`, clean and corrupted copies |
 | `make verify` | 22 checks of the case against `truth.yml` |
@@ -115,6 +152,14 @@ without R. Use `make render-py`, or install R.
 **"No module named nbformat"** — Quarto cannot find the Jupyter machinery.
 `make setup`, and check `make doctor` points at the Python you expect. In a
 conda environment, activate it before running make.
+
+**"Could not find a version that satisfies the requirement numpy>=1.26"** —
+your Python is older than 3.10. See *Python 3.10 or newer is required* above.
+
+**Quarto executes notebooks with the wrong Python** — Quarto finds its own
+kernel, which is not always the interpreter `make` uses. Set it explicitly:
+`export QUARTO_PYTHON=$(which python3.12)` before `make render`, or activate
+the conda environment first so both agree.
 
 **Port 4200 already in use** — a previous `make preview` is still running.
 `quarto preview --port 4300`, or close the earlier one.

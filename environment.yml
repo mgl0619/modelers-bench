@@ -1,0 +1,23 @@
+# conda/mamba environment for The Modeler's Bench.
+#
+#   mamba env create -f environment.yml     (or: conda env create -f environment.yml)
+#   conda activate modelers-bench
+#   make check
+#
+# Use this if your system python3 is older than 3.10 — which is the usual
+# reason `make setup` fails with "no matching distribution for numpy>=1.26".
+
+name: modelers-bench
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - numpy>=1.26
+  - pandas>=2.0
+  - scipy>=1.11
+  - matplotlib>=3.8
+  - pyyaml>=6.0
+  - jupyter_client>=8.0
+  - nbclient>=0.9
+  - ipykernel>=6.29
+  # Quarto and R are installed outside conda — see LOCAL.md
