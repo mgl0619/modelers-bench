@@ -96,6 +96,8 @@ to tell you — which is the point of running locally.
 |---|---|
 | `make doctor` | Report installed tools, Python version, and missing dependencies |
 | `make setup` | Install Python and R packages |
+| `make setup-py` | Just the Python packages |
+| `make setup-r` | Just the R packages |
 | `make data` | Regenerate `CASE-SM`, clean and corrupted copies |
 | `make verify` | 22 checks of the case against `truth.yml` |
 | `make battery` | The S0-03 data-check battery on both datasets |
@@ -148,6 +150,12 @@ make check && make preview
 
 **"Unable to locate an installed version of R"** — you are running `make render`
 without R. Use `make render-py`, or install R.
+
+**"there is no package called 'deSolve'"** — R is installed but its packages are
+not. `make setup-r`. This happens when an earlier `make setup` failed at the
+Python step and never reached the R one, which is why the two are now separate
+targets. `make render` checks for all six packages up front and names the
+missing ones rather than failing halfway through a render.
 
 **"No module named nbformat"** — Quarto cannot find the Jupyter machinery.
 `make setup`, and check `make doctor` points at the Python you expect. In a

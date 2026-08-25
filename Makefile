@@ -20,7 +20,7 @@ endif
 
 .DEFAULT_GOAL := help
 
-.PHONY: help setup data verify battery check render render-py preview clean distclean doctor guard-python
+.PHONY: help setup setup-py setup-r data verify battery check render render-py preview clean distclean doctor guard-python guard-r
 
 help:
 	@echo ""
@@ -28,6 +28,7 @@ help:
 	@echo ""
 	@echo "  make doctor    report which tools are installed and what is missing"
 	@echo "  make setup     install Python and R dependencies"
+	@echo "  make setup-r   install just the R packages"
 	@echo ""
 	@echo "  make data      regenerate CASE-SM (clean + corrupted copies)"
 	@echo "  make verify    check the case against its published truth"
@@ -84,9 +85,15 @@ guard-python:
 	  echo ""; \
 	  exit 1; }
 
-setup: guard-python
+setup: setup-py setup-r
+
+setup-py: guard-python
 	$(PY) -m pip install -r requirements.txt
-	@Rscript -e 'p <- c("deSolve","dplyr","ggplot2","MASS","knitr","rmarkdown"); m <- p[!p %in% rownames(installed.packages())]; if (length(m)) install.packages(m, repos="https://cloud.r-project.org")' 2>/dev/null || echo "(no R found — skipping R packages; the Python notebooks will still build)"
+
+setup-r:
+	@if command -v Rscript >/dev/null 2>&1; then \
+	  Rscript -e 'p <- c("deSolve","dplyr","ggplot2","MASS","knitr","rmarkdown"); m <- p[!p %in% rownames(installed.packages())]; if (length(m)) { cat("installing:", paste(m, collapse=", "), "\n"); install.packages(m, repos="https://cloud.r-project.org") } else cat("R packages already present\n")'; \
+	else echo "no R found — skipping. The Python notebooks still build with: make render-py"; fi
 
 data: guard-python
 	$(PY) cases/case-sm/generate.py
@@ -100,7 +107,14 @@ battery: guard-python
 
 check: data verify battery
 
-render:
+guard-r:
+	@command -v Rscript >/dev/null 2>&1 || { \
+	  echo ""; echo "  ERROR  R is not installed, and the R notebooks need it."; \
+	  echo "         brew install --cask r    then    make setup-r"; \
+	  echo "         or skip them entirely:   make render-py"; echo ""; exit 1; }
+	@Rscript -e 'p <- c("deSolve","dplyr","ggplot2","MASS","knitr","rmarkdown"); m <- p[!p %in% rownames(installed.packages())]; if (length(m)) { cat("\n  ERROR  missing R packages:", paste(m, collapse=", "), "\n         run:  make setup-r\n         or skip the R notebooks:  make render-py\n\n"); quit(status=1) }'
+
+render: guard-r
 	quarto render
 
 render-py:

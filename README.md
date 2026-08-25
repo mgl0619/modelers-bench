@@ -26,7 +26,7 @@ built on real data can tell you how far your estimate landed from the answer.
 
 ```bash
 make doctor       # what is installed, what is missing
-make setup        # install Python and R packages
+make setup        # install Python and R packages (or setup-py / setup-r)
 make check        # regenerate and verify the case data   (~20 s)
 make preview      # live-reloading site at localhost:4200
 ```
