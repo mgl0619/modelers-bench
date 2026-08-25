@@ -157,9 +157,31 @@ conda environment, activate it before running make.
 your Python is older than 3.10. See *Python 3.10 or newer is required* above.
 
 **Quarto executes notebooks with the wrong Python** — Quarto finds its own
-kernel, which is not always the interpreter `make` uses. Set it explicitly:
-`export QUARTO_PYTHON=$(which python3.12)` before `make render`, or activate
-the conda environment first so both agree.
+kernel, which is not always the interpreter `make` uses. The symptom is a
+traceback whose path points somewhere you did not expect, e.g.
+`~/mambaforge/lib/python3.8/site-packages/numpy`. Fix it by making the
+environment active before you render:
+
+```bash
+conda activate modelers-bench
+python -m ipykernel install --user --name modelers-bench   # once
+export QUARTO_PYTHON=$(which python)                       # belt and braces
+make render
+```
+
+**`AttributeError: module 'numpy' has no attribute 'trapezoid'`** — you are on
+NumPy 1.x, where the function is called `trapz`; NumPy 2.0 renamed it. The
+notebooks and scripts bind whichever exists:
+
+```python
+trapz = np.trapezoid if hasattr(np, "trapezoid") else np.trapz
+```
+
+Note the `hasattr` rather than `getattr(np, "trapezoid", np.trapz)` — the
+`getattr` form evaluates its default eagerly and so raises on NumPy 2, where
+`np.trapz` no longer exists. If you write similar shims, use the `hasattr`
+form. The deeper fix is still to render from an environment with a current
+NumPy.
 
 **Port 4200 already in use** — a previous `make preview` is still running.
 `quarto preview --port 4300`, or close the earlier one.

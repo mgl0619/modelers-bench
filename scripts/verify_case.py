@@ -21,6 +21,9 @@ import pandas as pd
 import yaml
 from scipy.integrate import solve_ivp
 
+# NumPy 2.0 renamed trapz -> trapezoid. Support both.
+trapz = np.trapezoid if hasattr(np, "trapezoid") else np.trapz
+
 ROOT = "cases/case-sm"
 failures = []
 checks = 0
@@ -104,8 +107,8 @@ def main():
     print("\nSuperposition")
     g_ss = np.linspace(480, 504, 24001)
     g_1 = np.linspace(0, 24, 24001)
-    auc_ss = np.trapezoid(conc_md(g_ss, 50, **P), g_ss)
-    auc_1 = np.trapezoid(conc_md(g_1, 50, **P), g_1)
+    auc_ss = trapz(conc_md(g_ss, 50, **P), g_ss)
+    auc_1 = trapz(conc_md(g_1, 50, **P), g_1)
     expected = 50 * 1000 / P["CL"]
     check("AUC(tau,ss) equals Dose/CL", close(auc_ss, expected, 1e-4),
           f"{auc_ss:.1f} vs {expected:.1f} ng*h/mL")

@@ -1,0 +1,397 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "---\n",
+        "title: \"S0-01 notebook — Python\"\n",
+        "subtitle: \"Compartments and ODEs from first principles\"\n",
+        "jupyter: python3\n",
+        "execute:\n",
+        "  freeze: auto\n",
+        "---\n",
+        "\n",
+        "\n",
+        "\n",
+        "\n",
+        "\n",
+        "Everything in the lesson, built from scratch and checked. Run it top to bottom.\n"
+      ],
+      "id": "9a8778d6"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import numpy as np\n",
+        "import pandas as pd\n",
+        "import matplotlib.pyplot as plt\n",
+        "from scipy.integrate import solve_ivp\n",
+        "from scipy.optimize import least_squares\n",
+        "\n",
+        "plt.rcParams.update({\"figure.figsize\": (7, 4.2), \"axes.grid\": True,\n",
+        "                     \"grid.alpha\": 0.25, \"font.size\": 10})"
+      ],
+      "id": "a4a8128d",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## 1. One compartment, IV bolus — and a check you should always run\n",
+        "\n",
+        "Work in **amounts** inside the ODE and convert to concentration at the end.\n",
+        "Doses in µg with volumes in L means µg/L, which reads directly as ng/mL.\n"
+      ],
+      "id": "7b58d7f1"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "CL, V = 12.0, 60.0          # L/h, L\n",
+        "D = 50 * 1000.0             # 50 mg as ug\n",
+        "k = CL / V\n",
+        "\n",
+        "t = np.linspace(0, 48, 481)\n",
+        "sol = solve_ivp(lambda t, y: [-k * y[0]], (0, 48), [D], t_eval=t,\n",
+        "                method=\"LSODA\", rtol=1e-10, atol=1e-12)\n",
+        "numeric = sol.y[0] / V\n",
+        "analytic = (D / V) * np.exp(-k * t)\n",
+        "\n",
+        "print(f\"max relative error vs analytic : {np.max(np.abs(numeric - analytic) / analytic):.2e}\")\n",
+        "print(f\"half-life                      : {np.log(2) / k:.2f} h\")\n",
+        "print(f\"AUC(0-inf) numeric             : {np.trapezoid(numeric, t) + numeric[-1] / k:.1f} ng*h/mL\")\n",
+        "print(f\"D / CL                         : {D / CL:.1f} ng*h/mL\")"
+      ],
+      "id": "b4f01a21",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Two habits worth forming now. **Always validate numerics against an analytical\n",
+        "solution when one exists** — an error of 1e-10 means the solver settings are\n",
+        "fine; an error of 1e-3 means they are not. And **`AUC(0-inf) = D/CL` is exact\n",
+        "for any linear model**, so it is a free correctness check on every simulation\n",
+        "you ever write.\n"
+      ],
+      "id": "59892e89"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "fig, ax = plt.subplots(1, 2)\n",
+        "ax[0].plot(t, numeric); ax[0].set(xlabel=\"Time (h)\", ylabel=\"Conc (ng/mL)\", title=\"linear\")\n",
+        "ax[1].semilogy(t, numeric); ax[1].set(xlabel=\"Time (h)\", title=\"semi-log — a straight line\")\n",
+        "plt.tight_layout()"
+      ],
+      "id": "7d3a51e7",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## 2. Add absorption\n"
+      ],
+      "id": "60f4ec83"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "def one_cmt_oral(t, y, ka, CL, V):\n",
+        "    a_gut, a_c = y\n",
+        "    return [-ka * a_gut, ka * a_gut - (CL / V) * a_c]\n",
+        "\n",
+        "ka = 1.2\n",
+        "tt = np.linspace(0, 48, 4801)\n",
+        "s = solve_ivp(one_cmt_oral, (0, 48), [D, 0.0], t_eval=tt, args=(ka, CL, V),\n",
+        "              method=\"LSODA\", rtol=1e-10, atol=1e-12)\n",
+        "c = s.y[1] / V\n",
+        "\n",
+        "tmax_numeric = tt[c.argmax()]\n",
+        "tmax_analytic = np.log(ka / k) / (ka - k)\n",
+        "print(f\"tmax numeric {tmax_numeric:.3f} h   analytic {tmax_analytic:.3f} h   Cmax {c.max():.1f} ng/mL\")"
+      ],
+      "id": "4fa78f8f",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### Flip-flop: when the terminal slope is absorption\n"
+      ],
+      "id": "f0ad3da0"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "fig, ax = plt.subplots()\n",
+        "for ka_i, label in [(1.2, \"ka = 1.2 /h  (absorption fast)\"),\n",
+        "                    (0.05, \"ka = 0.05 /h (absorption slow)\")]:\n",
+        "    tg = np.linspace(0, 120, 1201)\n",
+        "    si = solve_ivp(one_cmt_oral, (0, 120), [D, 0.0], t_eval=tg, args=(ka_i, CL, V),\n",
+        "                   method=\"LSODA\", rtol=1e-10, atol=1e-12)\n",
+        "    ci = si.y[1] / V\n",
+        "    m = (tg > 72) & (ci > 0)\n",
+        "    slope = np.polyfit(tg[m], np.log(ci[m]), 1)[0]\n",
+        "    print(f\"{label:35s} terminal t1/2 from slope = {np.log(2) / -slope:5.2f} h\")\n",
+        "    ax.semilogy(tg, ci, label=label)\n",
+        "ax.set(xlabel=\"Time (h)\", ylabel=\"Conc (ng/mL)\"); ax.legend(); plt.tight_layout()\n",
+        "\n",
+        "print(f\"\\nelimination t1/2 = {np.log(2) / k:.2f} h    absorption t1/2 (ka=0.05) = {np.log(2) / 0.05:.2f} h\")"
+      ],
+      "id": "b9c2491c",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "The slow-absorption curve's terminal slope reports **13.9 h**, which is the\n",
+        "absorption half-life, not the 3.5 h elimination half-life. Nothing in the fit\n",
+        "tells you which one you are looking at. Only an IV arm does.\n",
+        "\n",
+        "## 3. Two compartments — the CASE-SM structure\n"
+      ],
+      "id": "f620dd15"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "def hybrid(CL, Vc, Q, Vp):\n",
+        "    \"\"\"Return (alpha, beta, k21) — the hybrid rate constants.\"\"\"\n",
+        "    k10, k12, k21 = CL / Vc, Q / Vc, Q / Vp\n",
+        "    s = k10 + k12 + k21\n",
+        "    d = np.sqrt(s * s - 4 * k10 * k21)\n",
+        "    return (s + d) / 2, (s - d) / 2, k21\n",
+        "\n",
+        "\n",
+        "def conc_sd(t, dose_mg, ka, CL, Vc, Q, Vp):\n",
+        "    \"\"\"Analytic two-compartment oral single dose, ng/mL.\"\"\"\n",
+        "    t = np.asarray(t, float)\n",
+        "    a, b, k21 = hybrid(CL, Vc, Q, Vp)\n",
+        "    A = dose_mg * 1000.0 * ka / Vc\n",
+        "    term = (((k21 - a) / ((ka - a) * (b - a))) * np.exp(-a * t)\n",
+        "            + ((k21 - b) / ((ka - b) * (a - b))) * np.exp(-b * t)\n",
+        "            + ((k21 - ka) / ((a - ka) * (b - ka))) * np.exp(-ka * t))\n",
+        "    return np.where(t >= 0, A * term, 0.0)\n",
+        "\n",
+        "\n",
+        "TRUE = dict(ka=1.2, CL=12.0, Vc=60.0, Q=8.0, Vp=90.0)   # CASE-SM typical values\n",
+        "\n",
+        "def ode_sd(t, dose_mg, ka, CL, Vc, Q, Vp):\n",
+        "    def rhs(tt, y):\n",
+        "        ag, ac, ap = y\n",
+        "        return [-ka * ag,\n",
+        "                ka * ag - (CL / Vc) * ac - (Q / Vc) * ac + (Q / Vp) * ap,\n",
+        "                (Q / Vc) * ac - (Q / Vp) * ap]\n",
+        "    s = solve_ivp(rhs, (0, max(t)), [dose_mg * 1000.0, 0, 0], t_eval=t,\n",
+        "                  method=\"LSODA\", rtol=1e-11, atol=1e-13)\n",
+        "    return s.y[1] / Vc\n",
+        "\n",
+        "tg = np.linspace(0.01, 72, 200)\n",
+        "err = np.max(np.abs(conc_sd(tg, 50, **TRUE) - ode_sd(tg, 50, **TRUE)) / ode_sd(tg, 50, **TRUE))\n",
+        "a, b, _ = hybrid(TRUE[\"CL\"], TRUE[\"Vc\"], TRUE[\"Q\"], TRUE[\"Vp\"])\n",
+        "print(f\"analytic vs ODE, max relative error : {err:.1e}\")\n",
+        "print(f\"distribution t1/2 (alpha)           : {np.log(2) / a:.2f} h\")\n",
+        "print(f\"terminal     t1/2 (beta)            : {np.log(2) / b:.2f} h\")"
+      ],
+      "id": "64101018",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Two half-lives, differing eight-fold. Quoting \"the\" half-life of this compound\n",
+        "without saying which one is meaningless.\n",
+        "\n",
+        "## 4. Multiple dosing by superposition\n",
+        "\n",
+        "For a **linear** model, the response to repeated doses is the sum of the\n",
+        "responses to each dose alone. That is not an approximation — and it gives you a\n",
+        "fast simulator and an exact check at once.\n"
+      ],
+      "id": "cf85e6db"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "def conc_md(t, dose_mg, ka, CL, Vc, Q, Vp, n_doses=21, tau=24.0):\n",
+        "    t = np.asarray(t, float)\n",
+        "    out = np.zeros_like(t)\n",
+        "    for i in range(n_doses):\n",
+        "        dt = t - i * tau\n",
+        "        out += np.where(dt >= 0, conc_sd(np.maximum(dt, 0), dose_mg, ka, CL, Vc, Q, Vp), 0.0)\n",
+        "    return out\n",
+        "\n",
+        "g_day1 = np.linspace(0, 24, 24001)\n",
+        "g_ss = np.linspace(480, 504, 24001)\n",
+        "auc_1 = np.trapezoid(conc_md(g_day1, 50, **TRUE), g_day1)\n",
+        "auc_ss = np.trapezoid(conc_md(g_ss, 50, **TRUE), g_ss)\n",
+        "css = conc_md(g_ss, 50, **TRUE)\n",
+        "\n",
+        "print(f\"AUC(0-24) day 1        : {auc_1:8.1f} ng*h/mL\")\n",
+        "print(f\"AUC(tau) steady state  : {auc_ss:8.1f} ng*h/mL\")\n",
+        "print(f\"Dose / CL              : {50000 / TRUE['CL']:8.1f} ng*h/mL   <- must match exactly\")\n",
+        "print(f\"accumulation ratio     : {auc_ss / auc_1:8.3f}\")\n",
+        "print(f\"steady-state Cmax {css.max():.1f}, Cmin {css.min():.1f} ng/mL\")"
+      ],
+      "id": "638c675d",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "tfull = np.linspace(0, 504, 5041)\n",
+        "plt.semilogy(tfull / 24, conc_md(tfull, 50, **TRUE))\n",
+        "plt.xlabel(\"Day\"); plt.ylabel(\"Conc (ng/mL)\")\n",
+        "plt.title(\"CASE-SM, 50 mg once daily — approach to steady state\")\n",
+        "plt.tight_layout()"
+      ],
+      "id": "c6a12c1f",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Note how quickly the troughs plateau despite a 14.6 h terminal half-life: the\n",
+        "accumulation ratio is 1.22, not the ~3 that a single-exponential intuition would\n",
+        "predict.\n",
+        "\n",
+        "## 5. Failure mode — a converged, meaningless fit\n",
+        "\n",
+        "Fit the five-parameter model to one subject's rich day-1 profile, then to three\n",
+        "points from the same profile. Watch what the residuals do.\n"
+      ],
+      "id": "2a1948fb"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "df = pd.read_csv(\"../../cases/case-sm/data/ozanib_pk.csv\")\n",
+        "truth = pd.read_csv(\"../../cases/case-sm/data/ozanib_individual_truth.csv\")\n",
+        "\n",
+        "obs = df[(df.EVID == 0) & (df.DV.notna()) & (df.DAY == 1) & (df.TIME > 0)]\n",
+        "sid = int(obs.groupby(\"ID\").size().idxmax())\n",
+        "sub = obs[obs.ID == sid]\n",
+        "dose = float(sub.DOSE.iloc[0])\n",
+        "tr = truth[truth.ID == sid].iloc[0]\n",
+        "sparse = sub[sub.TIME.isin([0.5, 4.0, 12.0])]\n",
+        "\n",
+        "def resid(logp, tt, yy):\n",
+        "    ka, CL, Vc, Q, Vp = np.exp(np.clip(logp, -6, 8))\n",
+        "    return np.log(np.maximum(conc_sd(tt, dose, ka, CL, Vc, Q, Vp), 1e-8)) - np.log(yy)\n",
+        "\n",
+        "p0 = np.log([1.0, 10.0, 50.0, 6.0, 80.0])\n",
+        "print(f\"subject {sid} at {dose:g} mg\")\n",
+        "print(f\"{'TRUTH':<18} ka {tr.KA:5.2f}  CL {tr.CL:6.2f}  Vc {tr.VC:6.1f}  Q {tr.Q:6.2f}  Vp {tr.VP:7.1f}\")\n",
+        "\n",
+        "for label, d in [(f\"rich, {len(sub)} points\", sub), (\"sparse, 3 points\", sparse)]:\n",
+        "    r = least_squares(resid, p0, args=(d.TIME.values, d.DV.values),\n",
+        "                      method=\"trf\", max_nfev=8000)\n",
+        "    e = np.exp(r.x)\n",
+        "    cond = np.linalg.cond(r.jac.T @ r.jac)\n",
+        "    print(f\"{label:<18} ka {e[0]:5.2f}  CL {e[1]:6.2f}  Vc {e[2]:6.1f}  Q {e[3]:6.2f}  Vp {e[4]:7.1f}\"\n",
+        "          f\"  | rmse(log) {np.sqrt(np.mean(r.fun**2)):.3f}  cond {cond:.0e}\")"
+      ],
+      "id": "5caee7bc",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "The three-point fit has a residual error of **exactly zero** and a condition\n",
+        "number around 1e18 — numerically singular. Five parameters passing through three\n",
+        "points can always be made to fit perfectly, and the optimiser reports success.\n",
+        "\n",
+        "The rich fit is honest but still imperfect: `Q` and `Vp` are recovered poorly\n",
+        "from eight oral samples in one individual. That is not a bug in your code — it\n",
+        "is why population modeling (`S2`) exists. Borrowing strength across subjects is\n",
+        "what makes those parameters estimable at all.\n",
+        "\n",
+        "::: {.callout-important}\n",
+        "Three things this section should leave you with: convergence is not evidence,\n",
+        "a perfect fit is a warning sign rather than a triumph, and you should look at\n",
+        "the condition number of $J^\\top J$ before you look at the parameter estimates.\n",
+        ":::\n",
+        "\n",
+        "## 6. A trap that is really in the data\n"
+      ],
+      "id": "ab3fbe20"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "predose = df[(df.EVID == 0) & (df.DAY == 1) & (df.TIME == 0)]\n",
+        "survivors = predose[predose.DV.notna()]          # assay noise pushed these above the LLOQ\n",
+        "print(f\"pre-dose samples: {len(predose)}   flagged BLQ: {int(predose.BLQ.sum())}   \"\n",
+        "      f\"reported as a real number: {len(survivors)}\")\n",
+        "print(survivors[[\"ID\", \"TIME\", \"DV\", \"IPRED_TRUE\", \"BLQ\"]].head(8).to_string(index=False))"
+      ],
+      "id": "b1301180",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "The true concentration before the first dose is exactly zero, but the assay has\n",
+        "additive error, so some pre-dose samples come back as small positive numbers.\n",
+        "Feed one of those into a log-scale objective and it will contribute a residual of\n",
+        "`log(1.5) - log(1e-8)` — around 18 — and drag the whole fit with it.\n",
+        "\n",
+        "This is why section 5 filters `TIME > 0`. Real datasets are full of this: a\n",
+        "pre-dose sample that is not really zero, a \"0.00\" that means missing, an assay\n",
+        "result below quantification recorded as half the LLOQ. `S0-03` is about\n",
+        "catching them before they reach the model.\n",
+        "\n",
+        "## What to try next\n",
+        "\n",
+        "1. Refit the rich profile with `Q` and `Vp` fixed at the truth. How much better\n",
+        "   are `CL` and `Vc`? That is the value of borrowing strength, measured.\n",
+        "2. Simulate a missed dose on day 10 (drop one term from the superposition sum)\n",
+        "   and see how long the trough takes to recover.\n",
+        "3. Set `ka = 0.15` and refit. Can you tell from the fit alone that you are in\n",
+        "   flip-flop?"
+      ],
+      "id": "1d0df764"
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python3",
+      "language": "python",
+      "display_name": "Python 3 (ipykernel)",
+      "path": "/Users/gangliu2001/mambaforge/share/jupyter/kernels/python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}

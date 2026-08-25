@@ -17,6 +17,9 @@ from scipy.optimize import least_squares
 
 plt.rcParams.update({"figure.figsize": (7, 4.2), "axes.grid": True,
                      "grid.alpha": 0.25, "font.size": 10})
+
+# NumPy 2.0 renamed trapz -> trapezoid. Bind once so this notebook runs on either.
+trapz = np.trapezoid if hasattr(np, "trapezoid") else np.trapz
 ```
 
 ## 1. One compartment, IV bolus — and a check you should always run
@@ -37,7 +40,7 @@ analytic = (D / V) * np.exp(-k * t)
 
 print(f"max relative error vs analytic : {np.max(np.abs(numeric - analytic) / analytic):.2e}")
 print(f"half-life                      : {np.log(2) / k:.2f} h")
-print(f"AUC(0-inf) numeric             : {np.trapezoid(numeric, t) + numeric[-1] / k:.1f} ng*h/mL")
+print(f"AUC(0-inf) numeric             : {trapz(numeric, t) + numeric[-1] / k:.1f} ng*h/mL")
 print(f"D / CL                         : {D / CL:.1f} ng*h/mL")
 ```
 
@@ -157,8 +160,8 @@ def conc_md(t, dose_mg, ka, CL, Vc, Q, Vp, n_doses=21, tau=24.0):
 
 g_day1 = np.linspace(0, 24, 24001)
 g_ss = np.linspace(480, 504, 24001)
-auc_1 = np.trapezoid(conc_md(g_day1, 50, **TRUE), g_day1)
-auc_ss = np.trapezoid(conc_md(g_ss, 50, **TRUE), g_ss)
+auc_1 = trapz(conc_md(g_day1, 50, **TRUE), g_day1)
+auc_ss = trapz(conc_md(g_ss, 50, **TRUE), g_ss)
 css = conc_md(g_ss, 50, **TRUE)
 
 print(f"AUC(0-24) day 1        : {auc_1:8.1f} ng*h/mL")
