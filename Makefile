@@ -20,7 +20,7 @@ endif
 
 .DEFAULT_GOAL := help
 
-.PHONY: help setup setup-py setup-r doctor-r data verify battery check render render-py preview clean distclean doctor guard-python guard-r
+.PHONY: help setup setup-py setup-r doctor-r serve data verify battery check render render-py preview clean distclean doctor guard-python guard-r
 
 help:
 	@echo ""
@@ -38,7 +38,8 @@ help:
 	@echo ""
 	@echo "  make render    build the site into _site/ (executes every notebook)"
 	@echo "  make render-py build without R — Python notebooks only"
-	@echo "  make preview   live-reloading preview in your browser"
+	@echo "  make preview   live-reloading preview in your browser (needs Quarto)"
+	@echo "  make serve     serve an already-built _site/ on localhost:8000"
 	@echo "  make all       check + render                   <- what CI would do"
 	@echo ""
 	@echo "  make clean     remove build output, keep the data"
@@ -130,6 +131,16 @@ render-py:
 
 preview:
 	quarto preview
+
+# Serve whatever is already built in _site/ — no Quarto needed, and unlike
+# opening index.html directly this makes full-text search work.
+PORT ?= 8000
+serve:
+	@test -d _site || { echo ""; echo "  _site/ does not exist yet."; \
+	  echo "  Build it first:  make render     (or make render-py without R)"; \
+	  echo "  Or unzip a preview build into this folder."; echo ""; exit 1; }
+	@echo "serving _site on http://localhost:$(PORT)   (ctrl-C to stop)"
+	@$(PY) -m http.server $(PORT) --directory _site
 
 all: check render
 
