@@ -117,6 +117,26 @@ out and further increases in dose behave differently — a common source of
 nonlinear pharmacokinetics, and a reason a model fitted at one dose level can
 mispredict at another.
 
+This dual role is not a footnote in drug development; it is a regulatory
+expectation. The International Transporter Consortium's 2010 white paper
+(Giacomini et al., [DOI](https://doi.org/10.1038/nrd3028), free full text)
+established which transporters a sponsor is expected to investigate and supplied
+the decision trees for when; its 2024 successor (Galetin et al.,
+[DOI](https://doi.org/10.1038/s41573-023-00877-1), free full text) extends the
+same framework toward transporter-informed precision dosing. The practical
+consequence for a modeller is that "is this a transporter substrate?" has a
+documented answer for most approved drugs, and is worth looking up before you
+attribute unexplained between-subject variability to something else.
+
+The prediction can be made earlier still. Wu and Benet's biopharmaceutics drug
+disposition classification system ([DOI](https://doi.org/10.1007/s11095-004-9004-4))
+sorts compounds by solubility and by *route of elimination* rather than by
+permeability alone, and the resulting four classes anticipate which compounds
+will show transporter effects, food effects and metabolic interactions — before
+any of those studies has been run. It is the cheapest available forecast of a
+compound's likely problems, and it is why `P-06` teaches classification before
+it teaches absorption modelling.
+
 ## 5. Ion channels
 
 Channels are gated pores. Open one and ions flood through, changing the cell's
@@ -203,6 +223,15 @@ same saturation mathematics as Michaelis–Menten metabolism in `P-09`.
   target-mediated models; `P-16` for hERG and safety.
 - **Reference:** Rang & Dale on receptor families; the IUPHAR/BPS Guide to
   Pharmacology for target-by-target detail, free and authoritative.
+- **On transporters:** Giacomini KM, Huang S-M, Tweedie DJ, et al., *Membrane
+  transporters in drug development*, Nat Rev Drug Discov 2010;9:215–236
+  ([DOI](https://doi.org/10.1038/nrd3028), free full text), then Galetin A,
+  Brouwer KLR, Tweedie D, et al., *Membrane transporters in drug development and
+  as determinants of precision medicine*, Nat Rev Drug Discov 2024;23:255–280
+  ([DOI](https://doi.org/10.1038/s41573-023-00877-1), free full text). Read the
+  2010 paper first for the framework, the 2024 one for what changed.
+- **On predicting disposition before you measure it:** Wu C-Y, Benet LZ, Pharm
+  Res 2005;22:11–23 ([DOI](https://doi.org/10.1007/s11095-004-9004-4)).
 
 *Seen in the wild:* a team modelled a nuclear-receptor agonist with a direct
 effect model because the fit was good in a single-dose study. The regimen

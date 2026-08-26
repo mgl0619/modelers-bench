@@ -11,26 +11,32 @@ curriculum that costs nothing should send you to papers that cost nothing.
 ::: {.callout-important appearance="simple"}
 ## Why this page links rather than hosts
 
-We checked the licence of all 28 papers through PubMed. The result is worth
+We checked the licence of all 53 papers through PubMed. The result is worth
 knowing before anyone proposes bundling PDFs with the course:
 
 | | Papers |
 |---|---|
-| Open licence (all Creative Commons **NC**, several also **ND**) | **6** |
-| All rights reserved, but free to *read* on PubMed Central | **15** |
-| All rights reserved, no free full text | **7** |
-| Carrying a plain **CC BY** licence | **0** |
+| Open licence (Creative Commons) | **7** |
+| All rights reserved or unstated, but free to *read* on PubMed Central | **21** |
+| No free full text found | **25** |
+| Carrying a plain **CC BY** licence | **1** |
 
-**Free to read is not free to redistribute.** Twenty-one of these are readable
+**Free to read is not free to redistribute.** Twenty-eight of these are readable
 at no cost on PubMed Central, and that is a permission to read, not a licence to
 copy. Redistributing those PDFs — in this repository, in a course pack, in a
 shared folder — would infringe copyright.
 
-Even the six openly licensed ones cannot be folded into this site. This
-curriculum is **CC BY-SA 4.0**, and BY-SA is incompatible with both **NC**
+Six of the seven openly licensed papers still cannot be folded into this site.
+This curriculum is **CC BY-SA 4.0**, and BY-SA is incompatible with both **NC**
 (non-commercial) and **ND** (no derivatives). We can cite them, describe their
 findings, and quote briefly with attribution. We cannot absorb their text or
 adapt their figures.
+
+The seventh is the exception, and it is new. Liu's 2017 review of monoclonal
+antibody pharmacokinetics is **CC BY 4.0**, which *is* compatible with BY-SA.
+Its figures could be adapted into a lesson with attribution. That is one paper
+out of fifty-three, which is itself the argument: the default in this literature
+is that you may read but not reuse.
 
 So: **link, never host.** Read them through the DOI or your institution's
 subscription. If a lesson needs a figure, we draw our own from the underlying
@@ -54,14 +60,85 @@ read the tutorials.
 
 ## Strand P · Pharmacology
 
+The first pass of this page was thin here: eighteen lessons on pharmacology
+resting on three citations. This section is the second pass. It is organised by
+what the lessons need rather than by journal, and several entries are included
+because they *contradict* something the field teaches casually.
+
+### Receptors, binding and target engagement
+
 | | Why |
 |---|---|
 | Kenakin T. **Receptor theory.** *Curr Protoc Pharmacol* 2008;Chapter 1:Unit 1.2. [DOI](https://doi.org/10.1002/0471141755.ph0102s41) · PMID 22294216 | Classical receptor theory and the operational model, by the person who wrote the textbook. Background for `P-04` and `P-05`. |
 | Kenakin T. **Biased agonism.** *F1000 Biol Rep* 2009;1:87. [DOI](https://doi.org/10.3410/B1-87) · PMID 20948603 · **[free, CC BY-NC 3.0]** | *Read in full.* Dismantles the receptor-as-switch picture: the minimal unit of control is the agonist–receptor complex, not the receptor, so two agonists can have their relative potencies **reverse** between two readouts. Efficacy is "pluridimensional" — propranolol is an antagonist and inverse agonist at G-protein-mediated effects and an *activator* of ERK. The modelling consequence, now in `P-03`: your choice of biomarker decides which effect you are measuring. |
 | Dua P, Hawkins E, van der Graaf PH. **A tutorial on target-mediated drug disposition (TMDD) models.** *CPT Pharmacometrics Syst Pharmacol* 2015;4:324–337. [DOI](https://doi.org/10.1002/psp4.41) · PMID 26225261 · **[free, CC BY-NC 4.0]** | *Read in full.* Starts exactly where `P-04` stops — with the Langmuir isotherm and the point at which "drug is in vast excess" fails. Then builds the model ladder: full TMDD, quasi-equilibrium, quasi-steady-state, Michaelis–Menten, and **states the conditions under which each approximation holds**, which is the part you cannot reconstruct yourself. Two corrections it supplies to common belief: TMDD is not a biologics-only phenomenon (Levy's first description was warfarin), and TMDD does not by itself imply nonlinear pharmacokinetics. Berkeley Madonna code in the supplement. |
+| Burvenich IJG, Parakh S, Parslow AC, et al. **Receptor occupancy imaging studies in oncology drug development.** *AAPS J* 2018;20:43. [DOI](https://doi.org/10.1208/s12248-018-0203-z) · PMID 29520671 | Occupancy stops being a theoretical quantity and becomes a measured one. PET/SPECT competition studies relate plasma concentration directly to fractional occupancy in tissue, which is the only way to answer "does the dose saturate the target?" without inferring it from effect. The empirical companion to `P-04`'s Langmuir arithmetic, and the top of `P-15`'s biomarker hierarchy. |
+
+### Transporters
+
+| | Why |
+|---|---|
+| Giacomini KM, Huang S-M, Tweedie DJ, et al. **Membrane transporters in drug development.** *Nat Rev Drug Discov* 2010;9:215–236. [DOI](https://doi.org/10.1038/nrd3028) · PMID 20190787 · **[free]** | The International Transporter Consortium's founding white paper, and the document that turned transporters from a research topic into a regulatory expectation. Decision trees for which transporters to study and when. Essential background for `P-03`, where transporters appear as both drug target and obstacle. |
+| Galetin A, Brouwer KLR, Tweedie D, et al. **Membrane transporters in drug development and as determinants of precision medicine.** *Nat Rev Drug Discov* 2024;23:255–280. [DOI](https://doi.org/10.1038/s41573-023-00877-1) · PMID 38267543 · **[free]** | The ITC's fourteen-years-later update. Read after Giacomini, not instead of it: the value is in what changed. |
+
+### Absorption and the fate of an oral dose
+
+| | Why |
+|---|---|
+| Wu C-Y, Benet LZ. **Predicting drug disposition via application of BCS: transport/absorption/elimination interplay and development of a biopharmaceutics drug disposition classification system.** *Pharm Res* 2005;22:11–23. [DOI](https://doi.org/10.1007/s11095-004-9004-4) · PMID 15771225 | The BDDCS paper. Reclassifies drugs by *elimination route* rather than permeability alone, and in doing so predicts which compounds will show transporter effects, food effects and drug–drug interactions. Four classes that let you guess a compound's problems before you measure them — the single highest-yield mental model in `P-06`. |
+| Deng J, Zhu X, Chen Z, et al. **A review of food-drug interactions on oral drug absorption.** *Drugs* 2017;77:1833–1855. [DOI](https://doi.org/10.1007/s40265-017-0832-z) · PMID 29076109 | Food effect for 229 drugs, analysed by BDDCS class — the empirical test of the paper above. Turns "take with food" from a label instruction into a mechanism. `P-06`. |
+
+### Distribution and protein binding
+
+| | Why |
+|---|---|
+| Smith DA, Di L, Kerns EH. **The effect of plasma protein binding on in vivo efficacy: misconceptions in drug discovery.** *Nat Rev Drug Discov* 2010;9:929–939. [DOI](https://doi.org/10.1038/nrd3287) · PMID 21119731 | Free *concentration* governs efficacy; free *fraction* is routinely mistaken for it, and compounds are prioritised on the wrong quantity. Underpins the free-versus-total rule in `S0-02` and `P-08`. |
+| Schulz JA, Stresser DM, Kalvass JC. **Plasma protein-mediated uptake and contradictions to the free drug hypothesis: a critical review.** *Drug Metab Rev* 2023;55:205–238. [DOI](https://doi.org/10.1080/03602532.2023.2195133) · PMID 36971325 | Where the free drug hypothesis breaks: hepatic uptake in which observed unbound intrinsic clearance exceeds prediction. Notably, several candidate mechanisms for the effect remain *consistent* with the free drug hypothesis — the review does not simply overturn it. `P-08`, `P-11`. |
+| Nation RL, Theuretzbacher U, Tsuji BT. **Concentration-dependent plasma protein binding: expect the unexpected.** *Eur J Pharm Sci* 2018;122:341–346. [DOI](https://doi.org/10.1016/j.ejps.2018.07.004) · PMID 30026170 | Saturable binding raising free fraction with concentration is textbook. This catalogues the drugs that do the *opposite* — free fraction **falls** as concentration rises. A short paper whose whole function is to break the assumption that f~u~ is a constant you can look up. `P-08` failure mode. |
+| Ulldemolins M, Roberts JA, Rello J, et al. **The effects of hypoalbuminaemia on optimizing antibacterial dosing in critically ill patients.** *Clin Pharmacokinet* 2011;50:99–110. [DOI](https://doi.org/10.2165/11539220-000000000-00000) · PMID 21142293 | What happens when f~u~ changes in a real population: 40–50% of ICU patients are hypoalbuminaemic, and ceftriaxone's V~d~ and CL roughly double. The worked clinical consequence of the two entries above. |
+
+### Clearance, metabolism and the liver
+
+| | Why |
+|---|---|
+| Mehvar R. **Clearance concepts: fundamentals and application to pharmacokinetic behavior of drugs.** *J Pharm Pharm Sci* 2018;21:88s–102s. [DOI](https://doi.org/10.18433/jpps29896) · PMID 30041730 | The clearest single treatment of extraction ratio, organ blood flow and intrinsic clearance, with the well-stirred and parallel-tube models set side by side and their differing predictions worked numerically. If you read one thing before `P-11`, read this. |
+| Benet LZ, Sodhi JK. **Can in vitro–in vivo extrapolation be successful? Recognizing the incorrect clearance assumptions.** *Clin Pharmacol Ther* 2022;111:1022–1035. [DOI](https://doi.org/10.1002/cpt.2482) · PMID 34731496 · **[free]** | Read this *against* Mehvar, deliberately. Benet and Sodhi argue that the well-stirred equation taught in every PK course "has no validity", that all published clearances are arterial clearances, and that IVIVE has no theoretical basis. **This is a contested position, not settled fact** — it is here because a curriculum that only ever shows you the consensus teaches you to trust equations you have never seen attacked. `P-11`'s designated controversy. |
+| Pang KS, Durk MR. **Physiologically-based pharmacokinetic modeling for absorption, transport, metabolism and excretion.** *J Pharmacokinet Pharmacodyn* 2010;37:591–615. [DOI](https://doi.org/10.1007/s10928-010-9185-x) · PMID 21153869 | The lineage from Rowland's 1973 liver model to modern PBPK, including why the Rodgers–Rowland tissue-partition work mattered so much. The bridge from `P-11` to strand `S3`. |
+| Tompkins LM, Wallace AD. **Mechanisms of cytochrome P450 induction.** *J Biochem Mol Toxicol* 2007;21:176–181. [DOI](https://doi.org/10.1002/jbt.20180) · PMID 17936931 | Induction as transcription: PXR, CAR and AhR, and why CYP3A4, 2B6 and 1A1 respond to different signals. Short. Explains why an induction interaction takes days to appear and days to wash out, which inhibition does not. `P-09`. |
+
+### The kidney
+
+| | Why |
+|---|---|
+| Verbeeck RK, Musuamba FT. **Pharmacokinetics and dosage adjustment in patients with renal dysfunction.** *Eur J Clin Pharmacol* 2009;65:757–773. [DOI](https://doi.org/10.1007/s00228-009-0678-8) · PMID 19543887 | Renal impairment does more than slow renal excretion: it lowers protein binding and suppresses drug-metabolising enzymes and transporters. The standard reference for `P-10`, and the reason dose adjustment cannot be read off GFR alone. |
+| Pradhan S, Duffull SB, Walker RJ, Wright DFB. **The intact nephron hypothesis as a model for renal drug handling.** *Eur J Clin Pharmacol* 2019;75:147–156. [DOI](https://doi.org/10.1007/s00228-018-2572-8) · PMID 30298363 | Every time you put creatinine clearance on CL as a linear covariate, you are assuming the intact nephron hypothesis. This systematic review found **24 of 30 studies did not support it**, and the studies that did tended to use weaker methods. Read it before you write `CL = θ · (CRCL/100)^θ2` again. `P-10` and `S2`. |
+| Wang X, Mu J, Ma K, Ma Y. **Challenges of serum creatinine level in GFR assessment and drug dosing decisions in kidney injury.** *Adv Pharm Bull* 2024;14:745–758. [DOI](https://doi.org/10.34172/apb.42345) · PMID 40190670 · **[free]** | Serum creatinine is itself filtered, secreted, reabsorbed and eliminated extra-renally, and is perturbed by muscle mass, trauma, HIV and drug–creatinine interactions. So the covariate is noisy in ways that are not random. Directly relevant to `CASE-SM`, where `CRCL` is a **decoy** covariate with no true effect. |
+
+### Physiology and special populations
+
+| | Why |
+|---|---|
 | Anderson BJ, Holford NHG. **Mechanistic basis of using body size and maturation to predict clearance in humans.** *Drug Metab Pharmacokinet* 2009;24:25–36. [DOI](https://doi.org/10.2133/dmpk.24.25) · PMID 19252334 | The argument for allometric scaling and for maturation functions in children. Underpins `S0-02` and `P-12`. |
 | Rhodin MM, Anderson BJ, Peters AM, et al. **Human renal function maturation: a quantitative description using weight and postmenstrual age.** *Pediatr Nephrol* 2009;24:67–76. [DOI](https://doi.org/10.1007/s00467-008-0997-5) · PMID 18846389 | GFR from premature neonate to adult in one model. The worked example of why size alone fails in paediatrics. |
-| Schulz JA, Stresser DM, Kalvass JC. **Plasma protein-mediated uptake and contradictions to the free drug hypothesis: a critical review.** *Drug Metab Rev* 2023;55:205–238. [DOI](https://doi.org/10.1080/03602532.2023.2195133) · PMID 36971325 | Where the free drug hypothesis breaks: hepatic uptake in which observed unbound intrinsic clearance exceeds prediction. Needed for `P-08`. |
+| Abduljalil K, Pan X, Pansari A, Jamei M, Johnson TN. **A preterm physiologically based pharmacokinetic model. Part I: physiological parameters and model building.** *Clin Pharmacokinet* 2020;59:485–500. [DOI](https://doi.org/10.1007/s40262-019-00825-6) · PMID 31583613 | Where the numbers come from. Organ sizes as functions of body weight, protein binding as a function of age, ontogeny functions for CYP1A2, 3A4 and 2C9 — collated because they exist in no single source. Also states plainly which values are thin (tissue composition). `P-12`. |
+
+### Biologics
+
+| | Why |
+|---|---|
+| Lobo ED, Hansen RJ, Balthasar JP. **Antibody pharmacokinetics and pharmacodynamics.** *J Pharm Sci* 2004;93:2645–2668. [DOI](https://doi.org/10.1002/jps.20178) · PMID 15389672 | The paper that set out why antibodies behave unlike small molecules: saturable target binding, FcRn-dependent concentration-dependent elimination, and immunogenicity altering a drug's own kinetics. Background for `P-01`'s modality survey and for `CASE-MAB`. |
+| Keizer RJ, Huitema ADR, Schellens JHM, Beijnen JH. **Clinical pharmacokinetics of therapeutic monoclonal antibodies.** *Clin Pharmacokinet* 2010;49:493–507. [DOI](https://doi.org/10.2165/11531280-000000000-00000) · PMID 20608753 | The clinical view: low volumes of distribution, half-lives up to four weeks, body size relationships that are statistically real and clinically minor, and the near-absence of metabolic drug–drug interactions. |
+| Liu L. **Pharmacokinetics of monoclonal antibodies and Fc-fusion proteins.** *Protein Cell* 2017;9:15–32. [DOI](https://doi.org/10.1007/s13238-017-0408-4) · PMID 28421387 · **[free, CC BY 4.0]** | The most current of the three, and the only paper on this entire page under a plain **CC BY** licence — which means, uniquely, that its figures could be adapted into this site with attribution. Covers Fc engineering for half-life, charge and glycosylation effects, subcutaneous absorption via lymphatics, and human PK prediction from cynomolgus data. |
+
+### Cell and gene therapy kinetics
+
+Listed as a gap in the first pass. `CASE-CELL` will need these.
+
+| | Why |
+|---|---|
+| Stein AM, Grupp SA, Levine JE, et al. **Tisagenlecleucel model-based cellular kinetic analysis of chimeric antigen receptor-T cells.** *CPT Pharmacometrics Syst Pharmacol* 2019;8:285–295. [DOI](https://doi.org/10.1002/psp4.12388) · PMID 30848084 · **[free]** | The first mixed-effects model of a CAR-T product. Doubling time 0.78 days, initial decline half-life 4.3 days, terminal half-life 220 days — a "drug" whose kinetics are expansion and contraction, not absorption and elimination. |
+| Liu C, Ayyar VS, Zheng X, et al. **Model-based cellular kinetic analysis of chimeric antigen receptor-T cells in humans.** *Clin Pharmacol Ther* 2021;109:716–727. [DOI](https://doi.org/10.1002/cpt.2040) · PMID 33002189 · **[free]** | 217 patients across seven trials. Responders show higher proliferation and slower contraction; haematologic tumours support more expansion than solid ones; and **dose is only weakly related to exposure or response** — which is roughly the opposite of the small-molecule intuition. |
+| Chaudhury A, Zhu X, Chu L, et al. **Chimeric antigen receptor T cell therapies: a review of cellular kinetic-pharmacodynamic modeling approaches.** *J Clin Pharmacol* 2020;60(S1):S147–S159. [DOI](https://doi.org/10.1002/jcph.1691) · PMID 33205434 | A taxonomy of the model structures, and where to extend them: target binding, tumour distribution, cytokine release syndrome, immunophenotype differentiation. Read after the two above. |
 
 ## Strand S0 · Foundations
 
@@ -114,7 +191,7 @@ read the tutorials.
 
 Nothing above stops **you** from downloading these and reading them. Personal
 reading copies are ordinary scholarly practice, and the restriction is on
-redistribution, not on you. Twenty-one of the twenty-eight are free:
+redistribution, not on you. Twenty-eight of the fifty-three are free:
 
 | Paper | Free full text |
 |---|---|
@@ -139,14 +216,26 @@ redistribution, not on you. Twenty-one of the twenty-eight are free:
 | Lesko, perspective on MIDD | [PMC8520742](https://pmc.ncbi.nlm.nih.gov/articles/PMC8520742/) |
 | Anziano & Milligan, MIDD framework | [PMC8596610](https://pmc.ncbi.nlm.nih.gov/articles/PMC8596610/) |
 | Kenakin, biased agonism | [PMC2948287](https://pmc.ncbi.nlm.nih.gov/articles/PMC2948287/) |
+| Giacomini et al., ITC transporters | [PMC3326076](https://pmc.ncbi.nlm.nih.gov/articles/PMC3326076/) |
+| Galetin et al., ITC transporters update | [PMC11464068](https://pmc.ncbi.nlm.nih.gov/articles/PMC11464068/) |
+| Benet & Sodhi, clearance assumptions | [PMC9542026](https://pmc.ncbi.nlm.nih.gov/articles/PMC9542026/) |
+| Wang et al., serum creatinine and GFR | [PMC11970497](https://pmc.ncbi.nlm.nih.gov/articles/PMC11970497/) |
+| Liu, mAb and Fc-fusion PK | [PMC5777971](https://pmc.ncbi.nlm.nih.gov/articles/PMC5777971/) |
+| Stein et al., tisagenlecleucel kinetics | [PMC6539725](https://pmc.ncbi.nlm.nih.gov/articles/PMC6539725/) |
+| Liu et al., CAR-T cellular kinetics | [PMC7959329](https://pmc.ncbi.nlm.nih.gov/articles/PMC7959329/) |
 
-The remaining seven have no free full text and need a subscription: Beal on BLQ,
-Zhao et al. on PBPK best practice, van der Heijden et al. on paediatric PBPK,
-Anderson & Holford on size and maturation, Rhodin et al. on GFR maturation,
-Kenakin's *Receptor theory*, and Zhu et al. on the MIDD regulatory perspective.
+The remaining twenty-five have no free full text on PubMed Central and need a
+subscription. They cluster in the same places: the *Nature Reviews* and
+*Clinical Pharmacokinetics* review literature, and the older primary papers.
+Among them are Beal on BLQ, Kenakin's *Receptor theory*, Wu & Benet on BDDCS,
+Mehvar on clearance concepts, Verbeeck & Musuamba on renal dosing, Pradhan et
+al. on the intact nephron hypothesis, and Lobo et al. on antibody PK.
+
 Routes to those, in order of ease: your institution's subscription; an
 interlibrary loan; or emailing the corresponding author, which in this field is
-normal and usually answered within a day.
+normal and usually answered within a day. A handful are also open on their
+publisher's own site without a PubMed Central deposit — worth one click on the
+DOI before assuming a paywall.
 
 Keep what you download in `reading/papers/`. That directory is gitignored, so
 your personal library sits beside the project and never enters the repository.
@@ -164,24 +253,31 @@ exists precisely to license that use.
 Honest provenance, because it varies by entry.
 
 We attempted to retrieve full texts through the PubMed Central API. **Full text
-came back only for the six openly licensed papers.** For the other twenty-two —
-including the fifteen that are free to read in a browser — the API returns the
-abstract and an empty body, which tracks the licence status exactly: readable on
-the PMC website is not the same as available for programmatic retrieval.
+came back only for the openly licensed papers.** For the rest — including the
+twenty-one that are free to read in a browser — the API returns the abstract and
+an empty body, which tracks the licence status exactly: readable on the PMC
+website is not the same as available for programmatic retrieval.
 
 So:
 
 | Entry | The note rests on |
 |---|---|
 | Dua on TMDD, Keizer on the NONMEM workbench, Kenakin on biased agonism | The full text, read |
-| The remaining 3 CC-licensed papers | Retrievable, not yet read |
-| The other 22 | Title, journal, abstract, and subject knowledge |
+| The other 4 CC-licensed papers | Retrievable, not yet read |
+| The other 46 | Title, journal, abstract, and subject knowledge |
 
-Entries in the second group are a starting map, not a substitute for reading the
+Entries in the third group are a starting map, not a substitute for reading the
 paper — and several of them are ones the lessons lean on hardest (Beal on BLQ,
 Savic & Karlsson on shrinkage, Anderson & Holford on allometry). Those
 annotations describe what the papers are *for*, from their abstracts and their
 place in the field, not a close reading.
+
+**The whole of the strand `P` second pass is in that third group.** Those
+twenty-one entries were verified against PubMed for title, journal, year,
+authors and DOI, and annotated from their abstracts. Where an annotation states
+a specific number — 24 of 30 studies, 40–50% of ICU patients, a 0.78-day
+doubling time — that number is quoted from the paper's own abstract, not
+computed by us and not checked against its results section.
 
 If a note mischaracterises a paper, that is a bug: open an issue and it gets
 fixed.
@@ -207,9 +303,15 @@ Honest gaps in this list, which will fill as the strands are written:
 - **No regulatory guidances.** The FDA and EMA population PK, exposure–response
   and PBPK guidances are short, free and tell you exactly what a deliverable
   looks like. They belong in a separate list.
-- **Thin on pharmacology proper.** Strand `P` needs primers on ADME, transporters
-  and physiology that this first pass did not cover.
-- **Nothing on cell and gene therapy kinetics**, which `CASE-CELL` will need.
+- **Nothing on immunogenicity and anti-drug antibodies** beyond a mention inside
+  the biologics reviews. `CASE-MAB` will need a source of its own.
+- **Nothing on pharmacogenomics** — CYP2D6, CYP2C19, DPYD, TPMT — which `P-09`
+  cannot honestly avoid.
+- **Nothing on drug–drug interaction prediction**: static mechanistic models,
+  the R-value approach, and when a DDI study is required rather than modelled.
+- **Nothing on adverse drug reactions and safety pharmacology** apart from the
+  cardiovascular tutorial in `S5–S6`.
+- **Still no textbooks and no regulatory guidances**, for the reasons above.
 
 ---
 
