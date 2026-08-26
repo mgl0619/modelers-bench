@@ -17,11 +17,12 @@ knowing before anyone proposes bundling PDFs with the course:
 | | Papers |
 |---|---|
 | Open licence (all Creative Commons **NC**, several also **ND**) | **6** |
-| Publisher copyright, all rights reserved — 16 of them still free to *read* on PMC | **22** |
+| All rights reserved, but free to *read* on PubMed Central | **15** |
+| All rights reserved, no free full text | **7** |
 | Carrying a plain **CC BY** licence | **0** |
 
-**Free to read is not free to redistribute.** Sixteen of these are readable at
-no cost on PubMed Central, and that is a permission to read, not a licence to
+**Free to read is not free to redistribute.** Twenty-one of these are readable
+at no cost on PubMed Central, and that is a permission to read, not a licence to
 copy. Redistributing those PDFs — in this repository, in a course pack, in a
 shared folder — would infringe copyright.
 
@@ -105,6 +106,55 @@ read the tutorials.
 | Kulesh V, Vasyutin I, Volkova A, et al. **A tutorial for model-based evaluation and translation of cardiovascular safety in preclinical trials.** *CPT Pharmacometrics Syst Pharmacol* 2024;13:5–22. [DOI](https://doi.org/10.1002/psp4.13082) · PMID 37950388 · **[free]** | Safety modelling done quantitatively, with a reproducible example. Background for `P-16`. |
 | Zhu H, Huang S-M, Madabushi R, et al. **Model-informed drug development: a regulatory perspective on progress.** *Clin Pharmacol Ther* 2019;106:91–93. [DOI](https://doi.org/10.1002/cpt.1475) · PMID 31162631 | What regulators have actually accepted, and where they push back. |
 | Anziano RJ, Milligan PA. **Model informed drug development: collaboration through a common framework.** *Clin Pharmacol Ther* 2021;110:1165–1167. [DOI](https://doi.org/10.1002/cpt.2066) · PMID 33111309 · **[free]** | The organisational half of MIDD — why good models fail to influence decisions. |
+
+## Getting your own copies
+
+Nothing above stops **you** from downloading these and reading them. Personal
+reading copies are ordinary scholarly practice, and the restriction is on
+redistribution, not on you. Twenty-one of the twenty-eight are free:
+
+| Paper | Free full text |
+|---|---|
+| van der Graaf, intro to population PK/PD | [PMC5684957](https://pmc.ncbi.nlm.nih.gov/articles/PMC5684957/) |
+| Bauer, NONMEM tutorial I | [PMC6709426](https://pmc.ncbi.nlm.nih.gov/articles/PMC6709426/) |
+| Bauer, NONMEM tutorial II | [PMC6709422](https://pmc.ncbi.nlm.nih.gov/articles/PMC6709422/) |
+| Keizer et al., Pirana/PsN/Xpose | [PMC3697037](https://pmc.ncbi.nlm.nih.gov/articles/PMC3697037/) |
+| Wang et al., RxODE tutorial | [PMC4728294](https://pmc.ncbi.nlm.nih.gov/articles/PMC4728294/) |
+| Elmokadem et al., mrgsolve tutorial | [PMC6930861](https://pmc.ncbi.nlm.nih.gov/articles/PMC6930861/) |
+| Dua et al., TMDD tutorial | [PMC4505827](https://pmc.ncbi.nlm.nih.gov/articles/PMC4505827/) |
+| Holford, time-to-event tutorial | [PMC3674328](https://pmc.ncbi.nlm.nih.gov/articles/PMC3674328/) |
+| Bauer et al., $DESIGN tutorial | [PMC8674001](https://pmc.ncbi.nlm.nih.gov/articles/PMC8674001/) |
+| Ooi et al., Markov models tutorial | [PMC11812945](https://pmc.ncbi.nlm.nih.gov/articles/PMC11812945/) |
+| Mehrotra & Gobburu, communicating | [PMC4846777](https://pmc.ncbi.nlm.nih.gov/articles/PMC4846777/) |
+| Talevi et al., ML primer | [PMC7080529](https://pmc.ncbi.nlm.nih.gov/articles/PMC7080529/) |
+| Kulesh et al., CV safety tutorial | [PMC10787214](https://pmc.ncbi.nlm.nih.gov/articles/PMC10787214/) |
+| Savic & Karlsson, shrinkage | [PMC2758126](https://pmc.ncbi.nlm.nih.gov/articles/PMC2758126/) |
+| Xu et al., shrinkage quantified | [PMC3475840](https://pmc.ncbi.nlm.nih.gov/articles/PMC3475840/) |
+| Bergstrand et al., pcVPC | [PMC3085712](https://pmc.ncbi.nlm.nih.gov/articles/PMC3085712/) |
+| Pansari et al., lactation PBPK | [PMC11578141](https://pmc.ncbi.nlm.nih.gov/articles/PMC11578141/) |
+| Chae, dynamical systems in QSP | [PMC7533163](https://pmc.ncbi.nlm.nih.gov/articles/PMC7533163/) |
+| Lesko, perspective on MIDD | [PMC8520742](https://pmc.ncbi.nlm.nih.gov/articles/PMC8520742/) |
+| Anziano & Milligan, MIDD framework | [PMC8596610](https://pmc.ncbi.nlm.nih.gov/articles/PMC8596610/) |
+| Kenakin, biased agonism | [PMC2948287](https://pmc.ncbi.nlm.nih.gov/articles/PMC2948287/) |
+
+The remaining seven have no free full text and need a subscription: Beal on BLQ,
+Zhao et al. on PBPK best practice, van der Heijden et al. on paediatric PBPK,
+Anderson & Holford on size and maturation, Rhodin et al. on GFR maturation,
+Kenakin's *Receptor theory*, and Zhu et al. on the MIDD regulatory perspective.
+Routes to those, in order of ease: your institution's subscription; an
+interlibrary loan; or emailing the corresponding author, which in this field is
+normal and usually answered within a day.
+
+Keep what you download in `reading/papers/`. That directory is gitignored, so
+your personal library sits beside the project and never enters the repository.
+
+::: {.callout-warning appearance="simple"}
+Where the line falls, concretely. **Fine:** downloading these to read, annotate,
+and cite. **Not fine:** committing the PDFs here, putting them in a shared drive
+for a cohort, or bundling them as a course pack. If you later teach from this
+material, course readings go through your library's reserves system, which
+exists precisely to license that use.
+:::
 
 ## What the one-line notes rest on
 
