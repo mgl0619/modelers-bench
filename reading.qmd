@@ -8,6 +8,34 @@ year, authors and DOI. Nothing on this page is a remembered citation. Where a
 free full text exists in PubMed Central it is marked **[free]**, because a
 curriculum that costs nothing should send you to papers that cost nothing.
 
+::: {.callout-important appearance="simple"}
+## Why this page links rather than hosts
+
+We checked the licence of all 28 papers through PubMed. The result is worth
+knowing before anyone proposes bundling PDFs with the course:
+
+| | Papers |
+|---|---|
+| Open licence (all Creative Commons **NC**, several also **ND**) | **6** |
+| Publisher copyright, all rights reserved — 16 of them still free to *read* on PMC | **22** |
+| Carrying a plain **CC BY** licence | **0** |
+
+**Free to read is not free to redistribute.** Sixteen of these are readable at
+no cost on PubMed Central, and that is a permission to read, not a licence to
+copy. Redistributing those PDFs — in this repository, in a course pack, in a
+shared folder — would infringe copyright.
+
+Even the six openly licensed ones cannot be folded into this site. This
+curriculum is **CC BY-SA 4.0**, and BY-SA is incompatible with both **NC**
+(non-commercial) and **ND** (no derivatives). We can cite them, describe their
+findings, and quote briefly with attribution. We cannot absorb their text or
+adapt their figures.
+
+So: **link, never host.** Read them through the DOI or your institution's
+subscription. If a lesson needs a figure, we draw our own from the underlying
+data or the equations.
+:::
+
 ::: {.callout-note appearance="simple"}
 The pharmacometrics literature has an unusual gift: *CPT: Pharmacometrics &
 Systems Pharmacology* runs a standing tutorial series, most of it open access
@@ -77,6 +105,16 @@ read the tutorials.
 | Kulesh V, Vasyutin I, Volkova A, et al. **A tutorial for model-based evaluation and translation of cardiovascular safety in preclinical trials.** *CPT Pharmacometrics Syst Pharmacol* 2024;13:5–22. [DOI](https://doi.org/10.1002/psp4.13082) · PMID 37950388 · **[free]** | Safety modelling done quantitatively, with a reproducible example. Background for `P-16`. |
 | Zhu H, Huang S-M, Madabushi R, et al. **Model-informed drug development: a regulatory perspective on progress.** *Clin Pharmacol Ther* 2019;106:91–93. [DOI](https://doi.org/10.1002/cpt.1475) · PMID 31162631 | What regulators have actually accepted, and where they push back. |
 | Anziano RJ, Milligan PA. **Model informed drug development: collaboration through a common framework.** *Clin Pharmacol Ther* 2021;110:1165–1167. [DOI](https://doi.org/10.1002/cpt.2066) · PMID 33111309 · **[free]** | The organisational half of MIDD — why good models fail to influence decisions. |
+
+## What the one-line notes rest on
+
+The "why" beside each entry is judgement, not a summary of a full text I
+retrieved. What was fetched from PubMed is the bibliographic record and, where
+available, the abstract. The recommendations draw on those plus subject
+knowledge — they are a starting map, not a substitute for reading the paper.
+
+If a note ever turns out to mischaracterise a paper, that is a bug: open an
+issue and it gets fixed.
 
 ## How to read a tutorial paper
 

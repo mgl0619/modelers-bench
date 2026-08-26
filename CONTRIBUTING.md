@@ -11,9 +11,16 @@ expected to happen.
    closed and the branch deleted.
 2. **No proprietary software, licence keys, or vendor model files.** Reference
    them and link to their documentation; never redistribute.
-3. **Nothing traceable to a real programme.** No compound names, no internal
+3. **No papers.** Never commit a PDF, a scanned chapter, or a copied figure.
+   Of the 28 works cited on the Reading page, 22 are all-rights-reserved and the
+   other 6 are Creative Commons **NC**/**ND**, which this project's CC BY-SA
+   licence cannot absorb. Free to read on PubMed Central is a permission to
+   read, not a licence to copy. Cite by DOI, add the entry to
+   `references.bib`, and draw any figure yourself from the equations or the
+   underlying data.
+4. **Nothing traceable to a real programme.** No compound names, no internal
    methods, no unpublished parameter values.
-4. **Every runnable lesson must execute in CI.** A notebook that does not run is
+5. **Every runnable lesson must execute in CI.** A notebook that does not run is
    a build failure, not a footnote.
 
 ## Adding a lesson
