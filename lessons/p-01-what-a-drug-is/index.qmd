@@ -61,7 +61,12 @@ swallowed.
 crossing it means passing through *two* lipid membranes. Molecules that are too
 large, too charged or too water-loving do not get across. Some that do are
 immediately pumped back out by efflux transporters — proteins whose day job is
-throwing foreign chemicals back into the gut.
+throwing foreign chemicals back into the gut. Which transporters these are, and
+when a sponsor is expected to study them, is not left to taste: the
+International Transporter Consortium set out the list and the decision trees
+(Giacomini et al., Nat Rev Drug Discov 2010,
+[DOI](https://doi.org/10.1038/nrd3028), free full text; updated by Galetin et
+al. 2024, [DOI](https://doi.org/10.1038/s41573-023-00877-1), free full text).
 
 **It has to survive the liver.** Everything absorbed from the gut travels in the
 portal vein straight to the liver *before* reaching the rest of the body. The
@@ -86,6 +91,26 @@ the natural language. The models in `S1` are not imposed on the biology; they
 are the biology, written down.
 :::
 
+Two of these hurdles can be anticipated rather than discovered. Wu and Benet's
+**biopharmaceutics drug disposition classification system** ([DOI](https://doi.org/10.1007/s11095-004-9004-4))
+sorts compounds into four classes on two axes — solubility, and whether
+elimination proceeds mainly by metabolism or by excretion of unchanged drug —
+and the class then predicts which obstacles will bite. High-solubility,
+high-metabolism compounds (class 1) tend to be absorbed completely and to show
+little transporter involvement; poorly soluble, highly metabolised compounds
+(class 2) are where efflux transporters, food effects and metabolic interactions
+concentrate. The classification costs nothing to apply and is available before
+any clinical study has run.
+
+Food is the everyday test of that prediction. Deng and colleagues catalogued the
+food effect for 229 drugs and analysed it by BDDCS class
+([DOI](https://doi.org/10.1007/s40265-017-0832-z)), which turns "take with food"
+from an instruction on a label into a statement about dissolution, gastric
+emptying, bile salt solubilisation and splanchnic blood flow. For a modeller the
+practical consequence is narrower: a fed–fasted difference is a *known
+covariate on absorption*, and if your study allowed either, the dataset needs a
+column for it.
+
 ## 3. Modality decides everything
 
 "Drug" now covers wildly different kinds of matter. The differences are not
@@ -106,7 +131,12 @@ Three consequences worth carrying forward:
 
 **Half-life spans six orders of magnitude.** A peptide may be gone in minutes; a
 CAR-T product may still be detectable years later. "Once daily" is a small
-molecule habit, not a law.
+molecule habit, not a law. The antibody figure is not an approximation for
+teaching: elimination half-lives up to about four weeks are the reviewed norm,
+and they arise because IgG bound by the neonatal Fc receptor is recycled rather
+than degraded (Keizer et al., Clin Pharmacokinet 2010,
+[DOI](https://doi.org/10.2165/11531280-000000000-00000); Liu, Protein Cell 2017,
+[DOI](https://doi.org/10.1007/s13238-017-0408-4), free full text and **CC BY**).
 
 **Big molecules cannot be swallowed.** They are digested, and they cannot cross
 the gut wall. This alone determines route, and route determines the absorption
@@ -117,6 +147,21 @@ Concentration rises after dosing without any further dose, peaks days later, the
 contracts. Every equation in `S1` assumes the amount of drug only ever goes down
 between doses. For `CASE-CELL` that assumption is simply false, and the model has
 to be rebuilt from the biology up — which is the whole point of `S4`.
+
+The scale of the difference is worth seeing in numbers. The published
+mixed-effects analysis of tisagenlecleucel reports a **doubling time of 0.78
+days**, an initial decline half-life of **4.3 days**, and a terminal half-life of
+**220 days** (Stein et al., CPT:PSP 2019,
+[DOI](https://doi.org/10.1002/psp4.12388), free full text) — expansion,
+contraction and persistence as three distinct phases, none of them absorption or
+elimination in the sense `S1` uses those words. A pooled analysis of 217 patients
+across seven trials found that responders differed from non-responders in
+proliferation rate and contraction rate, and that **dose was only weakly related
+to exposure or to response** across the studied range (Liu et al., Clin Pharmacol
+Ther 2021, [DOI](https://doi.org/10.1002/cpt.2040), free full text). If your
+instinct on reading that is "then what is the dose–response relationship for?",
+you have located precisely why this modality needs its own model structure
+rather than a reparameterised one.
 
 ## 4. What "drug-like" means
 

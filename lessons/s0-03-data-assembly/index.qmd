@@ -97,6 +97,29 @@ timezones, dates without times, dose diaries), **`DM` to everything on subject**
 of three creatinine values is "baseline"?). Write the rule down before you write
 the join.
 
+### The creatinine problem, which is not a data-management problem
+
+That third join deserves more than a parenthesis, because the column it produces
+is the one most likely to end up in a covariate model. Creatinine clearance is
+not measured; it is computed from serum creatinine, and serum creatinine is a
+poor instrument for the thing it is used to represent. It is itself filtered,
+secreted, reabsorbed and eliminated extra-renally; it responds to muscle mass,
+to trauma, to a range of disease states, and to drugs that interact with
+creatinine's own transport (Wang et al., Adv Pharm Bull 2024,
+[DOI](https://doi.org/10.34172/apb.42345), free full text). The renal excretion
+pathways for creatinine and for any given drug are not the same pathways.
+
+So `CRCL` arrives in your dataset carrying measurement error that is
+**structured rather than random** — correlated with body size, with acute
+illness, and with concomitant medication. That is the profile of a variable that
+produces spurious covariate relationships, not merely noisy ones.
+
+`CASE-SM` is built to make this concrete: `CRCL`, `AGE`, `SEX` and `ALT` are
+**decoy covariates with no true effect** in the generating model. If your
+covariate search finds one, the finding is the exercise. `S2` supplies the
+methods; the habit to build now is to ask, of every covariate column, *what
+was actually measured, and what is it standing in for?*
+
 ### Nominal versus actual time
 
 The protocol says 2 h post-dose; the nurse drew at 2 h 41 min. Use the

@@ -109,8 +109,38 @@ surrogate.
 The free drug hypothesis is also not universal. Deviations are documented in
 hepatic uptake, where observed unbound intrinsic clearance exceeds prediction —
 the plasma protein-mediated uptake effect, reviewed by Schulz, Stresser & Kalvass
-([DOI](https://doi.org/10.1080/03602532.2023.2195133)). `P-08` returns to this.
+([DOI](https://doi.org/10.1080/03602532.2023.2195133)). Several of the candidate
+mechanisms for that effect remain consistent with the free drug hypothesis, so
+the review sharpens it rather than discarding it. `P-08` returns to this.
 :::
+
+### $f_u$ is a variable that is usually treated as a constant
+
+The conversion above uses a single number, 0.08, as though it were a property of
+the molecule. Two literatures say otherwise, and both matter more than their
+obscurity suggests.
+
+**It varies with concentration, and not always in the obvious direction.**
+Saturable binding raising $f_u$ as concentration rises is textbook. Nation,
+Theuretzbacher and Tsuji catalogue drugs that do the opposite — $f_u$ *falls* as
+concentration rises ([DOI](https://doi.org/10.1016/j.ejps.2018.07.004)). Either
+way, a single $f_u$ applied across a dose range that spans saturation is an
+assumption, not an arithmetic step, and it should be stated as one.
+
+**It varies between patients, systematically.** Serum albumin is low in
+40–50% of critically ill patients, and for highly bound antibacterials the
+consequences are not subtle: reviewing the clinical literature, Ulldemolins and
+colleagues report that ceftriaxone's apparent volume of distribution and
+clearance were both increased roughly two-fold in hypoalbuminaemic critically ill
+patients ([DOI](https://doi.org/10.2165/11539220-000000000-00000)), with
+ertapenem failing its pharmacodynamic target as a result. The mechanism is the
+one this section just described, running in a population rather than a
+spreadsheet.
+
+The operational consequence for `CASE-SM` is small but real: the free
+concentrations derived here inherit whatever uncertainty sits in $f_u$, and the
+model report should say where the value came from and over what range it was
+measured.
 Whenever you compare a clinical concentration to an *in vitro* potency, state
 explicitly which of the four combinations you are using (total or free,
 clinical or *in vitro*); the mismatch is a standard reviewer question and a
@@ -185,6 +215,25 @@ happen to sit slightly differently on the weight axis, and weight absorbs the
 effect. **A covariate you omit does not disappear — it redistributes itself into
 the covariates you kept.** This is the central hazard of covariate modeling and
 you will meet it properly in `S2`.
+
+### Where the physiological numbers come from
+
+Allometric and maturation models need reference values — organ weights, blood
+flows, tissue composition, plasma protein concentrations, enzyme abundance — and
+those numbers have to come from somewhere. For adults the standard sets are
+long-established. For a preterm neonate they are not, and Abduljalil and
+colleagues assembled them precisely because they existed in no single source:
+organ sizes expressed as functions of body weight so that variability and
+correlation are retained, protein binding as a function of age, and ontogeny
+functions for CYP1A2, CYP3A4 and CYP2C9
+([DOI](https://doi.org/10.1007/s40262-019-00825-6)).
+
+Two things are worth taking from it beyond the numbers themselves. The paper is
+explicit that **tissue composition values are thin**, which is the kind of
+statement a parameter source rarely volunteers and a modeller should always look
+for. And it shows what a system-parameter dataset is: a separate, citable object
+from the drug model built on top of it. When `S3` asks where a PBPK model's
+physiology came from, this is the shape of the answer.
 
 ## 7. Per-kilogram or flat dosing?
 

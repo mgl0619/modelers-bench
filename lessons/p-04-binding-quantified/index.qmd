@@ -142,6 +142,28 @@ targets need sustained blockade, others respond to intermittent high occupancy �
 but you cannot even ask it without this calculation. It takes one line, and it is
 routinely skipped.
 
+### Occupancy can be measured, not only inferred
+
+Everything above computes occupancy from a plasma concentration and a $K_d$
+determined *in vitro*. That is an inference with two assumptions inside it:
+that free concentration at the target equals free concentration in plasma, and
+that the *in vitro* $K_d$ transfers to tissue. Both are testable.
+
+Molecular imaging tests them directly. In a PET or SPECT competition study a
+trace amount of a labelled ligand binds the target, unlabelled drug displaces it,
+and the resulting signal gives **fractional occupancy in the tissue itself** as a
+function of measured plasma concentration (Burvenich et al., AAPS J 2018,
+[DOI](https://doi.org/10.1208/s12248-018-0203-z)). The output is an occupancy–
+concentration curve obtained in the patient rather than in a well, which is what
+lets a dose-selection argument say "this dose saturates the target" and mean it
+literally.
+
+Two things follow for a modeller. First, when such data exist they belong in the
+model as observations, not as a validation afterthought. Second, when they do
+not exist, the occupancy numbers above remain a calculation resting on stated
+assumptions — worth writing down as assumptions, in the model report, where
+`S0-06` will look for them.
+
 ## Work through it
 
 - [Notebook — R](notebook-r.qmd)

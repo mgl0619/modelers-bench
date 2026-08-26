@@ -113,6 +113,50 @@ because your model did not converge. Second, the same molecule will be modeled
 five different ways over ten years by five different people, which is why the
 reproducibility habits in `S0-05` are not optional bureaucracy.
 
+### MIDD is a process with a date on it
+
+The table above describes what the work touches. **Model-informed drug
+development** is the name for how that work is supposed to enter decisions, and
+it is worth knowing that the term is administrative in origin rather than
+scientific. Lesko's short perspective ([DOI](https://doi.org/10.1002/psp4.12699),
+free full text) traces the lineage precisely: modelling and simulation had
+already been in use for around twenty-five years, ICH E4 gave it context in
+1994, and a run of FDA guidances followed — clinical evidence of effectiveness
+(1998), population pharmacokinetics (1999), exposure–response (2003), PBPK
+(2018). Two publications anchor the intellectual side: Sheiner's *learn versus
+confirm* (1997) and Peck and colleagues on what counts as confirmatory evidence
+(2003). MIDD itself was **codified in PDUFA VI in 2017**, with a pilot programme
+of paired industry–FDA meetings as a performance goal.
+
+Three observations from that piece are more useful to a newcomer than the
+chronology:
+
+**Adoption is uneven, and the reasons are organisational.** Lesko reports a wide
+gap between companies that use modelling for a single task — empirical dose
+selection in early development — and those that use it across the lifecycle. He
+attributes the difference to culture, organisational structure and whether
+pharmacometrics and biostatistics are aligned or competing for influence, and is
+explicit that he does not have validated answers. If your first team does
+modelling narrowly, that is a fact about the organisation, not about the field.
+
+**The current toolkit is at a plateau.** Population PK, exposure–response and
+PBPK are, in his phrase, where "the easy stuff is done" — which he treats as a
+reason to invest in training rather than as bad news. The unexploited areas he
+names are real-world data, pharmacoepidemiology, machine learning, and precision
+dosing.
+
+**QSP is "technology push", PBPK is "market pull".** This is the sharpest idea in
+the paper. PBPK improves something regulators already want; QSP creates interest
+in capability regulators have not asked for. That asymmetry, not model quality,
+explains much of why QSP submissions have grown while their influence on
+approval decisions remains hard to trace. `S4` builds QSP models; this is the
+context in which they will be received.
+
+And a line worth keeping: MIDD is a **"team sport"**, and the constraint is
+usually communication to decision-makers rather than the modelling itself —
+which is why `S0-06` and the Mehrotra & Gobburu tutorial sit where they do in
+this curriculum.
+
 ## 5. What the job is actually like
 
 The honest version, which recruiters will not tell you:

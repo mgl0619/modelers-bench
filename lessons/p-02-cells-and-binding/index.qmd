@@ -58,6 +58,19 @@ Four families cover most of what medicine does:
 `P-03` takes each in turn. What matters here is that **all four are proteins with
 pockets**, and a drug works by occupying a pocket.
 
+A fifth kind of protein never appears on that list and decides the fate of an
+entire drug class. The **neonatal Fc receptor**, FcRn, binds the Fc region of
+IgG — but only at the acidic pH inside an endosome, releasing it again at the
+neutral pH of the bloodstream. An antibody taken up by a cell is therefore
+sorted rather than digested: bound at pH 6, carried back to the surface, and let
+go at pH 7.4. The shape *is* the function, and here the function is
+pH-conditional. This single mechanism is why therapeutic antibodies have
+half-lives of weeks where a peptide of similar chemistry has minutes, and why
+engineering the Fc region for tighter acidic-pH binding is a standard way to
+extend a biologic's duration (Liu, Protein Cell 2017,
+[DOI](https://doi.org/10.1007/s13238-017-0408-4), free full text and **CC BY**).
+`P-01`'s half-life table is the consequence; this is the cause.
+
 ## 3. Binding is reversible sticking, not gluing
 
 This is the concept everything quantitative rests on, and the everyday intuition

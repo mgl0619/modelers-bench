@@ -172,6 +172,29 @@ Question 9 catches more errors than the rest combined. Models are routinely used
 to simulate doses, durations or populations that were never studied, and the
 extrapolation is where confidence and evidence part company.
 
+### A thirteenth question, for renal covariates
+
+If the report puts creatinine clearance or eGFR on clearance — and most
+population PK reports do — ask what that relationship assumes. A linear
+proportionality between drug clearance and glomerular filtration is the **intact
+nephron hypothesis**: the premise that impaired renal function amounts to having
+fewer otherwise-normal nephrons, so filtration and tubular handling decline
+together.
+
+That premise is weakly supported. A systematic review of thirty studies designed
+to test it found that **twenty-four did not support it**, and that the studies
+which did support it tended to use less robust methods for measuring tubular
+clearance and narrower ranges of GFR (Pradhan, Duffull, Walker & Wright, Eur J
+Clin Pharmacol 2019, [DOI](https://doi.org/10.1007/s00228-018-2572-8)). The
+divergence matters most for drugs cleared substantially by tubular secretion —
+which is to say, exactly the drugs whose renal covariate you most wanted to get
+right.
+
+This does not make the covariate wrong. It makes it an assumption that should be
+visible in the report, checked against the drug's known elimination route, and
+not extrapolated below the range of renal function actually studied — which is
+question 9 again, wearing different clothes.
+
 ## 5. Red flags
 
 - **Only DV vs IPRED shown**, no VPC. The weakest diagnostic promoted to the
@@ -190,6 +213,10 @@ extrapolation is where confidence and evidence part company.
 - **A final model that appeared in the last iteration** of a long search, with no
   independent check.
 - **Precision quoted to four significant figures** on an estimate with a 40% RSE.
+- **A renal function covariate applied outside the studied range**, or presented
+  without acknowledging the intact nephron assumption behind it.
+- **An $f_u$ carried through as a constant** across a dose range or a population
+  where albumin varies — see `S0-02` §4.
 
 ## 6. Reviewing in thirty minutes
 

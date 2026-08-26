@@ -37,6 +37,29 @@ two-compartment structure demonstrates that drug leaves the sampled space more
 rapidly than it is eliminated from the body; it does not localise a tissue.
 :::
 
+The same caution applies to the parameters. In the equations that follow, $CL$
+is defined by what it does — the proportionality constant relating elimination
+rate to amount — and that definition is complete for the purpose of writing and
+solving the model. It is not, however, a mechanism. The physiological account of
+clearance runs through organ blood flow, the fraction unbound, and the
+eliminating organ's intrinsic capacity, related by an extraction ratio; Mehvar's
+review sets out the two standard formulations, the well-stirred and
+parallel-tube models, side by side with their differing numerical predictions
+([DOI](https://doi.org/10.18433/jpps29896)). Strand `P` develops that account in
+`P-11`.
+
+Two reasons to flag it here rather than leave it to `P-11`. It is what makes
+the physiological plausibility check in `S0-02` possible at all — comparing an
+estimated $CL$ to hepatic blood flow only means something if $CL$ has a
+physiological interpretation. And the interpretation is **contested**: Benet and
+Sodhi argue that the well-stirred relationship taught in every introductory
+course lacks a valid derivation, and that clearances as conventionally published
+are arterial clearances
+([DOI](https://doi.org/10.1002/cpt.2482), free full text). That position is a
+minority one and is not assumed anywhere in this curriculum. It is worth knowing
+early that it exists, because "everyone writes it this way" is not the same
+argument as "it is right".
+
 ## 2. Mass balance as the generating principle
 
 Every pharmacokinetic equation derives from a single conservation statement:
@@ -320,10 +343,15 @@ rather than as discrete events.
   ([DOI](https://doi.org/10.1517/17425250902773426)) for §5; Wang W, Hallow KM,
   James DA, *A tutorial on RxODE*
   ([DOI](https://doi.org/10.1002/psp4.12052), free full text) for simulation
-  practice; van der Graaf PH, *Introduction to population PK/PD analysis with
-  nonlinear mixed effects models* ([DOI](https://doi.org/10.1038/psp.2014.51),
-  free) for orientation. Standard texts: Gabrielsson & Weiner for analytical
-  solutions, Rowland & Tozer for clearance concepts. Full list on the
+  practice; Mehvar R, *Clearance concepts*
+  ([DOI](https://doi.org/10.18433/jpps29896)) for the physiological reading of
+  $CL$ referenced in §1, and Benet LZ & Sodhi JK
+  ([DOI](https://doi.org/10.1002/cpt.2482), free full text) for the dissenting
+  view. For orientation to population modelling itself, Bauer's two NONMEM
+  tutorials ([part I](https://doi.org/10.1002/psp4.12404),
+  [part II](https://doi.org/10.1002/psp4.12422), both free). Standard texts:
+  Gabrielsson & Weiner for analytical solutions, Rowland & Tozer for clearance
+  concepts. Full list on the
   [Reading](../../reading.qmd) page.
 
 *Observed in practice:* a phase 3 dose recommendation required revision late in

@@ -21,6 +21,12 @@ knowing before anyone proposes bundling PDFs with the course:
 | No free full text found | **25** |
 | Carrying a plain **CC BY** licence | **1** |
 
+: Counts from PubMed and PubMed Central metadata. Treat the open-licence row as a
+**floor rather than an exact figure**: two papers whose PDFs we later opened
+(van der Graaf, CC BY-NC-SA 3.0; Lesko, CC BY-NC-ND) carry Creative Commons
+terms that the API had not reported. Neither is BY-SA-compatible, so the
+practical conclusion below is unchanged — but the number is a lower bound.
+
 **Free to read is not free to redistribute.** Twenty-eight of these are readable
 at no cost on PubMed Central, and that is a permission to read, not a licence to
 copy. Redistributing those PDFs — in this repository, in a course pack, in a
@@ -54,8 +60,8 @@ read the tutorials.
 
 | | Why |
 |---|---|
-| van der Graaf PH. **Introduction to population pharmacokinetic/pharmacodynamic analysis with nonlinear mixed effects models.** *CPT Pharmacometrics Syst Pharmacol* 2014;3:e153. [DOI](https://doi.org/10.1038/psp.2014.51) · PMID 25531560 · **[free]** | The shortest honest orientation to what population modelling is for. Read before `S2`. |
-| Lesko LJ. **Perspective on model-informed drug development.** *CPT Pharmacometrics Syst Pharmacol* 2021;10:1127–1129. [DOI](https://doi.org/10.1002/psp4.12699) · PMID 34404115 · **[free]** | What MIDD means and how it became a regulatory process rather than a slogan. |
+| van der Graaf PH. **Book review: *Introduction to Population Pharmacokinetic/Pharmacodynamic Analysis With Nonlinear Mixed Effects Models* (Owen & Fiedler-Kelly, Wiley 2014).** *CPT Pharmacometrics Syst Pharmacol* 2014;3:e153. [DOI](https://doi.org/10.1038/psp.2014.51) · PMID 25531560 · **[free, CC BY-NC-SA 3.0]** | *Read in full — and it is a **two-page book review**, not a primer.* The first pass of this page described it as an orientation to population modelling; that was wrong, and the correction is left visible rather than quietly deleted. What it is good for: an honest, specific assessment of the **book**, which is the actual resource — the first text dedicated to NONMEM, strong on writing an NM-TRAN control stream and reading the output file, and thin on model evaluation, which van der Graaf names as the chapter most needing expansion. Read the review to decide whether to buy the book. For orientation to population PK/PD itself, use Bauer's two NONMEM tutorials below. |
+| Lesko LJ. **Perspective on model-informed drug development.** *CPT Pharmacometrics Syst Pharmacol* 2021;10:1127–1129. [DOI](https://doi.org/10.1002/psp4.12699) · PMID 34404115 · **[free, CC BY-NC-ND]** | *Read in full.* Three pages, and the best short answer to "where did MIDD come from and why does it feel administrative?" Traces the lineage — ICH E4 (1994), the FDA guidances of 1998, 1999, 2003 and 2018, Sheiner's learn-versus-confirm, Peck on confirmatory evidence — to codification in **PDUFA VI, 2017**. Two ideas worth stealing: adoption differences between companies are organisational (culture, structure, whether pharmacometrics and biostatistics compete) rather than scientific, and **QSP is "technology push" while PBPK is "market pull"**, which explains their differing regulatory reception better than model quality does. Now the backbone of `S0-00` §4. |
 | Mehrotra S, Gobburu J. **Communicating to influence drug development and regulatory decisions: a tutorial.** *CPT Pharmacometrics Syst Pharmacol* 2016;5:163–172. [DOI](https://doi.org/10.1002/psp4.12073) · PMID 27299706 · **[free]** | The skill that decides whether your analysis changes anything. Pairs with `S0-00` §5. |
 
 ## Strand P · Pharmacology
@@ -262,9 +268,18 @@ So:
 
 | Entry | The note rests on |
 |---|---|
-| Dua on TMDD, Keizer on the NONMEM workbench, Kenakin on biased agonism | The full text, read |
-| The other 4 CC-licensed papers | Retrievable, not yet read |
-| The other 46 | Title, journal, abstract, and subject knowledge |
+| Dua on TMDD, Keizer on the NONMEM workbench, Kenakin on biased agonism, van der Graaf's book review, Lesko on MIDD | The full text, read |
+| The other CC-licensed papers | Retrievable, not yet read |
+| The remaining 44 | Title, journal, abstract, and subject knowledge |
+
+**Reading two of them changed two entries, and one of those was an error.** The
+van der Graaf item was described here as an orientation to population modelling.
+It is a **two-page book review**. That annotation had been written from the title
+and the journal, which is exactly the failure mode this section exists to warn
+about; the entry now says what the paper is, and the correction is left visible.
+The Lesko entry survived contact with its full text and got substantially richer.
+One correction and one enrichment out of two papers is not a reassuring hit
+rate.
 
 Entries in the third group are a starting map, not a substitute for reading the
 paper — and several of them are ones the lessons lean on hardest (Beal on BLQ,
