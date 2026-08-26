@@ -195,6 +195,30 @@ formula; it is using it without checking whether target concentration is
 negligible. The notebook makes you check.
 :::
 
+### What comes after the quadratic
+
+Once binding consumes drug, binding becomes *pharmacokinetics* — the bound
+complex is cleared, so the target eliminates the drug. The standard treatment
+(Dua, Hawkins & van der Graaf, [DOI](https://doi.org/10.1002/psp4.41), free full
+text) sets out a ladder of models, and the useful part is the conditions under
+which each simplification is allowed:
+
+| Model | Assumes | Reliable for | Not reliable for |
+|---|---|---|---|
+| **Full TMDD** | nothing beyond mass action | everything | needs data you rarely have |
+| **Quasi-equilibrium (QE)** | binding and dissociation equilibrate fast | the linear terminal phase; clearance at high dose | the initial rapid fall in free target; short studies |
+| **Quasi-steady-state (QSS)** | binding balanced by dissociation *plus* internalisation | the long phase where free target ≈ 0 | the initial fast phase and the terminal phase |
+| **Michaelis–Menten (MM)** | target essentially saturated | high doses; sparse or incomplete data | low doses, where the target is not saturated |
+
+Two things follow. **QE and QSS are not interchangeable**: if you need a terminal
+half-life, QE is the one that gives it, and QSS is the one that does not. And
+the ladder is chosen by which *phase of the curve* your question lives in — not
+by which model converges.
+
+This is exactly the kind of judgement that cannot be reconstructed from first
+principles in an afternoon, which is why `S1` teaches it against a published
+tutorial rather than from scratch.
+
 ## Check yourself
 
 ::: {.callout-note collapse="true"}

@@ -58,7 +58,7 @@ read the tutorials.
 |---|---|
 | Kenakin T. **Receptor theory.** *Curr Protoc Pharmacol* 2008;Chapter 1:Unit 1.2. [DOI](https://doi.org/10.1002/0471141755.ph0102s41) · PMID 22294216 | Classical receptor theory and the operational model, by the person who wrote the textbook. Background for `P-04` and `P-05`. |
 | Kenakin T. **Biased agonism.** *F1000 Biol Rep* 2009;1:87. [DOI](https://doi.org/10.3410/B1-87) · PMID 20948603 · **[free]** | Why one agonist can activate some pathways and not others — and why "efficacy" is not one number. `P-05`. |
-| Dua P, Hawkins E, van der Graaf PH. **A tutorial on target-mediated drug disposition (TMDD) models.** *CPT Pharmacometrics Syst Pharmacol* 2015;4:324–337. [DOI](https://doi.org/10.1002/psp4.41) · PMID 26225261 · **[free]** | Where `P-04`'s binding arithmetic becomes pharmacokinetics. The reference for biologics. |
+| Dua P, Hawkins E, van der Graaf PH. **A tutorial on target-mediated drug disposition (TMDD) models.** *CPT Pharmacometrics Syst Pharmacol* 2015;4:324–337. [DOI](https://doi.org/10.1002/psp4.41) · PMID 26225261 · **[free, CC BY-NC 4.0]** | *Read in full.* Starts exactly where `P-04` stops — with the Langmuir isotherm and the point at which "drug is in vast excess" fails. Then builds the model ladder: full TMDD, quasi-equilibrium, quasi-steady-state, Michaelis–Menten, and **states the conditions under which each approximation holds**, which is the part you cannot reconstruct yourself. Two corrections it supplies to common belief: TMDD is not a biologics-only phenomenon (Levy's first description was warfarin), and TMDD does not by itself imply nonlinear pharmacokinetics. Berkeley Madonna code in the supplement. |
 | Anderson BJ, Holford NHG. **Mechanistic basis of using body size and maturation to predict clearance in humans.** *Drug Metab Pharmacokinet* 2009;24:25–36. [DOI](https://doi.org/10.2133/dmpk.24.25) · PMID 19252334 | The argument for allometric scaling and for maturation functions in children. Underpins `S0-02` and `P-12`. |
 | Rhodin MM, Anderson BJ, Peters AM, et al. **Human renal function maturation: a quantitative description using weight and postmenstrual age.** *Pediatr Nephrol* 2009;24:67–76. [DOI](https://doi.org/10.1007/s00467-008-0997-5) · PMID 18846389 | GFR from premature neonate to adult in one model. The worked example of why size alone fails in paediatrics. |
 
@@ -158,13 +158,29 @@ exists precisely to license that use.
 
 ## What the one-line notes rest on
 
-The "why" beside each entry is judgement, not a summary of a full text I
-retrieved. What was fetched from PubMed is the bibliographic record and, where
-available, the abstract. The recommendations draw on those plus subject
-knowledge — they are a starting map, not a substitute for reading the paper.
+Honest provenance, because it varies by entry.
 
-If a note ever turns out to mischaracterise a paper, that is a bug: open an
-issue and it gets fixed.
+We attempted to retrieve full texts through the PubMed Central API. **Full text
+came back only for the six openly licensed papers.** For the other twenty-two —
+including the fifteen that are free to read in a browser — the API returns the
+abstract and an empty body, which tracks the licence status exactly: readable on
+the PMC website is not the same as available for programmatic retrieval.
+
+So:
+
+| Entry | The note rests on |
+|---|---|
+| The 6 CC-licensed papers | The full text, read |
+| The other 22 | Title, journal, abstract, and subject knowledge |
+
+Entries in the second group are a starting map, not a substitute for reading the
+paper — and several of them are ones the lessons lean on hardest (Beal on BLQ,
+Savic & Karlsson on shrinkage, Anderson & Holford on allometry). Those
+annotations describe what the papers are *for*, from their abstracts and their
+place in the field, not a close reading.
+
+If a note mischaracterises a paper, that is a bug: open an issue and it gets
+fixed.
 
 ## How to read a tutorial paper
 

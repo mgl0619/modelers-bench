@@ -164,6 +164,14 @@ This is target-mediated drug disposition, and `S1` builds it properly. The
 lesson here is the order of operations: **the biology chooses the model
 structure.** A structure chosen for convenience will fit and then betray you at
 the edges — which are exactly where you need predictions.
+
+Two corrections worth carrying, both from the standard tutorial on the subject
+(Dua, Hawkins & van der Graaf, [DOI](https://doi.org/10.1002/psp4.41)). TMDD is
+**not a biologics-only phenomenon** — the concept was introduced by Levy in 1994,
+and the first drug described with it was *warfarin*, a small molecule. And TMDD
+does **not automatically mean nonlinear pharmacokinetics**: where free target
+concentration is negligible against free drug, a target-mediated compound can
+show perfectly linear PK.
 :::
 
 ## Check yourself

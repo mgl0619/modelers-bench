@@ -287,6 +287,13 @@ missing covariate, and see whether anything remains.
   from premature neonate to adult and shows exactly where size alone fails.
   Rowland & Tozer for the physiological reference values.
 
+*Not just our experience:* the standard TMDD tutorial names this explicitly,
+listing "the appropriate conversion between amounts and concentrations for drugs
+and system species and associated rate constants" among the practical issues
+that "can easily lead to erroneous results" (Dua, Hawkins & van der Graaf,
+[DOI](https://doi.org/10.1002/psp4.41)). When a peer-reviewed tutorial stops to
+warn about unit conversion, it is not a beginner's problem.
+
 *Seen in the wild:* a first-in-human dose was once calculated from a preclinical
 clearance reported in mL/min/kg and read as L/h/kg. The error was caught at a
 protocol review by someone who compared the projected clearance to hepatic blood
