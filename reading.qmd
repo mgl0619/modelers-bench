@@ -57,7 +57,7 @@ read the tutorials.
 | | Why |
 |---|---|
 | Kenakin T. **Receptor theory.** *Curr Protoc Pharmacol* 2008;Chapter 1:Unit 1.2. [DOI](https://doi.org/10.1002/0471141755.ph0102s41) · PMID 22294216 | Classical receptor theory and the operational model, by the person who wrote the textbook. Background for `P-04` and `P-05`. |
-| Kenakin T. **Biased agonism.** *F1000 Biol Rep* 2009;1:87. [DOI](https://doi.org/10.3410/B1-87) · PMID 20948603 · **[free]** | Why one agonist can activate some pathways and not others — and why "efficacy" is not one number. `P-05`. |
+| Kenakin T. **Biased agonism.** *F1000 Biol Rep* 2009;1:87. [DOI](https://doi.org/10.3410/B1-87) · PMID 20948603 · **[free, CC BY-NC 3.0]** | *Read in full.* Dismantles the receptor-as-switch picture: the minimal unit of control is the agonist–receptor complex, not the receptor, so two agonists can have their relative potencies **reverse** between two readouts. Efficacy is "pluridimensional" — propranolol is an antagonist and inverse agonist at G-protein-mediated effects and an *activator* of ERK. The modelling consequence, now in `P-03`: your choice of biomarker decides which effect you are measuring. |
 | Dua P, Hawkins E, van der Graaf PH. **A tutorial on target-mediated drug disposition (TMDD) models.** *CPT Pharmacometrics Syst Pharmacol* 2015;4:324–337. [DOI](https://doi.org/10.1002/psp4.41) · PMID 26225261 · **[free, CC BY-NC 4.0]** | *Read in full.* Starts exactly where `P-04` stops — with the Langmuir isotherm and the point at which "drug is in vast excess" fails. Then builds the model ladder: full TMDD, quasi-equilibrium, quasi-steady-state, Michaelis–Menten, and **states the conditions under which each approximation holds**, which is the part you cannot reconstruct yourself. Two corrections it supplies to common belief: TMDD is not a biologics-only phenomenon (Levy's first description was warfarin), and TMDD does not by itself imply nonlinear pharmacokinetics. Berkeley Madonna code in the supplement. |
 | Anderson BJ, Holford NHG. **Mechanistic basis of using body size and maturation to predict clearance in humans.** *Drug Metab Pharmacokinet* 2009;24:25–36. [DOI](https://doi.org/10.2133/dmpk.24.25) · PMID 19252334 | The argument for allometric scaling and for maturation functions in children. Underpins `S0-02` and `P-12`. |
 | Rhodin MM, Anderson BJ, Peters AM, et al. **Human renal function maturation: a quantitative description using weight and postmenstrual age.** *Pediatr Nephrol* 2009;24:67–76. [DOI](https://doi.org/10.1007/s00467-008-0997-5) · PMID 18846389 | GFR from premature neonate to adult in one model. The worked example of why size alone fails in paediatrics. |
@@ -67,7 +67,7 @@ read the tutorials.
 | | Why |
 |---|---|
 | Beal SL. **Ways to fit a PK model with some data below the quantification limit.** *J Pharmacokinet Pharmacodyn* 2001;28:481–504. [DOI](https://doi.org/10.1023/a:1012299115260) · PMID 11768292 | The original M1–M7 paper. `S0-03` tells you to flag BLQ and not impute; this is why. |
-| Keizer RJ, Karlsson MO, Hooker A. **Modeling and simulation workbench for NONMEM: tutorial on Pirana, PsN, and Xpose.** *CPT Pharmacometrics Syst Pharmacol* 2013;2:e50. [DOI](https://doi.org/10.1038/psp.2013.24) · PMID 23836189 · **[free]** | The toolchain most groups actually use, and which diagnostics to build. Complements `S0-04`. |
+| Keizer RJ, Karlsson MO, Hooker A. **Modeling and simulation workbench for NONMEM: tutorial on Pirana, PsN, and Xpose.** *CPT Pharmacometrics Syst Pharmacol* 2013;2:e50. [DOI](https://doi.org/10.1038/psp.2013.24) · PMID 23836189 · **[free, CC BY-NC-ND 3.0]** | *Read in full.* Nominally a software tutorial; in practice the most quotable source on **which diagnostic to trust when**. Supplies the ~5% ε-shrinkage threshold above which \|IWRES\| vs IPRED stops being informative, the sequencing rule (residual-based diagnostics early, simulation-based late), VPC binning guidance (no more bins than observations per individual), the insistence on uncertainty bands rather than bare percentile lines, and bootstrap sample counts (~100 for means, 1,000+ for tail percentiles). Much of `S0-06` now rests on it. |
 
 ## Strand S1–S2 · PK/PD and population modelling
 
@@ -170,7 +170,8 @@ So:
 
 | Entry | The note rests on |
 |---|---|
-| The 6 CC-licensed papers | The full text, read |
+| Dua on TMDD, Keizer on the NONMEM workbench, Kenakin on biased agonism | The full text, read |
+| The remaining 3 CC-licensed papers | Retrievable, not yet read |
 | The other 22 | Title, journal, abstract, and subject knowledge |
 
 Entries in the second group are a starting map, not a substitute for reading the

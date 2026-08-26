@@ -71,6 +71,15 @@ explanation, not a note that they were "retained".
 ### Visual predictive check
 
 The most informative diagnostic in the report, and the one to look at first.
+
+::: {.callout-note appearance="simple"}
+The two families of diagnostic are not rivals — they belong at different stages.
+Keizer et al. put it as a matter of experience: residual-based diagnostics are
+more useful **early** in model development, simulation-based diagnostics like
+the VPC more useful **later**. A report showing only goodness-of-fit plots has
+stopped at the early stage; a report showing only a VPC may have skipped the
+structural work.
+:::
 Simulate many replicates from the model, plot the prediction intervals, overlay
 the observed percentiles. If the observed median wanders outside the simulated
 median interval, the model does not reproduce the central tendency; if the
@@ -81,6 +90,20 @@ recommendations rest on.
 The **prediction-corrected VPC (pcVPC)** normalises for differences in dose and
 covariates across the pooled data. With multiple dose levels and study designs a
 plain VPC can look poor purely from pooling, and a pcVPC is the fairer test.
+
+Three concrete things to check on any VPC, all from Keizer et al.
+([DOI](https://doi.org/10.1038/psp.2013.24)):
+
+- **Are the uncertainty bands shown?** A VPC drawn as bare percentile *lines*,
+  with no confidence area around the simulated percentiles, is withholding the
+  information you need. Improvement means both that the bands encompass more of
+  the observed percentiles *and* that the bands themselves are narrowing.
+- **How was it binned?** Each bin needs enough observations, or the summary
+  statistics carry inflated uncertainty. Their rule of thumb: **no more bins
+  than the number of observations per individual.**
+- **Was the design adaptive?** With dose adjustments during the study, a VPC is
+  "misleading unless the adaptation protocol is included in the model." This is
+  precisely the case a pcVPC handles and a plain VPC does not.
 
 ### Eta shrinkage — the number that invalidates other plots
 
@@ -98,6 +121,18 @@ a page of eta-covariate scatter plots is showing you an artefact.
 
 Shrinkage is often relegated to an appendix. Find it.
 
+There is a **second** shrinkage, less often reported and with a far tighter
+threshold. **ε-shrinkage** describes individual weighted residuals collapsing
+toward zero. The Pirana/PsN/Xpose tutorial (Keizer, Karlsson & Hooker,
+[DOI](https://doi.org/10.1038/psp.2013.24)) states the working rule directly:
+the plot of |IWRES| against IPRED — the standard way to diagnose the residual
+error model — "loses informativeness" above roughly **5% ε-shrinkage**. Not 20%,
+not 30%. Five.
+
+Above that, the authors recommend CWRES against IPRED instead. So a report
+diagnosing its error model from |IWRES| vs IPRED, without reporting
+ε-shrinkage, has not established what it appears to have established.
+
 ### Covariate effects
 
 Usually a forest plot: the effect of each covariate at, say, the 5th and 95th
@@ -113,7 +148,7 @@ reference band (often 80–125%) for exactly this reason.
 | Look at | Because |
 |---|---|
 | Relative standard errors | Above ~30% on a fixed effect, or ~50% on a variance, means the parameter is poorly determined. |
-| Confidence intervals | An interval crossing 1 for a ratio-scale covariate effect means the data did not establish it. |
+| Confidence intervals | An interval crossing 1 for a ratio-scale covariate effect means the data did not establish it. If bootstrapped, check the sample count: ~100 replicates suffice for means, but **1,000 or more** are needed for trustworthy 5th and 95th percentiles (Keizer et al.). |
 | Condition number | Above ~1000 indicates over-parameterisation or strong correlations. Frequently omitted; ask. |
 | Fixed parameters | Which were fixed, to what, and on what evidence? Fixing allometric exponents at 0.75/1 is standard and defensible; fixing a covariate effect to a value that drives the conclusion is not. |
 | Between-subject variability | Large unexplained IIV is honest, not a flaw. Suspiciously small IIV alongside high shrinkage suggests the data could not support the random effect at all. |
@@ -141,7 +176,10 @@ extrapolation is where confidence and evidence part company.
 
 - **Only DV vs IPRED shown**, no VPC. The weakest diagnostic promoted to the
   headline.
-- **Shrinkage not reported.** Sometimes an oversight; often not.
+- **Shrinkage not reported.** Sometimes an oversight; often not. Both kinds —
+  η-shrinkage above ~20–30% invalidates the EBE-based plots, ε-shrinkage above
+  ~5% invalidates |IWRES| vs IPRED.
+- **A VPC drawn as lines, with no uncertainty bands.**
 - **A covariate effect that exactly rescues the conclusion**, discovered late in
   development.
 - **"The model was able to describe the data well"** with no evaluation of the

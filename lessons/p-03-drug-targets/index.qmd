@@ -45,6 +45,36 @@ The *spare receptor* phenomenon in `P-05` is exactly this.
 inside when something binds outside. Growth factor signalling runs through them,
 which makes them central to oncology.
 
+::: {.callout-important appearance="simple"}
+## A receptor is not an on/off switch
+
+The intuitive picture — agonist binds, receptor turns on, every downstream
+pathway fires — is known to be wrong, and the correction matters for modelling.
+A receptor samples many conformations; an agonist stabilises *some* of them; and
+different signalling proteins engage different regions of the protein. So
+different agonists at the same receptor can activate different subsets of
+pathways. This is **biased agonism**, and Kenakin's review
+([DOI](https://doi.org/10.3410/B1-87), free full text) sets out the evidence.
+
+Two consequences worth carrying:
+
+**The minimal unit of control is the agonist–receptor complex, not the
+receptor.** Two agonists at one receptor can have their relative potencies
+*reverse* between two downstream readouts — the PACAP peptides do exactly that
+across cyclic AMP and IP measurements.
+
+**Efficacy is not one number.** Kenakin calls it "pluridimensional": a ligand
+can be an agonist for one pathway and an antagonist or inverse agonist for
+another. Propranolol is the textbook case — a classic antagonist and inverse
+agonist at G-protein-mediated β-adrenoceptor effects, and an *activator* of ERK
+signalling.
+
+For a modeller this means the biomarker you choose does not merely measure the
+effect — it decides which effect you are measuring. Two teams modelling the same
+drug at the same receptor with different readouts can both be right and
+disagree.
+:::
+
 **Nuclear receptors** are different in a way that matters for timing. They sit
 *inside* the cell, and when bound they travel to the nucleus and change which
 genes are transcribed. The drug must therefore get inside — ruling out
