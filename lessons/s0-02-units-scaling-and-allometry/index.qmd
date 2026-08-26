@@ -92,6 +92,25 @@ $$C_u = f_u \times C_{total}$$
 
 Ozanib's $f_u$ is 0.08, so a 1206 nM total peak is a 96 nM free peak — below a
 200 nM IC~50~ rather than six-fold above it. Same data, opposite conclusion.
+
+::: {.callout-important appearance="simple"}
+**Free concentration, not free fraction.** These are routinely conflated, and
+Smith, Di & Kerns argue the confusion actively misdirects drug discovery
+([DOI](https://doi.org/10.1038/nrd3287)): *in vivo* efficacy is governed by the
+unbound concentration at the target, whereas compounds are frequently
+prioritised on unbound *fraction* measured *in vitro*. Optimising $f_u$ does not
+itself raise the free concentration, so selection on that basis can advance the
+wrong candidate.
+
+For a modeller the operational rule is narrow: report and compare **unbound
+concentrations**; treat $f_u$ as a conversion factor, never as a potency
+surrogate.
+
+The free drug hypothesis is also not universal. Deviations are documented in
+hepatic uptake, where observed unbound intrinsic clearance exceeds prediction —
+the plasma protein-mediated uptake effect, reviewed by Schulz, Stresser & Kalvass
+([DOI](https://doi.org/10.1080/03602532.2023.2195133)). `P-08` returns to this.
+:::
 Whenever you compare a clinical concentration to an *in vitro* potency, state
 explicitly which of the four combinations you are using (total or free,
 clinical or *in vitro*); the mismatch is a standard reviewer question and a

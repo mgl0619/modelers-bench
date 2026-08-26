@@ -2,200 +2,219 @@
 title: "Compartments and ODEs from first principles"
 subtitle: "Lesson S0-01"
 description: >
-  Where every pharmacokinetic equation comes from: mass balance. Build the
-  one- and two-compartment models from scratch, and learn why clearance —
-  not the rate constant — is the parameter that means something.
+  Mass balance as the origin of every pharmacokinetic equation; clearance and
+  volume as the primary, physiologically independent parameters; and why
+  structural identifiability — not goodness of fit — determines which model a
+  dataset can support.
 categories: [foundations, PK, ODEs]
 ---
 
 ::: {.callout-tip appearance="simple"}
 ## The decision this serves
-Which structural model can the data support, and what does each parameter in it
-physically mean? Get this wrong and every downstream number — the dose
-recommendation, the covariate effect, the label — inherits the error.
+Which structural model can the available data identify, and what does each
+parameter represent physiologically? Both questions precede estimation, and
+errors in either propagate unchanged into the dose recommendation and the label.
 :::
 
-## 1. A compartment is not an organ
+## 1. The compartment as a kinetic, not anatomical, construct
 
-The single most common misconception, and the one that quietly wrecks
-interpretation later. A compartment is a **kinetically homogeneous space**: a
-mathematical container in which drug is assumed to mix instantaneously and from
-which it leaves at a rate proportional to how much is there.
+A compartment is a **kinetically homogeneous space**: a region within which drug
+is assumed to distribute instantaneously and uniformly, and from which it is
+removed at a rate proportional to the amount present. The definition is
+operational. It asserts nothing about anatomy.
 
-That is all it claims. The "central compartment" is not the blood; the
-"peripheral compartment" is not the tissues. They are the smallest number of
-containers whose behaviour reproduces what the concentration–time curve does.
-PBPK models (`S3`) *do* use compartments that map to real organs — which is
-exactly why they need far more parameters and far more *in vitro* data.
+The central compartment is therefore not "the blood", and a peripheral
+compartment is not "the tissues". They are the minimum number of kinetically
+distinguishable spaces required to reproduce the observed concentration–time
+behaviour. Physiologically based models (`S3`) do assign compartments to
+identifiable organs, which is precisely why they require far more parameters and
+substantial *in vitro* input.
 
 ::: {.callout-note appearance="simple"}
-The right way to hold it: **a compartmental model is a description of the
-data's behaviour, not a claim about anatomy.** If a two-compartment model fits,
-you have learned that the drug leaves the sampled space faster than it is
-eliminated — not that you have found a tissue.
+Stated formally: **a compartmental model is a parsimonious description of
+observed kinetics, not a hypothesis about anatomical structure.** Recovery of a
+two-compartment structure demonstrates that drug leaves the sampled space more
+rapidly than it is eliminated from the body; it does not localise a tissue.
 :::
 
-## 2. Everything is mass balance
+## 2. Mass balance as the generating principle
 
-Every equation in pharmacokinetics is the same statement:
+Every pharmacokinetic equation derives from a single conservation statement:
 
 $$\frac{dA}{dt} = (\text{rate in}) - (\text{rate out})$$
 
-where $A$ is an amount (mg, µg, µmol), not a concentration. Work in amounts
-inside the differential equations and convert to concentration only at the end —
-this one habit prevents most unit errors, and `S0-02` is devoted to the rest.
+where $A$ denotes an amount (mg, µg, µmol) rather than a concentration.
+Formulating the differential equations in amounts and converting to concentration
+only at the observation step eliminates a large class of unit errors; `S0-02`
+treats the remainder systematically.
 
-### One compartment, IV bolus
+### One-compartment disposition following intravenous bolus administration
 
-Nothing enters after time zero; drug leaves at a rate proportional to the
-amount present:
+With no input after $t = 0$ and first-order elimination:
 
 $$\frac{dA}{dt} = -k \cdot A, \qquad A(0) = D$$
 
-Separate and integrate and you get the exponential decay everyone recognises:
+Integration yields the familiar monoexponential decline:
 
 $$A(t) = D e^{-kt}, \qquad C(t) = \frac{D}{V} e^{-kt}$$
 
-Take logs and it is a straight line — which is why the field spent forty years
-drawing semi-log plots, and why you should still always look at one.
+which is linear on a semi-logarithmic scale — the basis of the graphical methods
+that preceded nonlinear regression, and still the first plot to inspect.
 
-### Clearance is the primary parameter, not $k$
+### Clearance and volume are the primary parameters
 
-Here is the conceptual step that separates people who understand PK from people
-who can do the algebra.
-
-The elimination rate constant $k$ is a *derived* quantity. What the body
-actually does is irreversibly remove drug from a volume of blood per unit time —
-that is **clearance**, $CL$, with units of volume/time (L/h). The relationship is
+The elimination rate constant $k$ is a **derived** quantity. The physiological
+process is the irreversible removal of drug from a volume of blood per unit
+time — **clearance** ($CL$, units of volume·time⁻¹):
 
 $$k = \frac{CL}{V}, \qquad t_{1/2} = \frac{\ln 2}{k} = \frac{0.693 \, V}{CL}$$
 
-Why this matters, concretely: **clearance and volume are physiologically
-independent, and $k$ and $t_{1/2}$ are not.** A patient with liver impairment
-has lower $CL$. An obese patient may have larger $V$. Both change the half-life,
-but they demand *different* dose adjustments — clearance drives the maintenance
-dose, volume drives the loading dose. Parameterise a model in $k$ and you have
-tangled two mechanisms into one number that no covariate can cleanly explain.
+The distinction is consequential rather than notational. **Clearance and volume
+of distribution vary independently across physiological states**; $k$ and
+$t_{1/2}$ are composite functions of both. Hepatic impairment reduces $CL$;
+altered body composition changes $V$. Each perturbs half-life, but each demands a
+different dosing response:
 
 $$\text{maintenance rate} = CL \times C_{ss}, \qquad \text{loading dose} = V \times C_{target}$$
 
-These two lines are most of clinical dose selection.
+A model parameterised in $k$ and $V$ therefore confounds two mechanisms in a
+single estimate, and no covariate model can subsequently disentangle them. This
+is a specification error, not a stylistic preference.
 
-## 3. Adding absorption
+## 3. First-order absorption and apparent parameters
 
-An oral dose does not arrive in the central compartment; it arrives in the gut
-and is absorbed. Add a container:
+Extravascular administration requires an input compartment:
 
 $$\frac{dA_{gut}}{dt} = -k_a A_{gut}, \qquad
 \frac{dA_{c}}{dt} = k_a A_{gut} - \frac{CL}{V} A_{c}$$
 
-Two exponentials now shape the curve: absorption in, elimination out. The peak
-occurs where they balance,
+The concentration maximum occurs where absorption and elimination fluxes are
+equal:
 
 $$t_{max} = \frac{\ln(k_a / k)}{k_a - k}$$
 
-### The $/F$ problem, and why it is not pedantry
+### Non-identifiability of bioavailability from extravascular data alone
 
-From oral data alone, dose and bioavailability are inseparable — every
-observation depends on the product $F \cdot D$. So what you estimate is not
-$CL$ and $V$ but $CL/F$ and $V/F$, the *apparent* clearance and volume.
+Every observed concentration following oral administration depends on the
+product $F \cdot D$. Bioavailability and the disposition parameters are
+therefore **structurally non-identifiable** from oral data alone: infinitely many
+$(F, CL)$ combinations produce identical predictions. The estimable quantities
+are the *apparent* parameters $CL/F$ and $V/F$.
 
-A learner who writes "clearance was 12 L/h" for an oral-only dataset has made a
-real error, not a cosmetic one: if $F = 0.4$, true clearance is 4.8 L/h, and any
-comparison to hepatic blood flow, to an IV study, or to a PBPK prediction is
-now wrong by a factor of two and a half. `CASE-SM` is oral-only for exactly this
-reason. Write the `/F`.
+Reporting "clearance was 12 L/h" for an oral-only dataset is thus a substantive
+error. At $F = 0.4$ the true clearance is 4.8 L/h, and any subsequent comparison
+against hepatic blood flow, an intravenous reference, or a PBPK prediction is
+displaced by a factor of $1/F$. `CASE-SM` is deliberately oral-only.
 
 ### Flip-flop kinetics
 
-When absorption is slower than elimination ($k_a < k$), the terminal slope of
-the curve reflects **absorption**, not elimination. The two exponentials swap
-roles, the fitted parameters are exchangeable, and a model can converge happily
-on the wrong assignment. This is common with extended-release formulations and
-with poorly soluble compounds, and the only reliable way to resolve it is IV
-data or a formulation comparison — not a better fit statistic.
+When $k_a < k$, the terminal slope of the concentration–time profile reflects
+**absorption** rather than elimination. The two exponential terms exchange
+roles, the parameter assignments become interchangeable, and estimation may
+converge on either. The condition is common with modified-release formulations
+and poorly soluble compounds, and is not resolvable by comparing fit criteria;
+it requires an intravenous reference or a formulation comparison.
 
-## 4. Two compartments, and why the curve bends
+## 4. Two-compartment disposition
 
-Plot most real IV data on a semi-log axis and it is not a straight line: there is
-a steep early phase, then a shallower one. Drug is distributing into a space
-that the sampled compartment exchanges with, and coming back.
+Semi-logarithmic concentration–time profiles following intravenous
+administration are frequently biexponential, indicating reversible distribution
+into a kinetically distinct space:
 
 $$\frac{dA_c}{dt} = -\frac{CL}{V_c}A_c - \frac{Q}{V_c}A_c + \frac{Q}{V_p}A_p,
 \qquad
 \frac{dA_p}{dt} = \frac{Q}{V_c}A_c - \frac{Q}{V_p}A_p$$
 
-$Q$ is intercompartmental clearance — the same idea as $CL$, but reversible.
-The solution is a sum of two exponentials with hybrid rate constants $\alpha$
-(fast, distribution) and $\beta$ (slow, terminal):
+$Q$ is intercompartmental clearance. The analytical solution is a sum of two
+exponentials with hybrid rate constants:
 
 $$\alpha, \beta = \tfrac{1}{2}\left[(k_{10}+k_{12}+k_{21}) \pm
 \sqrt{(k_{10}+k_{12}+k_{21})^2 - 4k_{10}k_{21}}\right]$$
 
 ::: {.callout-warning appearance="simple"}
-**The terminal half-life is not "the" half-life.** For `CASE-SM`, the terminal
-$t_{1/2}$ is 14.6 h but the distribution $t_{1/2}$ is 1.85 h, and the drug
-accumulates only 1.22-fold on daily dosing — far less than a naive reading of
-14.6 h would suggest, because most of the AUC is delivered in the fast phase.
-Half-life is a derived, composite quantity. Reason in $CL$ and $V$.
+**Terminal half-life is a composite, not a physiological constant.** For
+`CASE-SM`, $t_{1/2,\beta}$ = 14.6 h while $t_{1/2,\alpha}$ = 1.85 h, yet the
+accumulation ratio on daily administration is 1.22 — far below the value a
+single-exponential interpretation of the terminal phase would predict, because
+most of the AUC accrues during the distribution phase. Inference should proceed
+from $CL$ and $V$.
 :::
 
-## 5. Why ODEs instead of closed-form solutions
+## 5. Structural identifiability and model indistinguishability
 
-Every model above has an analytical solution, and analytical solutions are much
-faster. Use them when you can. But you will abandon them the moment you need any
-of the following, which is nearly always:
+Before asking whether a model *fits*, ask whether its parameters *can* be
+determined from the intended observations. Two failure modes are formally
+distinct and both are common.
 
-- **Multiple and irregular doses** — superposition handles repeated identical
-  doses, but not missed doses, dose changes, or infusions of varying rate.
+**Structural non-identifiability** is a property of the model and the
+observation function, independent of the data: distinct parameter vectors
+generate identical predictions. The $F$–$CL$ confounding above is the canonical
+example.
+
+**Model indistinguishability** is the corresponding statement between competing
+structures: two different models reproduce the same observations for all
+admissible parameter values, so no quantity of data of that type can discriminate
+between them. Yates and colleagues review both concepts and their consequences
+for compartmental analysis
+([DOI](https://doi.org/10.1517/17425250902773426)), and make the point that
+matters here — the issue is normally noticed only when estimation misbehaves,
+while its implications for what may legitimately be *inferred* apply regardless.
+
+**Practical (a posteriori) non-identifiability** is separate again: the model is
+structurally identifiable, but the design, sampling density and noise level leave
+parameters poorly determined. Identifiability analyses in other domains show the
+same pattern — structurally identifiable systems can become practically
+unidentifiable as observational noise rises, and recover as data quality improves
+([DOI](https://doi.org/10.1371/journal.pcbi.1012106)).
+
+The operational consequence: **convergence is not evidence of identifiability**,
+and neither is a low objective function value. The diagnostics that detect these
+conditions — parameter correlation matrices, condition number, profile
+likelihood, and the shrinkage measures of `S0-06` — are examined in `S2`.
+
+## 6. Numerical solution
+
+Closed-form solutions exist for the models above and should be used where
+applicable. They become unavailable under conditions that are the norm rather
+than the exception:
+
+- **Irregular dosing histories** — superposition accommodates repeated identical
+  doses, but not missed doses, titration, or variable-rate infusion.
 - **Nonlinearity** — Michaelis–Menten elimination, target-mediated disposition
-  (`S1`), saturable absorption. No closed form exists.
-- **Time-varying parameters** — enzyme induction, disease progression, a
-  covariate that changes during the study.
-- **Anything with feedback** — turnover models, most of PD, all of QSP.
+  (`S1`), saturable absorption or transport.
+- **Time-varying parameters** — enzyme induction, disease progression,
+  time-dependent covariates.
+- **Feedback** — turnover models, most pharmacodynamic systems, all of QSP.
 
-So you learn to write and solve the ODE system, and you keep the analytical
-solution as a check on your numerics. Every serious tool in this field —
-NONMEM, nlmixr2, Monolix, Pumas, mrgsolve, PK-Sim — is at bottom a
-differential-equation solver wrapped in an estimation routine.
+Numerical practice that materially affects results:
 
-### Solving them without lying to yourself
+- **Use a stiff-capable solver.** PK/PD systems are routinely stiff; rapid
+  absorption alongside slow terminal elimination is the archetypal case.
+  LSODA-family methods switch automatically.
+- **Tighten tolerances until the solution is invariant**, then fix them. Defaults
+  are chosen for speed.
+- **Implement doses as discrete events**, adding the amount to the compartment
+  and restarting integration. Representing a bolus as a continuous input is a
+  frequent and difficult-to-detect error.
+- **Verify against the analytical solution** wherever one exists. The `CASE-SM`
+  generator was validated this way prior to release.
 
-- Use a **stiff-capable solver** (LSODA and friends switch automatically).
-  PK/PD systems are routinely stiff — fast absorption alongside slow terminal
-  elimination is exactly the condition that makes non-stiff solvers crawl or
-  silently lose accuracy.
-- **Tighten tolerances until the answer stops moving**, then leave them there.
-  Default tolerances are chosen for speed, not for you.
-- **Doses are events, not terms in the equation.** Add the amount to the
-  compartment at the dose time and restart the integration. Smearing a bolus
-  into a continuous input is a classic and hard-to-spot bug.
-- **Validate against the analytical solution** whenever one exists. The
-  generator for `CASE-SM` was checked exactly this way before the data shipped.
+## 7. Superposition as a correctness check
 
-## 6. Linearity buys you one beautiful result
-
-If the system is linear — every rate proportional to an amount — then
-superposition holds, and at steady state on a regimen of dose $D$ every $\tau$:
+For a linear system, superposition holds, and at steady state under a regimen of
+dose $D$ every $\tau$:
 
 $$AUC_{\tau,ss} = \frac{D}{CL}$$
 
-Exactly. Not approximately, and regardless of how many compartments there are or
-what $k_a$ is. For `CASE-SM` at 50 mg with $CL/F = 12$ L/h, that is
-4166.7 ng·h/mL, and the numerical solution in the notebook reproduces it to
-four figures. It is the cleanest available check that your simulation code is
-correct, and it is the reason clearance is the parameter that sets the
-maintenance dose.
+exactly — independent of compartment number and of $k_a$. For `CASE-SM` at 50 mg
+with $CL/F$ = 12 L/h this is 4166.7 ng·h·mL⁻¹, reproduced by the numerical
+solution to four significant figures. It is the most sensitive available check
+on simulation code, and the reason clearance determines the maintenance dose.
 
 ## Work through it
 
-The notebook builds all of the above from scratch and reproduces every number in
-this lesson. Do it in whichever language you are making your primary one.
-
 - [Notebook — R](notebook-r.qmd)
 - [Notebook — Python](notebook-py.qmd)
-
-Here is the core of it, side by side:
 
 ::: {.panel-tabset}
 
@@ -242,65 +261,73 @@ conc = sol.y[1] / V
 :::
 
 ::: {.callout-warning appearance="simple"}
-## Failure mode — fitting structure the data cannot support
-Take the `CASE-SM` trough-only samples on days 7, 10 and 21 and try to fit a
-two-compartment model to them alone. It will often converge. The standard errors
-on $Q$ and $V_p$ will be enormous, the parameters will be strongly correlated,
-and the fitted "distribution phase" will be an artefact of three points that
-contain no information about distribution at all.
+## Failure mode — estimation of an unidentifiable structure
+Fit the two-compartment model to the `CASE-SM` trough samples from days 7, 10 and
+21 alone. Estimation frequently converges. Standard errors on $Q$ and $V_p$ are
+large, the parameters are strongly correlated, and the apparent distribution
+phase is an artefact of three observations that carry no information about
+distribution kinetics.
 
-The notebook makes you do this, because the lesson only lands once you have
-watched a converged, plausible-looking, meaningless fit come out of your own
-code. **Convergence is not evidence.** The diagnostics that catch this —
-correlation matrix, condition number, profile likelihood — arrive in `S2`; the
-instinct starts here.
+This is practical non-identifiability presenting as a successful run. The
+notebook reproduces it deliberately, because the lesson is only convincing once
+observed in one's own output: **a converged run with a plausible parameter vector
+is not evidence that the data support the structure.** The diagnostics that
+detect the condition are developed in `S2`; the expectation that they are
+necessary begins here.
 :::
 
 ## Check yourself
 
 ::: {.callout-note collapse="true"}
-## 1. A drug's terminal half-life is 40 h. How long until steady state on daily dosing?
-You cannot say from that alone, and the question contains a trap. For a
-one-compartment drug, roughly 4–5 half-lives — about a week. For a
-multi-compartment drug where the 40 h terminal phase carries a small share of
-the AUC, the *effective* accumulation half-life is much shorter and the trough
-plateaus in days. `CASE-SM` has a 14.6 h terminal half-life and troughs within
-5% of steady state by day 4. Compute the accumulation ratio from $AUC_{\tau,ss}
-/ AUC_{\tau,1}$; do not read it off the terminal slope.
+## 1. A compound has a terminal half-life of 40 h. How long until steady state on once-daily dosing?
+Indeterminate from that datum alone. For monoexponential disposition, 4–5
+half-lives — approximately one week. For multiexponential disposition in which
+the 40 h phase contributes a small fraction of total AUC, the effective
+accumulation half-life is considerably shorter and troughs plateau within days.
+`CASE-SM` has $t_{1/2,\beta}$ = 14.6 h and reaches 95% of steady-state trough by
+day 4. Derive the accumulation ratio from $AUC_{\tau,ss} / AUC_{\tau,1}$ rather
+than from the terminal slope.
 :::
 
 ::: {.callout-note collapse="true"}
-## 2. Why does an oral-only dataset force you to write $CL/F$ rather than $CL$?
-Every observed concentration depends on the product $F \cdot D$, so $F$ and the
-disposition parameters are structurally unidentifiable — infinitely many
-$(F, CL)$ pairs give an identical fit. Only an IV reference arm (or absolute
-bioavailability from another source) separates them. The practical damage from
-dropping the `/F`: any comparison against hepatic blood flow, against an IV
-study, or against a PBPK prediction becomes wrong by the factor $1/F$.
+## 2. Why must oral-only data be reported as $CL/F$ rather than $CL$?
+Because $F$ and the disposition parameters are structurally non-identifiable
+from that observation function: predictions depend only on the product
+$F \cdot D$, so infinitely many $(F, CL)$ pairs are observationally equivalent.
+Separation requires an intravenous reference arm or an independent determination
+of absolute bioavailability. The practical consequence of omitting the
+qualifier is that any comparison against hepatic blood flow, an intravenous
+study, or a PBPK prediction is biased by the factor $1/F$.
 :::
 
 ::: {.callout-note collapse="true"}
-## 3. Your numerical simulation gives $AUC_{\tau,ss}$ = 4600 ng·h/mL for a 50 mg dose with $CL/F$ = 12 L/h. What is wrong?
-Superposition says it must be $D/CL = 50{,}000/12 = 4166.7$ ng·h/mL exactly, for
-any linear model. A 10% discrepancy means a bug, not biology. The usual suspects,
-in order: not yet at steady state; loose solver tolerances; a unit error between
-mg and µg; or dosing implemented as a continuous input rather than as an event.
+## 3. A simulation returns $AUC_{\tau,ss}$ = 4600 ng·h·mL⁻¹ for a 50 mg dose with $CL/F$ = 12 L/h. Diagnose it.
+Superposition requires exactly $D/CL = 50{,}000/12 = 4166.7$ ng·h·mL⁻¹ for any
+linear model, so a 10% discrepancy indicates an implementation error rather than
+a pharmacological phenomenon. Candidate causes, in descending order of
+frequency: the system has not reached steady state; solver tolerances are too
+loose; a mg/µg unit inconsistency; or dosing implemented as continuous input
+rather than as discrete events.
 :::
 
 ## Going further
 
-- **Next:** [S0-02 · Units, scaling and allometry](../s0-02-units-scaling-and-allometry/) — the errors that survive peer review.
-- **Uses this:** every lesson in `S1` and `S2`; `CASE-SM` is a two-compartment
-  oral model and you will meet it again with mixed effects attached.
-- **Reference:** for simulation in R from the authors of the engine, Wang W,
-  Hallow KM, James DA, *A tutorial on RxODE* ([DOI](https://doi.org/10.1002/psp4.12052),
-  free full text); for orientation to what these models are for, van der Graaf PH,
-  *Introduction to population PK/PD analysis with nonlinear mixed effects models*
-  ([DOI](https://doi.org/10.1038/psp.2014.51), free). Textbooks: Gabrielsson &
-  Weiner for closed-form solutions, Rowland & Tozer for the clearance concepts.
-  More on the [Reading](../../reading.qmd) page.
+- **Next:** [S0-02 · Units, scaling and allometry](../s0-02-units-scaling-and-allometry/).
+- **Extends this:** `S1` (nonlinear and target-mediated disposition), `S2`
+  (mixed-effects estimation and the identifiability diagnostics referenced in §5).
+- **Primary references:** Yates JWT, Jones RDO, Walker M, Cheung SYA,
+  *Structural identifiability and indistinguishability of compartmental models*
+  ([DOI](https://doi.org/10.1517/17425250902773426)) for §5; Wang W, Hallow KM,
+  James DA, *A tutorial on RxODE*
+  ([DOI](https://doi.org/10.1002/psp4.12052), free full text) for simulation
+  practice; van der Graaf PH, *Introduction to population PK/PD analysis with
+  nonlinear mixed effects models* ([DOI](https://doi.org/10.1038/psp.2014.51),
+  free) for orientation. Standard texts: Gabrielsson & Weiner for analytical
+  solutions, Rowland & Tozer for clearance concepts. Full list on the
+  [Reading](../../reading.qmd) page.
 
-*Seen in the wild:* a phase 3 dose recommendation was once revisited late
-because a model had been parameterised in $k$ and $V$ rather than $CL$ and $V$,
-and the renal-impairment covariate had been applied to $k$ — which quietly
-changed the volume as well. The fit was fine. The dose adjustment was not.
+*Observed in practice:* a phase 3 dose recommendation required revision late in
+development because the model had been parameterised in $k$ and $V$ rather than
+$CL$ and $V$, and a renal-function covariate had been applied to $k$ — thereby
+altering the volume estimate as an unintended consequence. Model fit was
+adequate throughout; the dose adjustment was not.
