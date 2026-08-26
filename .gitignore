@@ -15,3 +15,7 @@ data/derived/
 # never commit papers — see CONTRIBUTING.md
 *.pdf
 *.epub
+
+# personal library — links page and PDFs stay local
+reading/papers/*
+!reading/papers/README.md
