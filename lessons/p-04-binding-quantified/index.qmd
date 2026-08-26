@@ -1,0 +1,243 @@
+---
+title: "Binding, quantified"
+subtitle: "Lesson P-04"
+description: >
+  Affinity, occupancy and residence time from first principles — the law of
+  mass action, why 90% occupancy costs nine times more drug than 50%, and what
+  an IC₅₀ is actually measuring.
+categories: [pharmacology, foundations, binding, runnable]
+---
+
+::: {.callout-tip appearance="simple"}
+## The decision this serves
+What concentration must we achieve, and for how long? Every dose recommendation
+ultimately traces back to a target occupancy someone decided was necessary — and
+this lesson is the arithmetic that connects the two.
+:::
+
+## 1. The law of mass action
+
+`P-02` established that binding is reversible. Write it down:
+
+$$D + R \underset{k_{off}}{\overset{k_{on}}{\rightleftharpoons}} DR$$
+
+Drug $D$ meets receptor $R$ at a rate proportional to how much of each is
+present; the complex $DR$ falls apart at a rate proportional to how much complex
+exists.
+
+$$\frac{d[DR]}{dt} = k_{on}[D][R] - k_{off}[DR]$$
+
+At equilibrium the two rates balance, and rearranging gives the **dissociation
+constant**:
+
+$$K_d = \frac{k_{off}}{k_{on}} = \frac{[D][R]}{[DR]}$$
+
+$K_d$ has units of concentration, and a small $K_d$ means tight binding. It
+carries a useful physical meaning: **$K_d$ is the free drug concentration at
+which half the targets are occupied.**
+
+## 2. The occupancy curve
+
+Let $f$ be the fraction of targets occupied. Assuming drug is in vast excess over
+target — usually true, and revisited below — the algebra gives:
+
+$$f = \frac{[D]}{[D] + K_d}$$
+
+This is the Langmuir isotherm, and it is the single most important curve in
+pharmacology. Its shape has consequences that catch people out:
+
+| Free concentration | Occupancy |
+|---|---|
+| 0.1 × K~d~ | 9% |
+| **1 × K~d~** | **50%** |
+| 9 × K~d~ | 90% |
+| 99 × K~d~ | 99% |
+
+::: {.callout-important appearance="simple"}
+Read that table again. Going from half occupancy to 90% costs a **ninefold**
+increase in concentration. Getting to 99% costs **ninety-nine fold**.
+
+This is why "just increase the dose until the target is fully blocked" is so
+often impossible: the concentration required has climbed into the range where
+selectivity is lost and off-targets are engaged. The therapeutic window is,
+in large part, this curve running into that one.
+:::
+
+Plotted against log concentration, the curve becomes the familiar sigmoid, and
+it spans about two log units from 10% to 90% occupancy. That number — **an
+81-fold concentration range covers 10% to 90% effect** — is worth carrying
+around. When a real dose–response looks steeper than that, something other than
+simple binding is happening: cooperativity, a cascade, or a threshold. `P-14`
+picks that up as the Hill coefficient.
+
+## 3. Rates, not just ratios
+
+$K_d$ is a ratio, so the same affinity can be built from very different rates.
+Two drugs with $K_d$ = 1 nM:
+
+- Drug A: $k_{on}$ fast, $k_{off}$ fast — binds quickly, leaves quickly
+- Drug B: $k_{on}$ slow, $k_{off}$ slow — takes a while to engage, then stays
+
+**Residence time** is $1/k_{off}$: the average time a molecule stays bound. Drug
+B has a long one, and its effect can persist well after plasma concentrations
+have fallen — the drug is gone from blood and still occupying its target.
+
+This decouples effect from concentration, and it is a real strategy: several
+modern drugs are optimised for slow dissociation rather than for affinity.
+For a modeller it means a PK/PD model driven by plasma concentration will
+mispredict unless the binding kinetics enter the model explicitly.
+
+The notebook computes, for a realistic $K_d$ of 120 nM and $k_{on}$ of
+10⁵ M⁻¹s⁻¹: a residence time of **83 seconds** and a dissociation half-life of
+**58 seconds**. Fast — this is a conventional, rapidly reversible drug, and for
+it the equilibrium assumption is safe.
+
+### How long until equilibrium?
+
+Approach to equilibrium is exponential with rate $k_{on}[D] + k_{off}$, so
+reaching 90% of equilibrium occupancy takes about $2.3 / (k_{on}[D] + k_{off})$.
+
+Counterintuitively, **higher concentrations equilibrate faster**. At
+1 × K~d~ the notebook gets 96 seconds; at 10 × K~d~, 17 seconds. Either way it is
+seconds to minutes, against plasma concentrations that change over hours — which
+is what licenses treating binding as instantaneous in most PK/PD models. State
+that assumption rather than inheriting it, and check it whenever a drug is
+engineered for slow off-rates.
+
+## 4. What an IC₅₀ actually measures
+
+You will be handed IC₅₀ values constantly. An IC₅₀ is the concentration that
+halves a *measured signal in a particular assay* — which means it depends on the
+assay, not only on the drug.
+
+In a competition experiment the drug must displace something else, so the more
+competitor present, the more drug is needed and the weaker the drug appears.
+The **Cheng–Prusoff** relationship converts back:
+
+$$K_i = \frac{IC_{50}}{1 + [L]/K_{d,L}}$$
+
+The notebook works an example: an IC₅₀ of 250 nM corresponds to a $K_i$ of
+227 nM when the competing ligand is at 0.1 × its own K~d~, but only **23 nM**
+when it is at 10 ×. Same drug, same target, a tenfold spread in apparent potency
+— determined entirely by what else was in the well.
+
+::: {.callout-important appearance="simple"}
+**An IC₅₀ without its assay conditions is not usable.** Before carrying one into
+a model, ask what the competitor was and at what concentration. $K_i$ and $K_d$
+are properties of the drug–target pair; IC₅₀ is a property of an experiment.
+:::
+
+## 5. Connecting to a real compound
+
+`CASE-SM`'s Ozanib has a free peak of 96 nM and a free trough of 8.9 nM
+(`S0-02` derived those from total concentrations and $f_u$ = 0.08). Against a
+target with $K_d$ = 120 nM, the notebook computes:
+
+- **peak occupancy 45%**
+- **trough occupancy 7%**
+
+So this regimen never approaches saturation and occupancy swings wildly across
+the dosing interval. Whether that is a problem is a pharmacology question — some
+targets need sustained blockade, others respond to intermittent high occupancy —
+but you cannot even ask it without this calculation. It takes one line, and it is
+routinely skipped.
+
+## Work through it
+
+- [Notebook — R](notebook-r.qmd)
+- [Notebook — Python](notebook-py.qmd)
+
+::: {.panel-tabset}
+
+### R
+
+```r
+occupancy <- function(conc, Kd) conc / (conc + Kd)
+
+Kd <- 120e-9                       # M
+occupancy(c(0.1, 1, 9, 99) * Kd, Kd)     # 9%, 50%, 90%, 99%
+
+kon  <- 1e5                        # 1/(M*s)
+koff <- kon * Kd
+c(residence_time_s = 1 / koff, dissociation_half_life_s = log(2) / koff)
+```
+
+### Python
+
+```python
+def occupancy(conc, Kd):
+    return conc / (conc + Kd)
+
+Kd = 120e-9                        # M
+[occupancy(m * Kd, Kd) for m in (0.1, 1, 9, 99)]   # 9%, 50%, 90%, 99%
+
+kon = 1e5                          # 1/(M*s)
+koff = kon * Kd
+1 / koff, np.log(2) / koff         # residence time, dissociation half-life
+```
+
+:::
+
+::: {.callout-warning appearance="simple"}
+## Failure mode — assuming drug is in excess when it is not
+The occupancy formula above assumes free drug concentration is unchanged by
+binding — fine when drug molecules vastly outnumber targets.
+
+For a monoclonal antibody against a circulating target, that assumption
+collapses. Target concentrations can be comparable to drug concentrations, so
+binding **consumes** a meaningful fraction of the drug. Free drug is then no
+longer what you dosed, occupancy is lower than the simple formula predicts, and
+the bound complex is itself cleared — so the target is *eliminating the drug*.
+
+The correct treatment is the quadratic binding equation, and beyond that the
+target-mediated disposition models of `S1`. The failure is not using the simple
+formula; it is using it without checking whether target concentration is
+negligible. The notebook makes you check.
+:::
+
+## Check yourself
+
+::: {.callout-note collapse="true"}
+## 1. Why does going from 90% to 99% occupancy cost eleven times more drug than reaching 90% did?
+Because occupancy saturates. From $f = [D]/([D]+K_d)$, 90% needs 9 × K~d~ and 99%
+needs 99 × K~d~ — an extra 90 × K~d~ on top of the 9 × K~d~ you already had. Each
+additional increment of occupancy costs disproportionately more drug, and the
+extra concentration is being spent in the range where off-target binding grows.
+This is why programmes targeting near-complete inhibition are so much harder than
+those needing partial blockade, and why the required occupancy should be argued
+for explicitly rather than assumed to be "as much as possible".
+:::
+
+::: {.callout-note collapse="true"}
+## 2. A drug has K~d~ = 1 nM and a dissociation half-life of 6 hours. What does the second number change?
+It decouples effect from plasma concentration. With a 6-hour dissociation
+half-life, targets bound at C~max~ are still substantially occupied many hours
+later, even as plasma concentration falls. Effect will lag and outlast exposure,
+a concentration–effect plot will show hysteresis, and a direct-effect model will
+fit badly or produce a meaningless EC₅₀. It also opens a dosing option: a
+regimen that produces brief high peaks may sustain occupancy perfectly well,
+which a concentration-driven model would never suggest.
+:::
+
+::: {.callout-note collapse="true"}
+## 3. Your *in vitro* colleagues report IC₅₀ = 50 nM. What do you ask before using it?
+What the assay measured and what was competing. Specifically: was it a binding
+assay or a functional one; what was the competing ligand or substrate and at what
+concentration relative to its own K~d~ or K~m~ (for Cheng–Prusoff); was there
+protein in the medium, since serum albumin binds drug and raises apparent IC₅₀;
+and is 50 nM total or free. Any of these can move the number several-fold — which
+is the difference between a dose that works and one that does not.
+:::
+
+## Going further
+
+- **Next:** [P-05 · Agonists, antagonists and everything between](../p-05-agonists-and-antagonists/)
+- **Uses this:** `P-14` for dose–response and the Hill coefficient; `S1` for
+  target-mediated disposition; `S0-02` for the free-versus-total arithmetic.
+- **Reference:** Kenakin, *A Pharmacology Primer*, for receptor theory done
+  properly; Copeland on binding kinetics and residence time.
+
+*Seen in the wild:* a candidate was selected on a tenfold affinity advantage over
+its competitor. In patients the two were indistinguishable — both saturated the
+target at clinical doses, and the extra affinity bought nothing. The occupancy
+calculation that would have shown this takes a minute and was never done.

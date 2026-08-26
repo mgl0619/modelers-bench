@@ -1,0 +1,81 @@
+---
+title: "Strand P · Pharmacology from the beginning"
+subtitle: "Eighteen lessons that assume nothing"
+---
+
+Everything else on this site assumes you know what a receptor is. This strand
+does not.
+
+It exists because the field's newest and most useful people increasingly arrive
+from statistics, mathematics, engineering and software — and there is no honest
+on-ramp for them. The usual advice is "read a pharmacology textbook", which is
+two thousand pages written for a different purpose. This is the subset a
+quantitative scientist actually needs, in the order that makes the modelling
+strands land.
+
+**If you have a pharmacology, pharmacy or medical background**, skim `P-01` to
+`P-05` for vocabulary and start at `P-06`. The ADME lessons are written to be
+useful even when the biology is familiar, because they emphasise the quantities
+rather than the mechanisms.
+
+::: {.callout-note appearance="simple"}
+Nine of the eighteen carry runnable notebooks — wherever the pharmacology is
+genuinely computational. The rest are prose, because forcing code onto the drug
+development process or a tour of therapeutic areas would be contrived.
+:::
+
+## Part 1 · What a drug is, and what it acts on
+
+| | Lesson | Runnable | Status |
+|---|---|---|---|
+| P-01 | [What a drug is, and what it has to do](lessons/p-01-what-a-drug-is/) — the obstacle course from mouth to target; modalities and why they change everything | | **ready** |
+| P-02 | [Cells, proteins, and why molecules stick together](lessons/p-02-cells-and-binding/) — the minimum molecular biology; what binding physically is | | **ready** |
+| P-03 | [Drug targets](lessons/p-03-drug-targets/) — receptors, enzymes, transporters, ion channels; reading effect delay off the target family | | **ready** |
+| P-04 | [Binding, quantified](lessons/p-04-binding-quantified/) — mass action, occupancy, residence time, what an IC₅₀ measures | ✓ | **ready** |
+| P-05 | Agonists, antagonists and everything between — efficacy versus affinity, partial and inverse agonism, allosteric modulation, spare receptors | ✓ | planned |
+
+## Part 2 · What the body does to the drug
+
+| | Lesson | Runnable | Status |
+|---|---|---|---|
+| P-06 | Absorption I: getting in — routes, gut physiology, dissolution, solubility and permeability, the BCS, food effects | | planned |
+| P-07 | Absorption II: first pass and bioavailability — gut wall and hepatic extraction, efflux, why every oral parameter carries a `/F` | ✓ | planned |
+| P-08 | Distribution — blood flow, plasma protein binding, tissue partitioning, barriers, what volume of distribution physically means | ✓ | planned |
+| P-09 | Metabolism — phase I and II, the CYP families, induction and inhibition, prodrugs, reactive metabolites, pharmacogenomics | ✓ | planned |
+| P-10 | Excretion — glomerular filtration, secretion, reabsorption, biliary elimination, enterohepatic recycling, renal impairment | ✓ | planned |
+
+## Part 3 · The physiology behind the numbers
+
+| | Lesson | Runnable | Status |
+|---|---|---|---|
+| P-11 | The circulation and organ blood flows — cardiac output, perfusion, why flow limits clearance, and the reference numbers worth memorising | ✓ | planned |
+| P-12 | Body composition and how people differ — size, fat and lean mass, age, sex, pregnancy, obesity, paediatrics, and the organ-function markers | ✓ | planned |
+| P-13 | Homeostasis, feedback and time — turnover of endogenous systems, circadian rhythm, tolerance, receptor regulation, disease progression | | planned |
+
+## Part 4 · What the drug does to the body
+
+| | Lesson | Runnable | Status |
+|---|---|---|---|
+| P-14 | Dose–response in a living system — graded and quantal, potency versus efficacy, the Hill coefficient, therapeutic index, NOAEL and MABEL | ✓ | planned |
+| P-15 | Biomarkers and endpoints — the biomarker hierarchy from target engagement to clinical outcome, surrogates, what is measurable when | | planned |
+| P-16 | Safety pharmacology and toxicology — on- versus off-target toxicity, hERG and QT, hepatotoxicity, immunogenicity, safety margins | ✓ | planned |
+
+## Part 5 · The world the drug lives in
+
+| | Lesson | Runnable | Status |
+|---|---|---|---|
+| P-17 | How a drug gets made — discovery to approval, who does what, the phases, GxP, the regulators, the documents you will be asked to write | | planned |
+| P-18 | Therapeutic areas for a modeller — oncology, immunology, CNS, infectious disease, metabolic and rare disease: what differs in endpoints, biomarkers and dosing | | planned |
+
+## Where this sits
+
+`P` comes before [`S0` Foundations](lessons/s0-00-what-is-qp/). Neither depends
+on the other in a strict sense — you can read `S0-00` first for orientation, and
+most people should — but every modelling strand from `S1` onward assumes the
+pharmacology in `P`.
+
+- **[Path C · The Crossover](paths/path-c-crossover.qmd)** starts here, and for
+  many readers `P` plus `S0-06` is the whole destination.
+- **[Path A · The New Modeler](paths/path-a-new-modeler.qmd)** and
+  **[Path B · The Trainee](paths/path-b-trainee.qmd)** treat `P` as a named
+  prerequisite: work it if the biology is not already yours, skip it if it is.

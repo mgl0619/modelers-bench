@@ -47,6 +47,15 @@ Two differentiators sit in that sentence. **Same molecules**: a shared case spin
 
 PBPK, QSP, PKPD and PopPK/PD are load-bearing but not sufficient. What separates a competent modeler from a valuable one is the strand around them: statistics, decision science, and the engineering craft that makes an analysis survive a submission.
 
+**P — Pharmacology from the beginning (18).** Added 2026-08-25 after a review
+found the curriculum taught modelling to people who already knew pharmacology,
+and offered nothing to the statisticians, engineers and data scientists crossing
+over. Assumes no biology at all. Part 1 targets and binding · Part 2 the four
+ADME domains · Part 3 physiology for modellers · Part 4 dose–response, biomarkers
+and safety · Part 5 how a drug gets made and how therapeutic areas differ. Nine
+of the eighteen carry runnable notebooks. Sits ahead of S0; Path C starts here,
+Paths A and B name it as a skippable prerequisite.
+
 **S0 — Foundations (6).** Compartments and ODEs from first principles · units, scaling, allometry · data assembly (NM-TRAN, ADPPK, CDISC lineage) · R/Python/Julia stack choice · git and project structure · how to read a modeling report.
 
 **S1 — PK/PD core (8).** NCA and when it's enough · 1/2/3-compartment, absorption, flip-flop · nonlinear elimination and TMDD (full → QSS → MM) · turnover and indirect response · Emax and exposure–response abuses · biologics (mAbs, ADCs, bispecifics, ADA) · cell and gene therapy kinetics (expansion, contraction, persistence) · target engagement and biomarker chains.

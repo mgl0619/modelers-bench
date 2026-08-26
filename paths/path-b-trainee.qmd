@@ -12,6 +12,12 @@ cannot identify, and how to quantify what you do not know.
 **Ends at:** a reproducible, citable analysis with a DOI — something that counts
 on a CV as well as in a job interview.
 
+::: {.callout-note appearance="simple"}
+**Prerequisite:** [Strand P · Pharmacology from the beginning](../pharmacology.qmd).
+Skip it if receptors, ADME and dose–response are already yours. Work it if they
+are not — every strand from `S1` onward assumes them.
+:::
+
 ## Foundations — available now
 
 | | Lesson | Emphasis for this path |

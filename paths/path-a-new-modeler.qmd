@@ -12,6 +12,12 @@ model and a written report that survives review.
 **Ends at:** a written model report, not a converged run. Finishing is a
 separate skill from modeling and it is the one employers screen on.
 
+::: {.callout-note appearance="simple"}
+**Prerequisite:** [Strand P · Pharmacology from the beginning](../pharmacology.qmd).
+Skip it if receptors, ADME and dose–response are already yours. Work it if they
+are not — every strand from `S1` onward assumes them.
+:::
+
 ## Foundations — available now
 
 | | Lesson | Why it is on this path |

@@ -13,6 +13,7 @@ built on real data can tell you how far your estimate landed from the answer.
 
 | Strand | Lessons | Status |
 |---|---|---|
+| **P · Pharmacology from the beginning** | 18 | 4 ready |
 | **S0 · Foundations** | 7 | complete |
 | S1 · PK/PD core | 8 | planned |
 | S2 · Population PK/PD | 9 | planned |

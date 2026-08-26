@@ -1,0 +1,215 @@
+---
+title: "Cells, proteins, and why molecules stick together"
+subtitle: "Lesson P-02"
+description: >
+  The minimum molecular biology a modeller needs: what a cell is made of, why
+  proteins have shapes, and what "binding" physically is — the event every
+  pharmacodynamic model is ultimately describing.
+categories: [pharmacology, foundations, biochemistry]
+---
+
+::: {.callout-tip appearance="simple"}
+## The decision this serves
+Is this target reachable by this modality? Answering it needs one physical fact
+— where the protein sits — and one chemical one: what it takes to bind it.
+Get either wrong and years of work go into a molecule that can never arrive.
+:::
+
+## 1. The cell, in the parts that matter
+
+A cell is a bag of water, wrapped in a greasy membrane, full of machines made of
+protein.
+
+**The membrane** is two layers of fat molecules arranged tail-to-tail, about
+5 nanometres thick. Its interior is oily. This one fact explains most of
+pharmacokinetics: to cross it unaided, a molecule must be at least somewhat
+comfortable in oil. Water-loving molecules and charged ions cannot pass, which is
+why the body needs dedicated protein channels and transporters to move them —
+and why those transporters keep reappearing in later lessons as the thing that
+moves your drug, or refuses to.
+
+**The interior** is crowded, aqueous and busy. Roughly one-fifth to one-third of
+it by volume is protein.
+
+**Compartments inside** matter for drugs. The nucleus holds DNA — the target of
+some anticancer agents. Lysosomes are acidic pockets in which basic drugs
+accumulate by the trapping mechanism `P-08` covers. Mitochondria generate energy
+and are a common site of toxicity.
+
+## 2. Proteins are shapes, and the shape is the function
+
+A protein is a chain of amino acids that folds into a specific three-dimensional
+shape. That shape is everything: it creates pockets and surfaces, and those
+pockets are where drugs bind.
+
+Four families cover most of what medicine does:
+
+- **Receptors** receive signals. Something binds on the outside; the protein
+  changes shape; something happens inside. Most hormones and neurotransmitters
+  work this way, and so do a large share of drugs.
+- **Enzymes** catalyse reactions — building, breaking, modifying molecules.
+  Inhibiting an enzyme is the mechanism behind statins, ACE inhibitors and most
+  antivirals.
+- **Transporters** move things across membranes, often against a gradient and at
+  metabolic cost.
+- **Ion channels** are gated pores. Opening or closing them changes a cell's
+  electrical state, which is how local anaesthetics and many cardiac drugs work.
+
+`P-03` takes each in turn. What matters here is that **all four are proteins with
+pockets**, and a drug works by occupying a pocket.
+
+## 3. Binding is reversible sticking, not gluing
+
+This is the concept everything quantitative rests on, and the everyday intuition
+is misleading.
+
+A drug molecule and its target are both jostling in water at body temperature.
+When they meet in the right orientation, weak forces hold them together:
+electrostatic attraction, hydrogen bonds, and — usually the largest contributor —
+the hydrophobic effect, in which oily surfaces stick together mostly because
+water prefers to be elsewhere. None of these is a chemical bond. Any one is
+easily broken by thermal jostling; several acting together are not.
+
+So binding is **reversible** and **dynamic**:
+
+$$\text{Drug} + \text{Target} \rightleftharpoons \text{Drug–Target complex}$$
+
+At any instant some fraction of targets is occupied. Individual molecules are
+constantly arriving and leaving. Nothing is permanent, and the population
+statistic — *what fraction is occupied right now* — is what matters, not the fate
+of any one molecule.
+
+::: {.callout-important appearance="simple"}
+**A single drug molecule does nothing measurable.** A therapeutic dose delivers
+something on the order of 10²⁰ molecules. Pharmacology is a statistical science
+about enormous populations of molecules and targets, which is exactly why
+continuous mathematics describes it so well. When `P-04` writes occupancy as a
+smooth curve, that smoothness is real, not an approximation.
+:::
+
+### Two exceptions worth knowing
+
+**Covalent drugs** form a true chemical bond and do not come off. Aspirin works
+this way, as do several modern kinase inhibitors. For these, the effect outlasts
+the drug's presence entirely: the molecule is long cleared while its targets stay
+disabled until the cell makes new ones. That decoupling breaks the usual
+concentration–effect link, and needs a model built around protein turnover rather
+than plasma concentration.
+
+**Very slow dissociation** produces something similar without a covalent bond.
+If a drug takes hours to let go, its effect tracks how long it stays bound rather
+than what the plasma concentration is doing. This is *residence time*, and it is
+why two drugs with identical affinity can behave completely differently in
+patients — a point `P-04` makes with numbers.
+
+## 4. Selectivity, and why side effects are usually on-target
+
+The human body makes around twenty thousand different proteins, and many are
+structural cousins. A pocket that fits your drug may be nearly duplicated on a
+protein doing something entirely different somewhere else.
+
+**Selectivity** is how much more tightly a drug binds its intended target than
+the alternatives. It is a ratio, never a yes or no — and because occupancy
+depends on concentration, selectivity is a *dose-dependent property*. A drug that
+is beautifully selective at a low dose can lose that selectivity at a higher one,
+as concentrations climb high enough to occupy the off-targets too.
+
+This is the quantitative core of the therapeutic window, and it reframes side
+effects usefully:
+
+- **On-target, wrong place.** The drug hits exactly the protein it was designed
+  for, in tissue where you did not want that. Most predictable adverse effects
+  are this.
+- **Off-target.** The drug hits a different protein. Often a surprise, and often
+  what a safety pharmacology screen is looking for.
+- **On-target, too much.** An exaggerated version of the intended effect —
+  a blood-pressure drug that lowers it too far.
+
+Only the second is a selectivity failure in the narrow sense. The others are
+dose and distribution problems, which is to say: modelling problems.
+
+## 5. What this means for models
+
+Three things you can carry into every later strand.
+
+**Effect follows occupancy, not dose.** Dose sets concentration; concentration
+sets occupancy; occupancy sets effect. Each arrow is a separate process with its
+own timing, and each can break independently. A drug can fail because it never
+reached adequate concentration, or reached it and did not bind, or bound and the
+biology compensated.
+
+**Only free drug binds.** Drug stuck to plasma proteins is not available. When a
+clinical concentration is compared against an *in vitro* potency, the comparison
+is only meaningful on free drug — the trap `S0-02` catches with `CASE-SM`, where
+using total instead of free concentration flips the conclusion.
+
+**Timescales rarely match.** Binding equilibrates in seconds. Plasma
+concentrations change over hours. Downstream biology can take days. When
+processes are separated by orders of magnitude you can often treat the fast one
+as instantaneous — an approximation that makes most PK/PD models tractable, and
+that fails loudly when the separation is not there.
+
+::: {.callout-warning appearance="simple"}
+## Failure mode — treating potency as a property of the drug alone
+A compound has an IC₅₀ of 10 nM in one assay and 300 nM in another, and the team
+concludes one measurement was wrong.
+
+Both may be right. A competition assay's IC₅₀ depends on how much competing
+substrate or radioligand is present, because the drug has to out-compete it. Add
+more competitor and the same drug looks weaker. The Cheng–Prusoff relationship in
+`P-04` converts an IC₅₀ into a K~i~, which *is* a property of the drug–target
+pair — and it needs the assay conditions to do so.
+
+The general lesson: **an IC₅₀ without its assay conditions is not a number you
+can use.** Modellers inherit these values from *in vitro* colleagues constantly.
+Ask what was in the well.
+:::
+
+## Check yourself
+
+::: {.callout-note collapse="true"}
+## 1. Why can an antibody not hit an intracellular target?
+It cannot cross the cell membrane. The membrane's oily interior admits small,
+reasonably lipophilic molecules; an antibody is a large, water-loving protein
+with no route in. Antibodies work on things outside cells — circulating proteins,
+and the outward-facing parts of membrane proteins. This is why target location
+constrains modality before any chemistry begins, and why "is the target
+extracellular?" is one of the first questions asked about a new programme.
+:::
+
+::: {.callout-note collapse="true"}
+## 2. Two drugs have identical K~d~. Can they still behave differently in patients?
+Yes, for at least three reasons. **Residence time**: K~d~ is a ratio of on- and
+off-rates, so two drugs can share it while one dissociates in seconds and the
+other in hours — and the slow one's effect persists after plasma concentrations
+fall. **Free fraction**: if one is 99% protein-bound and the other 50%, the same
+total concentration delivers very different free concentrations. **Access**: if
+the target is intracellular or behind the blood–brain barrier, the drug that gets
+there wins regardless of affinity. Affinity is one number in a chain of several.
+:::
+
+::: {.callout-note collapse="true"}
+## 3. Why is selectivity dose-dependent?
+Because occupancy depends on concentration, and every target has its own
+concentration–occupancy curve. Suppose the intended target has K~d~ 10 nM and an
+off-target 1 µM — a hundredfold selectivity. At 10 nM free drug you occupy half
+the intended target and about 1% of the off-target. At 1 µM you occupy nearly all
+of the intended target and half the off-target. Nothing about the molecule
+changed; the dose did. This is why a safety margin is expressed as a ratio of
+*exposures*, not as a property of the compound.
+:::
+
+## Going further
+
+- **Next:** [P-03 · Drug targets: receptors, enzymes, transporters, channels](../p-03-drug-targets/)
+- **Uses this:** `P-04` puts numbers on binding; `P-08` on free versus bound;
+  `S1` builds target-mediated disposition on exactly this picture.
+- **Reference:** Alberts, *Molecular Biology of the Cell*, chapters on membranes
+  and protein function — dense but the standard; Rang & Dale for the
+  pharmacology-first version.
+
+*Seen in the wild:* a programme once spent eighteen months optimising affinity
+from 5 nM to 0.5 nM. Clinical effect did not improve, because at the doses given
+the target was already fully occupied. Affinity beyond what saturates the target
+buys nothing — a fact a simple occupancy calculation would have shown before the
+chemistry started. `P-04` is that calculation.

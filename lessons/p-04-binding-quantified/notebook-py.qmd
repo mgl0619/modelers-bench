@@ -1,0 +1,204 @@
+---
+title: "P-04 notebook — Python"
+subtitle: "Binding, quantified"
+jupyter: python3
+execute:
+  freeze: auto
+---
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+plt.rcParams.update({"figure.figsize": (7, 4.2), "axes.grid": True,
+                     "grid.alpha": 0.25, "font.size": 10})
+
+nM = 1e-9
+Kd = 120 * nM            # dissociation constant, M
+kon = 1.0e5              # association rate, 1/(M*s)
+koff = kon * Kd          # dissociation rate, 1/s
+```
+
+## 1. The occupancy curve
+
+```{python}
+def occupancy(conc, Kd):
+    """Fraction of targets bound, assuming drug is in vast excess over target."""
+    return conc / (conc + Kd)
+
+for m in (0.1, 1, 9, 99):
+    print(f"  free drug = {m:>5.1f} x Kd   ->  occupancy {100 * occupancy(m * Kd, Kd):5.1f}%")
+```
+
+Half occupancy costs one K~d~. Ninety percent costs nine. Ninety-nine percent
+costs ninety-nine. That non-linearity is why "raise the dose until the target is
+fully blocked" so often runs out of therapeutic window before it runs out of
+target.
+
+```{python}
+c = np.logspace(-10, -5, 400)
+f = occupancy(c, Kd)
+
+fig, ax = plt.subplots()
+ax.semilogx(c / nM, 100 * f, lw=2, color="#0F6E63")
+for frac, lab in [(.1, "10%"), (.5, "50%"), (.9, "90%")]:
+    conc = Kd * frac / (1 - frac)
+    ax.plot([conc / nM], [100 * frac], "o", ms=6, color="#8E6410", zorder=3)
+    ax.annotate(f"{lab} at {conc/nM:.0f} nM", (conc / nM, 100 * frac),
+                xytext=(8, -4), textcoords="offset points", fontsize=8.5, color="#4C5B54")
+ax.set(xlabel="Free drug concentration (nM, log scale)",
+       ylabel="Target occupancy (%)", ylim=(0, 100))
+ax.set_title("Langmuir occupancy, $K_d$ = 120 nM", loc="left", fontsize=10)
+plt.tight_layout()
+```
+
+```{python}
+c10, c90 = Kd * .1 / .9, Kd * .9 / .1
+print(f"10% occupancy at {c10/nM:6.1f} nM")
+print(f"90% occupancy at {c90/nM:6.1f} nM")
+print(f"ratio          : {c90/c10:.0f}-fold   <- always 81 for simple binding")
+```
+
+**Memorise the 81.** Simple 1:1 binding always spans 10%–90% over an 81-fold
+concentration range. A steeper measured dose–response means something beyond
+simple occupancy is at work — cooperativity, an amplifying cascade, or a
+threshold. `P-14` puts a Hill coefficient on it.
+
+## 2. Rates, not just the ratio
+
+```{python}
+print(f"Kd             : {Kd/nM:.0f} nM")
+print(f"kon            : {kon:.0e} 1/(M*s)")
+print(f"koff           : {koff:.2e} 1/s")
+print(f"residence time : {1/koff:.1f} s   ({1/koff/60:.1f} min)")
+print(f"dissociation half-life : {np.log(2)/koff:.1f} s")
+```
+
+Residence time is `1/koff` — the average time a molecule stays bound. This
+compound is conventional and rapidly reversible. A drug engineered for slow
+dissociation might have a residence time of hours, and its effect would then
+outlast its plasma concentration.
+
+### How fast does binding reach equilibrium?
+
+```{python}
+def approach(C, t_end=300):
+    """Integrate d[DR]/dt with total receptor scaled to 1."""
+    rhs = lambda t, y: [kon * C * (1 - y[0]) - koff * y[0]]
+    return solve_ivp(rhs, (0, t_end), [0.0], dense_output=True, rtol=1e-10, atol=1e-14)
+
+fig, ax = plt.subplots()
+for mult, col in [(1, "#5FBCAC"), (10, "#0B4F47")]:
+    C = mult * Kd
+    sol = approach(C)
+    t = np.linspace(0, 300, 3000)
+    eq = occupancy(C, Kd)
+    ax.plot(t, 100 * sol.sol(t)[0], lw=2, color=col, label=f"{mult} x Kd")
+    tau = 1 / (kon * C + koff)
+    t90 = 2.303 * tau
+    print(f"  C = {mult:>2} x Kd  equilibrium {100*eq:5.1f}%   "
+          f"tau = 1/(kon*C + koff) = {tau:5.1f} s   90% of equilibrium by {t90:5.0f} s")
+ax.set(xlabel="Time (s)", ylabel="Occupancy (%)", xlim=(0, 300))
+ax.set_title("Approach to binding equilibrium", loc="left", fontsize=10)
+ax.legend(frameon=False, title="free drug")
+plt.tight_layout()
+```
+
+Higher concentration reaches equilibrium **faster**, because the on-rate term
+grows with concentration while the off-rate does not. Both are seconds to
+minutes, against plasma concentrations that move over hours — which is the
+justification for treating binding as instantaneous in most PK/PD models. State
+the assumption; do not inherit it.
+
+## 3. What an IC₅₀ is measuring
+
+```{python}
+def cheng_prusoff(IC50, L, Kd_L):
+    """Convert a competition IC50 into a Ki."""
+    return IC50 / (1 + L / Kd_L)
+
+IC50 = 250 * nM
+print("same drug, same target, three assay setups:\n")
+for ratio in (0.1, 1, 10):
+    Ki = cheng_prusoff(IC50, ratio * Kd, Kd)
+    print(f"  competing ligand at {ratio:>4} x its Kd  ->  Ki = {Ki/nM:5.0f} nM")
+```
+
+A tenfold spread in apparent potency, decided entirely by how much competitor
+was in the well. **Always ask what the assay contained** before carrying an
+IC₅₀ into a model.
+
+## 4. Ozanib against a 120 nM target
+
+`CASE-SM` gives free concentrations directly (`S0-02`: total × f~u~ = 0.08,
+MW 465 g/mol).
+
+```{python}
+MW, FU = 465.0, 0.08
+
+def ng_ml_to_M(x):
+    return x / MW * 1e-6          # ng/mL -> mol/L
+
+for label, ng in [("steady-state trough", 51.9), ("steady-state peak", 560.7)]:
+    total = ng_ml_to_M(ng)
+    free = total * FU
+    print(f"  {label:20s} total {total/nM:7.1f} nM   free {free/nM:6.1f} nM   "
+          f"occupancy {100*occupancy(free, Kd):5.1f}%")
+```
+
+Occupancy swings from **7% to 45%** across a dosing interval, never approaching
+saturation. Whether that matters is a pharmacology question — some targets need
+sustained blockade, others respond to intermittent peaks — but it cannot even be
+asked without this calculation, and it takes one line.
+
+## 5. The assumption that quietly fails
+
+Everything above assumes free drug is unchanged by binding. When target
+concentration is comparable to drug concentration, binding *consumes* drug and
+the simple formula overstates occupancy. The exact solution is quadratic:
+
+```{python}
+def occupancy_exact(D_tot, R_tot, Kd):
+    """Fraction of receptor bound, without assuming drug is in excess."""
+    b = D_tot + R_tot + Kd
+    DR = 0.5 * (b - np.sqrt(b**2 - 4 * D_tot * R_tot))
+    return DR / R_tot
+
+print(f"{'drug (nM)':>10}  {'simple':>8}  {'exact':>8}   target = 100 nM")
+for D in (10, 30, 100, 300, 1000, 3000):
+    D_tot = D * nM
+    simple = 100 * occupancy(D_tot, Kd)
+    exact = 100 * occupancy_exact(D_tot, 100 * nM, Kd)
+    print(f"{D:>10}  {simple:7.1f}%  {exact:7.1f}%   {'  <- overstated by ' + f'{simple-exact:.0f} points' if simple - exact > 5 else ''}")
+```
+
+At low drug concentrations the simple formula is badly wrong, because a large
+share of the drug is sitting on the target rather than free in solution. This is
+the regime every therapeutic antibody against a circulating target lives in — and
+the bound complex is itself cleared, so **the target is eliminating the drug**.
+That is target-mediated disposition, built properly in `S1`.
+
+```{python}
+D = np.logspace(0, 4, 200) * nM
+fig, ax = plt.subplots()
+ax.semilogx(D / nM, 100 * occupancy(D, Kd), lw=2, color="#0F6E63",
+            label="simple (drug in excess)")
+ax.semilogx(D / nM, 100 * occupancy_exact(D, 100 * nM, Kd), lw=2, ls=(0, (5, 2)),
+            color="#8E6410", label="exact (target = 100 nM)")
+ax.set(xlabel="Total drug concentration (nM, log scale)",
+       ylabel="Target occupancy (%)", ylim=(0, 100))
+ax.set_title("When target concentration is not negligible", loc="left", fontsize=10)
+ax.legend(frameon=False)
+plt.tight_layout()
+```
+
+## What to try next
+
+1. Set `kon = 1e3` keeping `Kd` fixed. How long is the residence time, and how
+   long does equilibration now take relative to a dosing interval?
+2. At what target concentration does the simple formula stay within 5% of the
+   exact one across the whole curve? That threshold is your rule for when the
+   shortcut is safe.
+3. Take the day-14 Ozanib profile from `S0-01` and plot occupancy over the
+   dosing interval. What fraction of 24 hours is occupancy above 25%?

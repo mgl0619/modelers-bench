@@ -1,0 +1,9 @@
+id: p-04
+strand: P
+title: Binding, quantified
+paths: [PATH-A, PATH-B, PATH-C]
+prereqs: [p-03]
+next: p-05
+runnable: true
+notebooks: [notebook-r.qmd, notebook-py.qmd]
+reviewed: 2026-08-25

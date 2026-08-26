@@ -1,0 +1,181 @@
+---
+title: "Drug targets: receptors, enzymes, transporters, channels"
+subtitle: "Lesson P-03"
+description: >
+  The four families of protein that medicines act on, where each one sits, how
+  fast each responds, and why that timing decides the shape of every PK/PD
+  model you will build on it.
+categories: [pharmacology, foundations, targets]
+---
+
+::: {.callout-tip appearance="simple"}
+## The decision this serves
+Which biomarker will tell you the drug is working, and how soon after dosing
+should you measure it? The answer comes from the target family, not from the
+compound.
+:::
+
+## 1. Four families
+
+Almost every marketed drug acts on one of four kinds of protein. Knowing which
+tells you where the drug must reach, how quickly the effect appears, and how the
+system pushes back.
+
+| Family | Where it sits | Drug does what | Effect appears in | Examples |
+|---|---|---|---|---|
+| **Receptors** | Cell surface, or inside the cell | Mimics or blocks a natural signal | Seconds to hours | Beta-blockers, opioids, antihistamines |
+| **Enzymes** | Mostly inside cells; some in plasma | Blocks catalysis | Hours to weeks | Statins, ACE inhibitors, kinase inhibitors |
+| **Transporters** | Membranes | Blocks movement of a substance | Minutes to hours | SSRIs, SGLT2 inhibitors, diuretics |
+| **Ion channels** | Membranes | Opens or blocks a pore | Milliseconds to seconds | Local anaesthetics, calcium blockers |
+
+## 2. Receptors
+
+A receptor's job is to receive a signal from outside and produce a change
+inside. Drugs either imitate the natural signal or prevent it.
+
+**G-protein coupled receptors (GPCRs)** are the largest family and the most
+drugged. Seven passes through the membrane; something binds outside; the shape
+changes; a cascade of signalling begins inside. Adrenaline, histamine, opioids
+and many neurotransmitters act here. Signalling is amplified — one bound
+receptor activates many downstream molecules — which has a consequence that
+surprises newcomers: **maximal effect can arrive well before maximal occupancy**.
+The *spare receptor* phenomenon in `P-05` is exactly this.
+
+**Receptor tyrosine kinases** span the membrane and switch on an enzyme on the
+inside when something binds outside. Growth factor signalling runs through them,
+which makes them central to oncology.
+
+**Nuclear receptors** are different in a way that matters for timing. They sit
+*inside* the cell, and when bound they travel to the nucleus and change which
+genes are transcribed. The drug must therefore get inside — ruling out
+antibodies — and the effect requires new protein to be made. **Onset takes hours
+to days and outlasts the drug.** Corticosteroids work this way. Any PK/PD model
+here needs an explicit delay, because plasma concentration and effect are
+separated by transcription and translation.
+
+## 3. Enzymes
+
+Enzymes make and break molecules. Block one and its product falls.
+
+The quantitative subtlety is that **effect follows the product, not the enzyme**.
+Inhibit the enzyme completely and the existing pool of product still has to be
+consumed or degraded before anything changes. If that pool turns over slowly,
+full effect lags inhibition by days or weeks — statins reach steady-state LDL
+reduction in about a fortnight while inhibiting the enzyme within hours.
+
+This is the *turnover* or *indirect response* structure, and it is the single
+most common source of delay between concentration and effect. `S1` models it
+explicitly; recognising it here is what stops you fitting a direct-effect model
+to something that will never behave like one.
+
+## 4. Transporters
+
+Transporters move substances across membranes. They matter twice over.
+
+**As targets.** SSRIs block the serotonin transporter; SGLT2 inhibitors block
+glucose reabsorption in the kidney; diuretics block sodium transporters.
+
+**As obstacles.** The same protein family decides where *your* drug goes. Efflux
+transporters in the gut wall pump absorbed drug straight back out; the same
+proteins at the blood–brain barrier keep drugs out of the brain; others in liver
+and kidney carry drugs into the cells that eliminate them. A drug can fail purely
+because a transporter it was never designed to interact with removes it from
+where it needs to be.
+
+Transporters also **saturate**. At high concentration the pump is working flat
+out and further increases in dose behave differently — a common source of
+nonlinear pharmacokinetics, and a reason a model fitted at one dose level can
+mispredict at another.
+
+## 5. Ion channels
+
+Channels are gated pores. Open one and ions flood through, changing the cell's
+electrical state within milliseconds — the fastest pharmacology there is.
+
+Two consequences. **Effect is essentially instantaneous** relative to
+pharmacokinetics, so concentration and effect can be linked directly with no
+delay term. And **the heart is full of them**, which is why every drug programme
+screens against the hERG potassium channel: blocking it prolongs cardiac
+repolarisation and can cause a fatal arrhythmia. hERG is the most famous
+off-target in pharmacology and it appears again in `P-16`.
+
+## 6. Reading the timing off the target
+
+The practical payoff of this lesson is a first guess at model structure before
+any data exist.
+
+| If the target is | Effect delay comes from | Model structure to expect |
+|---|---|---|
+| An ion channel | Nothing — it is immediate | Direct effect on concentration |
+| A cell-surface receptor | Signalling, usually fast | Direct effect, or a small effect-site delay |
+| An enzyme | Turnover of the product pool | Indirect response / turnover |
+| A nuclear receptor | Transcription and translation | Turnover with a substantial lag |
+| A transporter | Depends what accumulates | Often indirect, sometimes saturable |
+
+A guess, not an answer — but a guess with a mechanism behind it, which is far
+better than picking a structure because it fitted.
+
+::: {.callout-warning appearance="simple"}
+## Failure mode — hysteresis read as noise
+Plot effect against concentration for a drug with delayed action and you do not
+get a curve. You get a **loop**: at the same concentration, effect is smaller on
+the way up than on the way down, because effect is chasing concentration with a
+lag. This is hysteresis, and it is a signature, not a defect.
+
+The failure is to treat the loop as scatter and fit a direct concentration–effect
+model through the middle of it. That model will fit acceptably, produce a
+plausible EC₅₀, and mispredict every regimen with different timing — because the
+parameter it estimated is an artefact of the sampling schedule rather than a
+property of the drug.
+
+Seeing a loop should send you to the target family and ask *where the delay comes
+from*. Then model that.
+:::
+
+## Check yourself
+
+::: {.callout-note collapse="true"}
+## 1. A drug fully inhibits its enzyme within an hour, but the clinical biomarker takes two weeks to plateau. Is the drug slow?
+No — the biomarker is. Inhibition is immediate; what you are watching is the
+downstream pool turning over. The half-life of the *response* is set by the
+degradation rate of whatever the enzyme was making, not by the drug's
+pharmacokinetics. Practically: measure the enzyme's direct product for target
+engagement, expect the clinical marker to lag, and model the delay explicitly
+rather than inflating the drug's apparent half-life to accommodate it.
+:::
+
+::: {.callout-note collapse="true"}
+## 2. Why does an intracellular target rule out an antibody but not a small molecule?
+Antibodies are large, water-loving proteins with no route across a lipid
+membrane. Small molecules that are modestly lipophilic diffuse across
+unassisted. So a target inside the cell — a nuclear receptor, most kinases, most
+enzymes — is reachable by small molecules and not by antibodies. It is the
+single most consequential fact in early modality choice, and it is knowable
+before any chemistry is done.
+:::
+
+::: {.callout-note collapse="true"}
+## 3. Why do transporters cause nonlinear pharmacokinetics but passive diffusion usually does not?
+Transporters are proteins, and there are a finite number of them. At low
+concentrations transport rate rises in proportion to concentration; once the
+transporters are saturated the rate plateaus. Passive diffusion has no machinery
+to saturate — the rate stays proportional to the gradient at any concentration.
+So a transporter-dependent process changes character across the dose range, and
+a model fitted at one dose level can mispredict badly at another. This is the
+same saturation mathematics as Michaelis–Menten metabolism in `P-09`.
+:::
+
+## Going further
+
+- **Next:** [P-04 · Binding, quantified](../p-04-binding-quantified/) — the first
+  lesson in this strand with code.
+- **Uses this:** `P-05` for what happens after binding; `S1` for turnover and
+  target-mediated models; `P-16` for hERG and safety.
+- **Reference:** Rang & Dale on receptor families; the IUPHAR/BPS Guide to
+  Pharmacology for target-by-target detail, free and authoritative.
+
+*Seen in the wild:* a team modelled a nuclear-receptor agonist with a direct
+effect model because the fit was good in a single-dose study. The regimen
+prediction for chronic dosing was wrong by a wide margin, because the model had
+no way to represent an effect that builds over days and persists after drug is
+gone. The target family said so on day one.

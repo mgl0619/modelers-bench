@@ -1,0 +1,213 @@
+---
+title: "What a drug is, and what it has to do"
+subtitle: "Lesson P-01"
+description: >
+  Before any mathematics: what a medicine physically is, the obstacle course
+  it runs between your mouth and its target, and why the *kind* of molecule
+  decides almost everything that follows.
+categories: [pharmacology, foundations, modalities]
+---
+
+::: {.callout-tip appearance="simple"}
+## The decision this serves
+Which modality should this programme pursue? It is the earliest and least
+reversible decision in drug development, and everything a modeller later does
+— the structural model, the sampling design, the covariates worth testing — is
+downstream of it.
+:::
+
+::: {.callout-note appearance="simple"}
+**This strand assumes nothing.** If you have arrived from statistics,
+mathematics, engineering or software, start here. If you already have a
+pharmacology degree, skim `P-01` to `P-05` for vocabulary and go to `P-06`.
+:::
+
+## 1. A drug is a molecule that changes what a protein does
+
+Strip away the packaging and a medicine is a chemical that gets into your body,
+reaches a particular protein, sticks to it, and changes how that protein
+behaves. Everything else — the tablet, the injection, the clinical trial, the
+regulatory dossier — exists to make that one event happen reliably, in the right
+people, at the right intensity, for the right length of time.
+
+That sentence contains the entire field:
+
+| The requirement | The discipline that owns it |
+|---|---|
+| **Get in** and survive the journey | Pharmacokinetics — absorption, distribution, metabolism, excretion |
+| **Reach** the right place | Distribution, tissue penetration, barriers |
+| **Stick** to the right protein and not the wrong ones | Pharmacodynamics, selectivity, safety pharmacology |
+| **Change** what that protein does, by the right amount | Pharmacodynamics, dose–response |
+| **Stop**, eventually, and leave | Metabolism, excretion, duration of effect |
+
+A modeller's job is to put numbers on each row and connect them to a decision.
+You cannot do that without knowing what is physically happening, which is what
+this strand is for.
+
+## 2. The obstacle course
+
+Follow a tablet. The journey explains most of what pharmacokinetics measures.
+
+**It has to dissolve.** A tablet is a solid. Only dissolved molecules can be
+absorbed. Some drugs are so poorly soluble that dissolution — not absorption —
+sets the pace of everything downstream.
+
+**It has to survive the stomach.** Gastric acid at roughly pH 1–2 destroys many
+molecules outright. Proteins and peptides are digested like food, which is the
+single biggest reason insulin and monoclonal antibodies are injected rather than
+swallowed.
+
+**It has to cross the gut wall.** The intestinal lining is a sheet of cells, and
+crossing it means passing through *two* lipid membranes. Molecules that are too
+large, too charged or too water-loving do not get across. Some that do are
+immediately pumped back out by efflux transporters — proteins whose day job is
+throwing foreign chemicals back into the gut.
+
+**It has to survive the liver.** Everything absorbed from the gut travels in the
+portal vein straight to the liver *before* reaching the rest of the body. The
+liver is an industrial chemical plant for destroying foreign molecules. A drug
+can be well absorbed and still have most of the dose demolished on this first
+pass — which is why **first-pass metabolism** gets its own lesson (`P-07`).
+
+**It has to be distributed.** What survives enters the bloodstream and is carried
+to organs in proportion to their blood supply. On the way, much of it binds to
+plasma proteins; bound drug is a passenger, not a participant.
+
+**It has to reach the target.** Which may be inside cells, or behind the
+blood–brain barrier, or in a poorly perfused tumour.
+
+**Then it has to leave.** Metabolised by the liver, filtered by the kidney,
+excreted in bile — continuously, from the first moment.
+
+::: {.callout-important appearance="simple"}
+Notice that **every step is a rate, not a yes/no**. That is why pharmacology is
+quantitative at its foundation, and why differential equations turn out to be
+the natural language. The models in `S1` are not imposed on the biology; they
+are the biology, written down.
+:::
+
+## 3. Modality decides everything
+
+"Drug" now covers wildly different kinds of matter. The differences are not
+cosmetic — they change absorption, distribution, half-life, immunogenicity,
+manufacturing, and every model you will build.
+
+| Modality | Size | Typical route | Half-life | Cleared by |
+|---|---|---|---|---|
+| **Small molecule** | 150–600 Da | Oral | Hours | Liver enzymes, kidney |
+| **Peptide** | 1–5 kDa | Injection | Minutes–hours | Peptidases, kidney |
+| **Monoclonal antibody** | ~150 kDa | IV or subcutaneous | **2–4 weeks** | Proteolysis; target binding |
+| **Antibody–drug conjugate** | ~150 kDa + payload | IV | Days–weeks | Antibody plus payload routes |
+| **Oligonucleotide** | 5–15 kDa | Injection | Days in plasma, **months in tissue** | Nucleases, kidney |
+| **Cell therapy** (e.g. CAR-T) | Living cells | IV infusion | Cells *expand*, then persist for months–years | Immune contraction |
+| **Gene therapy** | Viral vector | IV or local | Vector clears; effect may be permanent | — |
+
+Three consequences worth carrying forward:
+
+**Half-life spans six orders of magnitude.** A peptide may be gone in minutes; a
+CAR-T product may still be detectable years later. "Once daily" is a small
+molecule habit, not a law.
+
+**Big molecules cannot be swallowed.** They are digested, and they cannot cross
+the gut wall. This alone determines route, and route determines the absorption
+model.
+
+**A cell therapy does not obey pharmacokinetics at all.** Cells *multiply*.
+Concentration rises after dosing without any further dose, peaks days later, then
+contracts. Every equation in `S1` assumes the amount of drug only ever goes down
+between doses. For `CASE-CELL` that assumption is simply false, and the model has
+to be rebuilt from the biology up — which is the whole point of `S4`.
+
+## 4. What "drug-like" means
+
+Most molecules that bind a target beautifully in a test tube never become
+medicines. They fail on the journey, not on the target. Decades of attrition
+produced rough empirical guidelines — famously the observation that orally
+active drugs tend to be under ~500 Da, with limited hydrogen-bond donors and
+acceptors and moderate lipophilicity.
+
+These are **observations about what has historically worked orally**, not laws.
+Plenty of important drugs violate them. But they capture a real tension that
+never goes away:
+
+> The properties that help a molecule cross membranes are broadly the same
+> properties that make it insoluble, promiscuous and toxic.
+
+Medicinal chemistry is the management of that trade-off. Modelling enters the
+moment somebody asks *how much* of one property to trade for another — which is
+exactly what a PBPK model (`S3`) is built to answer.
+
+## 5. Where you are now
+
+You have the map. The rest of the strand fills it in:
+
+- **What the drug acts on** — `P-02` (cells and binding), `P-03` (targets),
+  `P-04` (binding, quantified), `P-05` (agonists and antagonists)
+- **What the body does to the drug** — `P-06` to `P-10`, one lesson per ADME step
+- **The physiology behind it** — `P-11` to `P-13`
+- **What the drug does to the body** — `P-14` to `P-16`
+- **The world it lives in** — `P-17` and `P-18`
+
+::: {.callout-warning appearance="simple"}
+## Failure mode — modelling a modality you have not understood
+A team fits a standard two-compartment model to a monoclonal antibody and gets a
+decent-looking fit at the doses studied. It then predicts badly at low doses.
+
+The reason is biological, not statistical. Antibodies are cleared partly by
+binding their own target, and that route **saturates**: at low concentrations a
+large fraction of drug is consumed by target binding, at high concentrations that
+route is swamped and clearance appears to fall. The result is nonlinear
+pharmacokinetics that no linear model can represent, however good the fit looks
+inside the observed range.
+
+This is target-mediated drug disposition, and `S1` builds it properly. The
+lesson here is the order of operations: **the biology chooses the model
+structure.** A structure chosen for convenience will fit and then betray you at
+the edges — which are exactly where you need predictions.
+:::
+
+## Check yourself
+
+::: {.callout-note collapse="true"}
+## 1. Why can you not simply swallow a monoclonal antibody?
+Two independent reasons, either sufficient. It would be digested — an antibody
+is a protein, and the gut exists to break proteins into amino acids. And even
+intact, at ~150 kDa it is far too large to cross the intestinal wall, which
+passes small, reasonably lipophilic molecules. This is why every marketed
+antibody is injected, and why "oral biologics" remains a hard, largely unsolved
+problem rather than a formulation detail.
+:::
+
+::: {.callout-note collapse="true"}
+## 2. A drug is 95% absorbed from the gut but its oral bioavailability is 20%. Where did it go?
+The liver, almost certainly. Blood leaving the gut goes to the liver before
+reaching the rest of the body, so a well-absorbed drug can still have most of the
+dose metabolised on that first pass. Absorption and bioavailability are different
+quantities, and confusing them is a classic error: here absorption is excellent
+and bioavailability is poor. Gut-wall metabolism can contribute too. `P-07`
+separates the two properly.
+:::
+
+::: {.callout-note collapse="true"}
+## 3. Why does modality change the *sampling design* of a clinical study, not just the model?
+Because sampling has to resolve the timescale of the process. A peptide with a
+20-minute half-life needs samples every few minutes over a few hours; taking
+them daily would show nothing but noise. An antibody with a three-week half-life
+needs samples over months, and hourly sampling on day 1 wastes assay budget on a
+curve that has barely moved. Design follows biology — which is why a modeller who
+does not know the modality cannot design the study, and why the design question
+usually arrives before any data exist.
+:::
+
+## Going further
+
+- **Next:** [P-02 · Cells, proteins, and why molecules stick together](../p-02-cells-and-binding/)
+- **Uses this:** every later strand. `S1` models small molecules and antibodies;
+  `S3` needs the absorption story in detail; `S4` handles cells.
+- **Reference:** Rang & Dale's *Pharmacology* for the broad tour; Rowland & Tozer
+  for the quantitative version of this same journey.
+
+*Seen in the wild:* the most expensive modality mistake is choosing one before
+knowing where the target sits. An intracellular target rules out antibodies,
+which cannot get into cells. That single fact has ended programmes after years of
+work — and it is knowable on day one.

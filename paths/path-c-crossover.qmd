@@ -14,6 +14,18 @@ does not establish, and ask the questions that find the problems.
 legitimate destination. Branch into Path A or B afterwards if you want to build
 models yourself.
 
+## Start here if the biology is not yours
+
+If you have arrived from statistics, mathematics, engineering or software, the
+vocabulary is the barrier, not the mathematics. Work
+[**Strand P · Pharmacology from the beginning**](../pharmacology.qmd) first —
+it assumes nothing, and `P-01` to `P-05` alone will make everything below
+readable. For many people on this path, `P` plus `S0-06` is the entire
+destination.
+
+If pharmacology is already yours and it is the quantitative framing you want,
+skip straight to the short route.
+
 ## The short route — about four hours
 
 | | Lesson | Read for |

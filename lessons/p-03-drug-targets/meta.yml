@@ -1,0 +1,8 @@
+id: p-03
+strand: P
+title: "Drug targets: receptors, enzymes, transporters, channels"
+paths: [PATH-A, PATH-B, PATH-C]
+prereqs: [p-02]
+next: p-04
+runnable: false
+reviewed: 2026-08-25

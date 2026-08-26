@@ -1,0 +1,8 @@
+id: p-02
+strand: P
+title: Cells, proteins, and why molecules stick together
+paths: [PATH-A, PATH-B, PATH-C]
+prereqs: [p-01]
+next: p-03
+runnable: false
+reviewed: 2026-08-25

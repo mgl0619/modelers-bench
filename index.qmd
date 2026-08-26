@@ -50,10 +50,16 @@ then branch deeper — or stop satisfied. Both are wins.
 [**S0-00 · What quantitative pharmacology is, and how to become one**](lessons/s0-00-what-is-qp/index.qmd)
 — the field, the job, the skill ladder, and a concrete twelve-month route in.
 
+**No pharmacology background?** Start with
+[**Strand P · Pharmacology from the beginning**](pharmacology.qmd) — eighteen
+lessons that assume nothing, written for people arriving from statistics,
+mathematics, engineering or software.
+
 ## What is here today
 
 | Strand | Status |
 |---|---|
+| **P · Pharmacology from the beginning** | 4 of 18 lessons — in progress |
 | **S0 · Foundations** | 7 lessons — complete |
 | S1 · PK/PD core | planned |
 | S2 · Population PK/PD | planned |

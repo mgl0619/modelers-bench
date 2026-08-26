@@ -21,6 +21,8 @@ website:
     left:
       - text: "Start here"
         href: lessons/s0-00-what-is-qp/index.qmd
+      - text: "Pharmacology 101"
+        href: pharmacology.qmd
       - text: "Paths"
         menu:
           - text: "A · The New Modeler"
@@ -43,6 +45,23 @@ website:
     contents:
       - text: "Home"
         href: index.qmd
+      - text: "Strand P · Pharmacology 101"
+        href: pharmacology.qmd
+      - section: "P · Pharmacology from the beginning"
+        contents:
+          - text: "P-01 · What a drug is"
+            href: lessons/p-01-what-a-drug-is/index.qmd
+          - text: "P-02 · Cells and binding"
+            href: lessons/p-02-cells-and-binding/index.qmd
+          - text: "P-03 · Drug targets"
+            href: lessons/p-03-drug-targets/index.qmd
+          - section: "P-04 · Binding, quantified"
+            href: lessons/p-04-binding-quantified/index.qmd
+            contents:
+              - text: "Notebook — R"
+                href: lessons/p-04-binding-quantified/notebook-r.qmd
+              - text: "Notebook — Python"
+                href: lessons/p-04-binding-quantified/notebook-py.qmd
       - section: "S0 · Foundations"
         contents:
           - text: "S0-00 · What quantitative pharmacology is"

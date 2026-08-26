@@ -1,0 +1,8 @@
+id: p-01
+strand: P
+title: What a drug is, and what it has to do
+paths: [PATH-A, PATH-B, PATH-C]
+prereqs: []
+next: p-02
+runnable: false
+reviewed: 2026-08-25

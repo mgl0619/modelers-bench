@@ -1,0 +1,180 @@
+---
+title: "P-04 notebook — R"
+subtitle: "Binding, quantified"
+execute:
+  freeze: auto
+---
+
+```{r setup}
+#| message: false
+library(deSolve)
+library(ggplot2)
+theme_set(theme_minimal(base_size = 11))
+
+nM   <- 1e-9
+Kd   <- 120 * nM        # dissociation constant, M
+kon  <- 1e5             # association rate, 1/(M*s)
+koff <- kon * Kd        # dissociation rate, 1/s
+```
+
+## 1. The occupancy curve
+
+```{r}
+occupancy <- function(conc, Kd) conc / (conc + Kd)
+
+for (m in c(0.1, 1, 9, 99)) {
+  cat(sprintf("  free drug = %5.1f x Kd   ->  occupancy %5.1f%%\n",
+              m, 100 * occupancy(m * Kd, Kd)))
+}
+```
+
+Half occupancy costs one K~d~. Ninety percent costs nine. Ninety-nine percent
+costs ninety-nine.
+
+```{r}
+#| fig-height: 3.6
+conc <- 10^seq(-10, -5, length.out = 400)
+marks <- data.frame(f = c(.1, .5, .9))
+marks$conc <- Kd * marks$f / (1 - marks$f)
+
+ggplot(data.frame(conc = conc, occ = 100 * occupancy(conc, Kd)),
+       aes(conc / nM, occ)) +
+  geom_line(linewidth = 0.9, colour = "#0F6E63") +
+  geom_point(data = marks, aes(conc / nM, 100 * f), colour = "#8E6410", size = 2) +
+  scale_x_log10() +
+  labs(x = "Free drug concentration (nM, log scale)",
+       y = "Target occupancy (%)", title = "Langmuir occupancy, Kd = 120 nM")
+```
+
+```{r}
+c10 <- Kd * .1 / .9; c90 <- Kd * .9 / .1
+cat(sprintf("10%% occupancy at %6.1f nM\n", c10 / nM))
+cat(sprintf("90%% occupancy at %6.1f nM\n", c90 / nM))
+cat(sprintf("ratio          : %.0f-fold   <- always 81 for simple binding\n", c90 / c10))
+```
+
+**Memorise the 81.** Simple 1:1 binding always spans 10%–90% over an 81-fold
+concentration range. Anything steeper means cooperativity, amplification or a
+threshold — see `P-14`.
+
+## 2. Rates, not just the ratio
+
+```{r}
+cat(sprintf("Kd                     : %.0f nM\n", Kd / nM))
+cat(sprintf("koff                   : %.2e 1/s\n", koff))
+cat(sprintf("residence time         : %.1f s  (%.1f min)\n", 1 / koff, 1 / koff / 60))
+cat(sprintf("dissociation half-life : %.1f s\n", log(2) / koff))
+```
+
+### How fast does binding reach equilibrium?
+
+```{r}
+approach <- function(C, times) {
+  rhs <- function(t, y, p) list(kon * C * (1 - y[1]) - koff * y[1])
+  as.data.frame(ode(c(DR = 0), times, rhs, parms = NULL,
+                    method = "lsoda", rtol = 1e-10, atol = 1e-14))
+}
+
+times <- seq(0, 300, by = 0.5)
+res <- do.call(rbind, lapply(c(1, 10), function(m) {
+  C <- m * Kd
+  d <- approach(C, times); d$mult <- factor(paste(m, "x Kd"))
+  tau <- 1 / (kon * C + koff)
+  cat(sprintf("  C = %2d x Kd  equilibrium %5.1f%%   tau = %5.1f s   90%% of equilibrium by %5.0f s\n",
+              m, 100 * occupancy(C, Kd), tau, 2.303 * tau))
+  d
+}))
+```
+
+```{r}
+#| fig-height: 3.6
+ggplot(res, aes(time, 100 * DR, colour = mult)) +
+  geom_line(linewidth = 0.9) +
+  scale_colour_manual(values = c("1 x Kd" = "#5FBCAC", "10 x Kd" = "#0B4F47")) +
+  labs(x = "Time (s)", y = "Occupancy (%)", colour = "free drug",
+       title = "Approach to binding equilibrium")
+```
+
+Higher concentration equilibrates **faster** — the on-rate term grows with
+concentration, the off-rate does not. Both are seconds to minutes, against
+plasma concentrations moving over hours.
+
+## 3. What an IC₅₀ is measuring
+
+```{r}
+cheng_prusoff <- function(IC50, L, Kd_L) IC50 / (1 + L / Kd_L)
+
+IC50 <- 250 * nM
+cat("same drug, same target, three assay setups:\n\n")
+for (r in c(0.1, 1, 10)) {
+  cat(sprintf("  competing ligand at %4g x its Kd  ->  Ki = %5.0f nM\n",
+              r, cheng_prusoff(IC50, r * Kd, Kd) / nM))
+}
+```
+
+A tenfold spread in apparent potency, decided by what was in the well.
+
+## 4. Ozanib against a 120 nM target
+
+```{r}
+MW <- 465; FU <- 0.08
+ng_ml_to_M <- function(x) x / MW * 1e-6
+
+for (nm in c("steady-state trough", "steady-state peak")) {
+  ng <- if (nm == "steady-state trough") 51.9 else 560.7
+  total <- ng_ml_to_M(ng); free <- total * FU
+  cat(sprintf("  %-20s total %7.1f nM   free %6.1f nM   occupancy %5.1f%%\n",
+              nm, total / nM, free / nM, 100 * occupancy(free, Kd)))
+}
+```
+
+Occupancy swings from **7% to 45%** across a dosing interval and never
+approaches saturation.
+
+## 5. The assumption that quietly fails
+
+```{r}
+occupancy_exact <- function(D_tot, R_tot, Kd) {
+  b <- D_tot + R_tot + Kd
+  DR <- 0.5 * (b - sqrt(b^2 - 4 * D_tot * R_tot))
+  DR / R_tot
+}
+
+cat(sprintf("%10s  %8s  %8s   target = 100 nM\n", "drug (nM)", "simple", "exact"))
+for (D in c(10, 30, 100, 300, 1000, 3000)) {
+  s <- 100 * occupancy(D * nM, Kd)
+  e <- 100 * occupancy_exact(D * nM, 100 * nM, Kd)
+  cat(sprintf("%10d  %7.1f%%  %7.1f%%%s\n", D, s, e,
+              if (s - e > 5) sprintf("   <- overstated by %.0f points", s - e) else ""))
+}
+```
+
+At low concentrations the simple formula is badly wrong: much of the drug is on
+the target rather than free. Every therapeutic antibody against a circulating
+target lives here — and the bound complex is cleared, so the target eliminates
+the drug. That is target-mediated disposition, built in `S1`.
+
+```{r}
+#| fig-height: 3.6
+D <- 10^seq(0, 4, length.out = 200) * nM
+data.frame(D = rep(D, 2),
+           occ = c(100 * occupancy(D, Kd), 100 * occupancy_exact(D, 100 * nM, Kd)),
+           model = rep(c("simple (drug in excess)", "exact (target = 100 nM)"), each = length(D))) |>
+  ggplot(aes(D / nM, occ, colour = model, linetype = model)) +
+  geom_line(linewidth = 0.9) + scale_x_log10() +
+  scale_colour_manual(values = c("simple (drug in excess)" = "#0F6E63",
+                                 "exact (target = 100 nM)" = "#8E6410")) +
+  labs(x = "Total drug concentration (nM, log scale)", y = "Target occupancy (%)",
+       colour = NULL, linetype = NULL,
+       title = "When target concentration is not negligible") +
+  theme(legend.position = "top")
+```
+
+## What to try next
+
+1. Set `kon <- 1e3` keeping `Kd` fixed. How long is residence time now, and how
+   does equilibration compare with a dosing interval?
+2. At what target concentration does the simple formula stay within 5% of the
+   exact one everywhere? That is your rule for when the shortcut is safe.
+3. Take the day-14 Ozanib profile from `S0-01` and plot occupancy across the
+   dosing interval. What fraction of 24 h is occupancy above 25%?
