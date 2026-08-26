@@ -35,6 +35,8 @@ website:
         href: cases.qmd
       - text: "Reading"
         href: reading.qmd
+      - text: "Resources"
+        href: resources.qmd
       - text: "About"
         href: about.qmd
     tools:

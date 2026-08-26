@@ -20,7 +20,7 @@ endif
 
 .DEFAULT_GOAL := help
 
-.PHONY: help setup setup-py setup-r doctor-r serve data verify battery check render render-py preview clean distclean doctor guard-python guard-r
+.PHONY: help setup setup-py setup-r doctor-r serve data verify battery check check-resources render render-py preview clean distclean doctor guard-python guard-r
 
 help:
 	@echo ""
@@ -34,7 +34,8 @@ help:
 	@echo "  make data      regenerate CASE-SM (clean + corrupted copies)"
 	@echo "  make verify    check the case against its published truth"
 	@echo "  make battery   run the S0-03 data-check battery on both datasets"
-	@echo "  make check     data + verify + battery          <- the fast loop"
+	@echo "  make check-resources  validate resources.csv against its schema"
+	@echo "  make check     data + verify + battery + resources   <- the fast loop"
 	@echo ""
 	@echo "  make render    build the site into _site/ (executes every notebook)"
 	@echo "  make render-py build without R — Python notebooks only"
@@ -114,7 +115,10 @@ verify: guard-python
 battery: guard-python
 	$(PY) scripts/check_data.py
 
-check: data verify battery
+check-resources: guard-python
+	@$(PY) scripts/check_resources.py
+
+check: data verify battery check-resources
 
 guard-r:
 	@command -v Rscript >/dev/null 2>&1 || { \

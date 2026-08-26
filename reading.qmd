@@ -315,9 +315,16 @@ Honest gaps in this list, which will fill as the strands are written:
 
 - **No textbooks.** Rowland & Tozer, Gabrielsson & Weiner and Rang & Dale are
   each worth owning; none is on PubMed, so none is on this page.
-- **No regulatory guidances.** The FDA and EMA population PK, exposure–response
-  and PBPK guidances are short, free and tell you exactly what a deliverable
-  looks like. They belong in a separate list.
+- **No software, courses, datasets or reference databases.** By design — those
+  are not papers. They are on the [Resources](resources.qmd) page, which is
+  generated from a validated CSV in this repository.
+- ~~**No regulatory guidances.**~~ Fixed — 26 FDA, EMA, ICH and PMDA guidances
+  now live on the [Resources](resources.qmd) page, each fetched and checked for
+  draft-versus-final status. Two things worth knowing that came out of that
+  sweep: **ICH M15**, the first harmonised MIDD framework, was finalised in June
+  2026 and now sits above all the others; and FDA's 2020 *Clinical Drug
+  Interaction Studies* guidance no longer resolves on FDA's site, having been
+  overtaken by **ICH M12** (final, August 2024).
 - **Nothing on immunogenicity and anti-drug antibodies** beyond a mention inside
   the biologics reviews. `CASE-MAB` will need a source of its own.
 - **Nothing on pharmacogenomics** — CYP2D6, CYP2C19, DPYD, TPMT — which `P-09`

@@ -1,0 +1,251 @@
+---
+title: "Resources"
+subtitle: "Software, courses, guidances, repositories and reference databases"
+---
+
+The [Reading](reading.qmd) page lists papers. This page lists everything else:
+the software you would actually run, the courses you could actually enrol in,
+the regulatory guidances that tell you what a deliverable must contain, the
+repositories where a runnable model or a real dataset can be downloaded, and the
+databases you consult when you need a fact about a drug.
+
+The source of truth is [`resources.csv`](https://github.com/mgl0619/modelers-bench/blob/main/resources.csv)
+in this repository — one row per resource, plain text, diffable, and validated
+by `scripts/check_resources.py`. This page is generated from it. To add a
+resource, add a row and open a pull request.
+
+::: {.callout-important appearance="simple"}
+## How these were checked, and what that does and does not guarantee
+
+**Every URL in this table was fetched and confirmed before the row was written**,
+and the `cost` and `licence` fields were read off the page rather than recalled.
+That matters most where the answer is counterintuitive: Open Systems Pharmacology
+is genuinely free for commercial use, KEGG is explicitly *not* a public database,
+and DrugBank requires a licence for any redistribution of its content.
+
+What this does **not** guarantee: that a link is still live today, that a price
+has not changed, or that a description is right about something the page did not
+say. Where a page was silent, the field says `unknown` rather than a guess —
+there are more `unknown` licences here than we would like, and each one is a real
+gap, not a formatting choice.
+
+If a row is wrong, that is a bug. Open an issue.
+:::
+
+```{python}
+#| echo: false
+#| output: asis
+import csv, html, json
+from pathlib import Path
+
+CSV = Path("resources.csv")
+rows = list(csv.DictReader(CSV.open(encoding="utf-8", newline="")))
+
+CATEGORY_ORDER = ["guidance", "software", "repository", "reference", "course"]
+CATEGORY_LABEL = {
+    "guidance":   "Regulatory guidance",
+    "software":   "Software and packages",
+    "repository": "Model repositories and datasets",
+    "reference":  "Reference databases",
+    "course":     "Courses, training and societies",
+}
+CATEGORY_BLURB = {
+    "guidance":   "All free, all public, and mostly short. These state what a "
+                  "deliverable must contain — which makes them the most "
+                  "specific description of the job available anywhere.",
+    "software":   "The cost column is the one to read first. A great deal of "
+                  "population PK can be done for nothing; PBPK used to be the "
+                  "exception until Open Systems Pharmacology.",
+    "repository": "Places to get a runnable model or a real dataset without "
+                  "asking anyone's permission.",
+    "reference":  "Lookup resources. Read the licence column before you copy "
+                  "anything out of them into your own work.",
+    "course":     "Ordered so that the things a person with no budget and no "
+                  "institution can start tonight come first.",
+}
+COST_LABEL = {
+    "free": "free", "free-academic": "free for academics",
+    "freemium": "free tier", "commercial": "paid", "unknown": "cost unstated",
+}
+
+n_free = sum(1 for r in rows if r["cost"] in ("free", "free-academic"))
+verified = sorted({r["verified"] for r in rows})[-1]
+
+print(f"**{len(rows)} resources**, of which **{n_free}** are usable at no cost. "
+      f"Links last verified {verified}.\n")
+
+# --- filter UI -------------------------------------------------------------
+print("""
+<div class="res-controls">
+  <input type="search" id="res-q" placeholder="Search name, description, maintainer…" aria-label="Search resources">
+  <span class="res-chips" id="res-domains"></span>
+  <label class="res-freeonly"><input type="checkbox" id="res-free"> free only</label>
+  <span class="res-count" id="res-count"></span>
+</div>
+""")
+
+DOMAIN_LABEL = {
+    "pharmacology": "pharmacology", "pkpd": "PK/PD", "poppk": "PopPK",
+    "pbpk": "PBPK", "qsp": "QSP", "stats-ml": "stats & ML",
+    "regulatory": "regulatory", "general": "general",
+}
+
+def esc(s):
+    return html.escape(s or "")
+
+for cat in CATEGORY_ORDER:
+    group = [r for r in rows if r["category"] == cat]
+    if not group:
+        continue
+    print(f'\n<h2 class="res-h" data-cat="{cat}">{CATEGORY_LABEL[cat]} '
+          f'<span class="res-n">{len(group)}</span></h2>')
+    print(f'<p class="res-blurb">{esc(CATEGORY_BLURB[cat])}</p>')
+
+    subs = []
+    for r in group:
+        if r["subcategory"] not in subs:
+            subs.append(r["subcategory"])
+
+    for sub in subs:
+        items = [r for r in group if r["subcategory"] == sub]
+        print(f'<h3 class="res-sub">{esc(sub)}</h3>')
+        print('<div class="res-list">')
+        for r in items:
+            doms = r["domains"].split("|")
+            blob = " ".join([r["name"], r["description"], r["best_for"],
+                             r["maintainer"], r["notes"], r["licence"]]).lower()
+            free = "1" if r["cost"] in ("free", "free-academic") else "0"
+            print(f'''<div class="res-item" data-domains="{esc(r["domains"])}" data-free="{free}" data-blob="{esc(blob)}">
+  <div class="res-head">
+    <a class="res-name" href="{esc(r["url"])}" target="_blank" rel="noopener">{esc(r["name"])}</a>
+    <span class="res-cost res-cost-{esc(r["cost"])}">{esc(COST_LABEL[r["cost"]])}</span>
+  </div>
+  <div class="res-meta">{esc(r["maintainer"])}{" &middot; " + esc(r["language"]) if r["language"] not in ("n/a", "") else ""} &middot; <span class="res-lic">{esc(r["licence"])}</span></div>
+  <p class="res-desc">{esc(r["description"])}</p>
+  <p class="res-use"><strong>Use it for:</strong> {esc(r["best_for"])}</p>
+  {f'<p class="res-note">{esc(r["notes"])}</p>' if r["notes"] else ""}
+  <div class="res-doms">{"".join(f'<span class="res-dom">{DOMAIN_LABEL.get(d, d)}</span>' for d in doms)}</div>
+</div>''')
+        print('</div>')
+
+print(f"\n<script>window.RES_DOMAINS = {json.dumps(DOMAIN_LABEL)};</script>")
+```
+
+```{=html}
+<style>
+.res-controls{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;
+  padding:.7rem .8rem;margin:1.2rem 0 1.6rem;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;
+  background:var(--bs-body-bg,#fff)}
+#res-q{flex:1 1 16rem;min-width:12rem;padding:.4rem .6rem;font-size:.92rem;
+  border:1px solid var(--bs-border-color,#dee2e6);border-radius:6px;background:transparent;color:inherit}
+.res-chips{display:flex;flex-wrap:wrap;gap:.3rem}
+.res-chip{cursor:pointer;font-size:.78rem;padding:.2rem .55rem;border-radius:999px;
+  border:1px solid var(--bs-border-color,#dee2e6);background:transparent;color:inherit;line-height:1.5}
+.res-chip[aria-pressed="true"]{background:#2c6e63;border-color:#2c6e63;color:#fff}
+.res-freeonly{font-size:.82rem;display:flex;align-items:center;gap:.3rem;white-space:nowrap}
+.res-count{font-size:.78rem;opacity:.65;margin-left:auto;white-space:nowrap}
+.res-h{margin-top:2.4rem}
+.res-n{font-size:.65em;opacity:.5;font-weight:400}
+.res-blurb{font-size:.92rem;opacity:.8;margin-top:-.4rem}
+.res-sub{font-size:.95rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6;
+  margin:1.6rem 0 .6rem;font-weight:600}
+.res-list{display:grid;gap:.75rem}
+.res-item{border:1px solid var(--bs-border-color,#dee2e6);border-left:3px solid #2c6e63;
+  border-radius:6px;padding:.75rem .9rem}
+.res-item[hidden]{display:none}
+.res-head{display:flex;gap:.6rem;align-items:baseline;flex-wrap:wrap}
+.res-name{font-weight:600;font-size:1.02rem;text-decoration:none}
+.res-cost{font-size:.72rem;padding:.1rem .45rem;border-radius:4px;border:1px solid currentColor;white-space:nowrap}
+.res-cost-free{color:#1f6f4a}
+.res-cost-free-academic{color:#1f6f4a}
+.res-cost-freemium{color:#8a6d1f}
+.res-cost-commercial{color:#8a3b3b}
+.res-cost-unknown{opacity:.6}
+.res-meta{font-size:.78rem;opacity:.65;margin-top:.15rem}
+.res-lic{font-family:ui-monospace,Menlo,monospace;font-size:.95em}
+.res-desc{margin:.45rem 0 .3rem;font-size:.93rem}
+.res-use{margin:.2rem 0;font-size:.87rem;opacity:.85}
+.res-note{margin:.35rem 0 0;font-size:.83rem;opacity:.75;padding-left:.6rem;border-left:2px solid var(--bs-border-color,#dee2e6)}
+.res-doms{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.5rem}
+.res-dom{font-size:.7rem;padding:.1rem .4rem;border-radius:3px;background:rgba(44,110,99,.1);opacity:.85}
+@media (prefers-color-scheme:dark){
+  .res-cost-free,.res-cost-free-academic{color:#5fbf90}
+  .res-cost-freemium{color:#d4b35c}
+  .res-cost-commercial{color:#e08a8a}
+  .res-chip[aria-pressed="true"]{background:#3d9184;border-color:#3d9184}
+}
+</style>
+<script>
+(function(){
+  var items=[].slice.call(document.querySelectorAll('.res-item'));
+  if(!items.length) return;
+  var q=document.getElementById('res-q'),
+      freeBox=document.getElementById('res-free'),
+      chipBox=document.getElementById('res-domains'),
+      countEl=document.getElementById('res-count'),
+      labels=window.RES_DOMAINS||{}, active=new Set();
+
+  var present=[];
+  items.forEach(function(el){
+    el.dataset.domains.split('|').forEach(function(d){
+      if(present.indexOf(d)<0) present.push(d);
+    });
+  });
+  present.forEach(function(d){
+    var b=document.createElement('button');
+    b.className='res-chip'; b.type='button'; b.textContent=labels[d]||d;
+    b.setAttribute('aria-pressed','false');
+    b.addEventListener('click',function(){
+      if(active.has(d)){active.delete(d);b.setAttribute('aria-pressed','false');}
+      else{active.add(d);b.setAttribute('aria-pressed','true');}
+      apply();
+    });
+    chipBox.appendChild(b);
+  });
+
+  function apply(){
+    var term=(q.value||'').trim().toLowerCase(),
+        onlyFree=freeBox.checked, shown=0;
+    items.forEach(function(el){
+      var ok=true;
+      if(term && el.dataset.blob.indexOf(term)<0) ok=false;
+      if(ok && onlyFree && el.dataset.free!=='1') ok=false;
+      if(ok && active.size){
+        var ds=el.dataset.domains.split('|'), hit=false;
+        active.forEach(function(d){ if(ds.indexOf(d)>=0) hit=true; });
+        if(!hit) ok=false;
+      }
+      el.hidden=!ok; if(ok) shown++;
+    });
+    // hide a subsection heading and its list when nothing in it survives
+    [].slice.call(document.querySelectorAll('.res-list')).forEach(function(list){
+      var any=[].slice.call(list.querySelectorAll('.res-item')).some(function(e){return !e.hidden;});
+      list.style.display=any?'':'none';
+      var h=list.previousElementSibling;
+      if(h&&h.classList.contains('res-sub')) h.style.display=any?'':'none';
+    });
+    countEl.textContent=shown+' of '+items.length+' shown';
+  }
+  q.addEventListener('input',apply);
+  freeBox.addEventListener('change',apply);
+  apply();
+})();
+</script>
+```
+
+## What is deliberately not here
+
+- **Anything we could not fetch.** Around twenty candidates were dropped because
+  a URL 404'd, redirected somewhere unrelated, or returned a JavaScript shell
+  with no readable content. A few are real resources that simply could not be
+  verified from their own page — PharmGKB and the Therapeutic Target Database
+  among them — and they are omitted rather than described from memory.
+- **Anything defunct presented as current.** The DDMoRe Model Repository is
+  listed because its models are still downloadable, but its row says plainly
+  that every date signal on the site stops in 2018.
+- **Textbooks.** Rowland & Tozer, Gabrielsson & Weiner and Rang & Dale are each
+  worth owning. None has a canonical free page to link, so none is here.
+- **Prices, mostly.** Very few vendors publish them. Where a page stated a
+  figure — Manchester's MSc fees, Certara University's course range — the row
+  says so; everywhere else it says pricing is not published, which is itself
+  information.
