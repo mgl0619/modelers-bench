@@ -292,9 +292,13 @@ mg and µg; or dosing implemented as a continuous input rather than as an event.
 - **Next:** [S0-02 · Units, scaling and allometry](../s0-02-units-scaling-and-allometry/) — the errors that survive peer review.
 - **Uses this:** every lesson in `S1` and `S2`; `CASE-SM` is a two-compartment
   oral model and you will meet it again with mixed effects attached.
-- **Reference:** Gabrielsson & Weiner, *Pharmacokinetic and Pharmacodynamic Data
-  Analysis*, for the closed-form solutions; Rowland & Tozer for the clearance
-  concepts; the `deSolve` and `scipy.integrate` documentation for the numerics.
+- **Reference:** for simulation in R from the authors of the engine, Wang W,
+  Hallow KM, James DA, *A tutorial on RxODE* ([DOI](https://doi.org/10.1002/psp4.12052),
+  free full text); for orientation to what these models are for, van der Graaf PH,
+  *Introduction to population PK/PD analysis with nonlinear mixed effects models*
+  ([DOI](https://doi.org/10.1038/psp.2014.51), free). Textbooks: Gabrielsson &
+  Weiner for closed-form solutions, Rowland & Tozer for the clearance concepts.
+  More on the [Reading](../../reading.qmd) page.
 
 *Seen in the wild:* a phase 3 dose recommendation was once revisited late
 because a model had been parameterised in $k$ and $V$ rather than $CL$ and $V$,

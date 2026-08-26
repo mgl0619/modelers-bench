@@ -33,6 +33,8 @@ website:
             href: paths/path-c-crossover.qmd
       - text: "Cases"
         href: cases.qmd
+      - text: "Reading"
+        href: reading.qmd
       - text: "About"
         href: about.qmd
     tools:
@@ -100,6 +102,8 @@ website:
           - paths/path-c-crossover.qmd
       - text: "Cases"
         href: cases.qmd
+      - text: "Reading"
+        href: reading.qmd
       - text: "About"
         href: about.qmd
 

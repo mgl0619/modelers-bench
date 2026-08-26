@@ -220,10 +220,15 @@ question about the drug, not about the p-value.
 
 - **You have finished the Foundations strand.** Next is
   [`S1` · PK/PD core](../../paths/path-a-new-modeler.qmd), or return to a path page.
-- **Reference:** the FDA and EMA population pharmacokinetics guidances — short
-  and unusually readable, and they tell you exactly what a reviewer expects to
-  find; Drugs@FDA for real Summary of Clinical Pharmacology reviews, which are
-  the best free source of worked examples in existence.
+- **Reference:** on shrinkage — the thing that silently invalidates half the
+  plots in a report — Savic RM, Karlsson MO, *Importance of shrinkage in
+  empirical Bayes estimates for diagnostics*
+  ([DOI](https://doi.org/10.1208/s12248-009-9133-0), free full text), and Xu XS
+  et al. on what causes it ([DOI](https://doi.org/10.1208/s12248-012-9407-9),
+  free). On the VPC, Bergstrand M et al., *Prediction-corrected visual predictive
+  checks* ([DOI](https://doi.org/10.1208/s12248-011-9255-z), free) — why a plain
+  VPC misleads across doses. Also the FDA and EMA population pharmacokinetics
+  guidances, and Drugs@FDA for real Summary of Clinical Pharmacology reviews.
 
 *Seen in the wild:* the single most useful question anyone has asked in a model
 review meeting was "what would this plot look like if the model were wrong?"

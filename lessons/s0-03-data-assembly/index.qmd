@@ -267,9 +267,13 @@ reproducing the assembly from source.
 - **Next:** [S0-04 · Choosing a stack](../s0-04-choosing-a-stack/).
 - **Uses this:** everything in `S2`; the exclusion log resurfaces in `S6` when a
   regulator asks about it.
-- **Reference:** the CDISC ADaM ADPPK implementation guide; the NONMEM users
-  guide on data records — dry, short, and the definitive statement of the
-  conventions every other tool imitates.
+- **Reference:** on BLQ, the original is Beal SL, *Ways to fit a PK model with
+  some data below the quantification limit*
+  ([DOI](https://doi.org/10.1023/a:1012299115260)) — the M1–M7 methods, and the
+  evidence that discarding or halving them both bias the answer. Also the CDISC
+  ADaM ADPPK implementation guide, and the NONMEM users guide on data records —
+  dry, short, and the definitive statement of the conventions every other tool
+  imitates.
 
 *Seen in the wild:* the most expensive data defect one team ever shipped was a
 dose diary in which patients recorded the date but not the time, and the

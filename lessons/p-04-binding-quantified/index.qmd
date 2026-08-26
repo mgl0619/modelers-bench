@@ -234,8 +234,12 @@ is the difference between a dose that works and one that does not.
 - **Next:** [P-05 · Agonists, antagonists and everything between](../p-05-agonists-and-antagonists/)
 - **Uses this:** `P-14` for dose–response and the Hill coefficient; `S1` for
   target-mediated disposition; `S0-02` for the free-versus-total arithmetic.
-- **Reference:** Kenakin, *A Pharmacology Primer*, for receptor theory done
-  properly; Copeland on binding kinetics and residence time.
+- **Reference:** Kenakin T, *Receptor theory*
+  ([DOI](https://doi.org/10.1002/0471141755.ph0102s41)) — classical theory and
+  the operational model. When binding starts to affect the pharmacokinetics,
+  Dua P, Hawkins E, van der Graaf PH, *A tutorial on target-mediated drug
+  disposition* ([DOI](https://doi.org/10.1002/psp4.41), free full text) picks up
+  exactly where §5 of this lesson stops.
 
 *Seen in the wild:* a candidate was selected on a tenfold affinity advantage over
 its competitor. In patients the two were indistinguishable — both saturated the

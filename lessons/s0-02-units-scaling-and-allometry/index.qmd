@@ -279,9 +279,13 @@ missing covariate, and see whether anything remains.
   actually get fixed.
 - **Uses this:** `S1` (molar arithmetic for TMDD), `S3` (allometry and
   maturation in pediatric PBPK), `S2` (covariate modeling and confounding).
-- **Reference:** Anderson & Holford on size and maturation in children; Holford's
-  work on the standardised allometric approach; Rowland & Tozer for the
-  physiological reference values.
+- **Reference:** Anderson BJ, Holford NHG, *Mechanistic basis of using body size
+  and maturation to predict clearance in humans*
+  ([DOI](https://doi.org/10.2133/dmpk.24.25)) — the argument for the 0.75 exponent
+  and for maturation functions. Then Rhodin MM et al., *Human renal function
+  maturation* ([DOI](https://doi.org/10.1007/s00467-008-0997-5)), which fits GFR
+  from premature neonate to adult and shows exactly where size alone fails.
+  Rowland & Tozer for the physiological reference values.
 
 *Seen in the wild:* a first-in-human dose was once calculated from a preclinical
 clearance reported in mL/min/kg and read as L/h/kg. The error was caught at a

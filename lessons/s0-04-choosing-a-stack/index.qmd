@@ -142,8 +142,15 @@ fine choice for simulation, data assembly, ML work and reporting.
 ## Going further
 
 - **Next:** [S0-05 · Git for modelers](../s0-05-git-for-modelers/).
-- **Reference:** the `nlmixr2`, `mrgsolve` and `rxode2` documentation; the Open
-  Systems Pharmacology suite for PBPK; Torsten's user guide for Bayesian PK/PD.
+- **Reference:** each tool's own tutorial, written by its authors and mostly
+  free: Bauer RJ on NONMEM, part I ([DOI](https://doi.org/10.1002/psp4.12404))
+  and part II ([DOI](https://doi.org/10.1002/psp4.12422)); Wang W et al. on
+  RxODE ([DOI](https://doi.org/10.1002/psp4.12052)); Elmokadem A, Riggs MM,
+  Baron KT on mrgsolve for PBPK and QSP
+  ([DOI](https://doi.org/10.1002/psp4.12467)); Keizer RJ, Karlsson MO, Hooker A
+  on the Pirana/PsN/Xpose workbench ([DOI](https://doi.org/10.1038/psp.2013.24)).
+  Also the Open Systems Pharmacology suite for PBPK, and Torsten's user guide for
+  Bayesian PK/PD.
 
 *Seen in the wild:* a team spent four months porting a model from one platform to
 another for reasons that were entirely about a licence renewal. The port

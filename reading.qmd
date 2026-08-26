@@ -1,0 +1,110 @@
+---
+title: "Reading"
+subtitle: "Primers and tutorials worth your time"
+---
+
+Every entry here was retrieved and checked against **PubMed** — title, journal,
+year, authors and DOI. Nothing on this page is a remembered citation. Where a
+free full text exists in PubMed Central it is marked **[free]**, because a
+curriculum that costs nothing should send you to papers that cost nothing.
+
+::: {.callout-note appearance="simple"}
+The pharmacometrics literature has an unusual gift: *CPT: Pharmacometrics &
+Systems Pharmacology* runs a standing tutorial series, most of it open access
+and much of it with runnable code in the supplements. If you read nothing else,
+read the tutorials.
+:::
+
+## Start here
+
+| | Why |
+|---|---|
+| van der Graaf PH. **Introduction to population pharmacokinetic/pharmacodynamic analysis with nonlinear mixed effects models.** *CPT Pharmacometrics Syst Pharmacol* 2014;3:e153. [DOI](https://doi.org/10.1038/psp.2014.51) · PMID 25531560 · **[free]** | The shortest honest orientation to what population modelling is for. Read before `S2`. |
+| Lesko LJ. **Perspective on model-informed drug development.** *CPT Pharmacometrics Syst Pharmacol* 2021;10:1127–1129. [DOI](https://doi.org/10.1002/psp4.12699) · PMID 34404115 · **[free]** | What MIDD means and how it became a regulatory process rather than a slogan. |
+| Mehrotra S, Gobburu J. **Communicating to influence drug development and regulatory decisions: a tutorial.** *CPT Pharmacometrics Syst Pharmacol* 2016;5:163–172. [DOI](https://doi.org/10.1002/psp4.12073) · PMID 27299706 · **[free]** | The skill that decides whether your analysis changes anything. Pairs with `S0-00` §5. |
+
+## Strand P · Pharmacology
+
+| | Why |
+|---|---|
+| Kenakin T. **Receptor theory.** *Curr Protoc Pharmacol* 2008;Chapter 1:Unit 1.2. [DOI](https://doi.org/10.1002/0471141755.ph0102s41) · PMID 22294216 | Classical receptor theory and the operational model, by the person who wrote the textbook. Background for `P-04` and `P-05`. |
+| Kenakin T. **Biased agonism.** *F1000 Biol Rep* 2009;1:87. [DOI](https://doi.org/10.3410/B1-87) · PMID 20948603 · **[free]** | Why one agonist can activate some pathways and not others — and why "efficacy" is not one number. `P-05`. |
+| Dua P, Hawkins E, van der Graaf PH. **A tutorial on target-mediated drug disposition (TMDD) models.** *CPT Pharmacometrics Syst Pharmacol* 2015;4:324–337. [DOI](https://doi.org/10.1002/psp4.41) · PMID 26225261 · **[free]** | Where `P-04`'s binding arithmetic becomes pharmacokinetics. The reference for biologics. |
+| Anderson BJ, Holford NHG. **Mechanistic basis of using body size and maturation to predict clearance in humans.** *Drug Metab Pharmacokinet* 2009;24:25–36. [DOI](https://doi.org/10.2133/dmpk.24.25) · PMID 19252334 | The argument for allometric scaling and for maturation functions in children. Underpins `S0-02` and `P-12`. |
+| Rhodin MM, Anderson BJ, Peters AM, et al. **Human renal function maturation: a quantitative description using weight and postmenstrual age.** *Pediatr Nephrol* 2009;24:67–76. [DOI](https://doi.org/10.1007/s00467-008-0997-5) · PMID 18846389 | GFR from premature neonate to adult in one model. The worked example of why size alone fails in paediatrics. |
+
+## Strand S0 · Foundations
+
+| | Why |
+|---|---|
+| Beal SL. **Ways to fit a PK model with some data below the quantification limit.** *J Pharmacokinet Pharmacodyn* 2001;28:481–504. [DOI](https://doi.org/10.1023/a:1012299115260) · PMID 11768292 | The original M1–M7 paper. `S0-03` tells you to flag BLQ and not impute; this is why. |
+| Keizer RJ, Karlsson MO, Hooker A. **Modeling and simulation workbench for NONMEM: tutorial on Pirana, PsN, and Xpose.** *CPT Pharmacometrics Syst Pharmacol* 2013;2:e50. [DOI](https://doi.org/10.1038/psp.2013.24) · PMID 23836189 · **[free]** | The toolchain most groups actually use, and which diagnostics to build. Complements `S0-04`. |
+
+## Strand S1–S2 · PK/PD and population modelling
+
+| | Why |
+|---|---|
+| Bauer RJ. **NONMEM tutorial part I: description of commands and options, with simple examples of population analysis.** *CPT Pharmacometrics Syst Pharmacol* 2019;8:525–537. [DOI](https://doi.org/10.1002/psp4.12404) · PMID 31056834 · **[free]** | The best free route into NONMEM — *after* you understand mixed effects, not before. |
+| Bauer RJ. **NONMEM tutorial part II: estimation methods and advanced examples.** *CPT Pharmacometrics Syst Pharmacol* 2019;8:538–556. [DOI](https://doi.org/10.1002/psp4.12422) · PMID 31044558 · **[free]** | FOCE, SAEM and importance sampling explained by the person who implemented them. |
+| Savic RM, Karlsson MO. **Importance of shrinkage in empirical Bayes estimates for diagnostics: problems and solutions.** *AAPS J* 2009;11:558–569. [DOI](https://doi.org/10.1208/s12248-009-9133-0) · PMID 19649712 · **[free]** | The paper behind `S0-06`'s warning that shrinkage invalidates other plots. Essential. |
+| Xu XS, Yuan M, Karlsson MO, et al. **Shrinkage in nonlinear mixed-effects population models: quantification, influencing factors, and impact.** *AAPS J* 2012;14:927–936. [DOI](https://doi.org/10.1208/s12248-012-9407-9) · PMID 22993107 · **[free]** | What *causes* shrinkage — sampling density, not sample size. Design implications. |
+| Bergstrand M, Hooker AC, Wallin JE, Karlsson MO. **Prediction-corrected visual predictive checks for diagnosing nonlinear mixed-effects models.** *AAPS J* 2011;13:143–151. [DOI](https://doi.org/10.1208/s12248-011-9255-z) · PMID 21302010 · **[free]** | The pcVPC, and why a plain VPC misleads across doses and adaptive designs. `S0-06`. |
+| Wang W, Hallow KM, James DA. **A tutorial on RxODE: simulating differential equation pharmacometric models in R.** *CPT Pharmacometrics Syst Pharmacol* 2016;5:3–10. [DOI](https://doi.org/10.1002/psp4.12052) · PMID 26844010 · **[free]** | Simulation in R, from the authors. `S0-01` and `S0-04`. |
+| Holford N. **A time to event tutorial for pharmacometricians.** *CPT Pharmacometrics Syst Pharmacol* 2013;2:e43. [DOI](https://doi.org/10.1038/psp.2013.18) · PMID 23887725 · **[free]** | Dropout, adverse events, and everything that is a time rather than a concentration. |
+| Ooi QX, Plan E, Bergstrand M. **A tutorial on pharmacometric Markov models.** *CPT Pharmacometrics Syst Pharmacol* 2025;14:197–216. [DOI](https://doi.org/10.1002/psp4.13278) · PMID 39670923 · **[free]** | Ordered-categorical and score data — the endpoints most modellers handle badly. |
+
+## Strand S3 · PBPK
+
+| | Why |
+|---|---|
+| Zhao P, Rowland M, Huang S-M. **Best practice in the use of physiologically based pharmacokinetic modeling and simulation to address clinical pharmacology regulatory questions.** *Clin Pharmacol Ther* 2012;92:17–20. [DOI](https://doi.org/10.1038/clpt.2012.68) · PMID 22713733 | Three pages, written from inside the FDA, on what a PBPK submission must contain. |
+| van der Heijden JEM, Freriksen JJM, de Hoop-Sommen MA, et al. **Physiologically-based pharmacokinetic modeling for drug dosing in pediatric patients: a tutorial for a pragmatic approach in clinical care.** *Clin Pharmacol Ther* 2023;114:960–971. [DOI](https://doi.org/10.1002/cpt.3023) · PMID 37553784 | A workflow, with its assumptions and limits stated plainly. |
+| Pansari A, Pan X, Almond LM, Rowland-Yeo K. **A tutorial on physiologically based pharmacokinetic approaches in lactation research.** *CPT Pharmacometrics Syst Pharmacol* 2024;13:1841–1855. [DOI](https://doi.org/10.1002/psp4.13232) · PMID 39283747 · **[free]** | Extrapolation to a population you can barely study — PBPK doing what only PBPK can. |
+| Elmokadem A, Riggs MM, Baron KT. **Quantitative systems pharmacology and physiologically-based pharmacokinetic modeling with mrgsolve: a hands-on tutorial.** *CPT Pharmacometrics Syst Pharmacol* 2019;8:883–893. [DOI](https://doi.org/10.1002/psp4.12467) · PMID 31652028 · **[free]** | PBPK and QSP simulation in R, with a worked voriconazole model. |
+
+## Strand S4 · QSP
+
+| | Why |
+|---|---|
+| Chae D. **Introduction to dynamical systems analysis in quantitative systems pharmacology: basic concepts and applications.** *Transl Clin Pharmacol* 2020;28:109–125. [DOI](https://doi.org/10.12793/tcp.2020.28.e12) · PMID 33062625 · **[free]** | Fixed points, stability, bifurcation — the mathematics QSP needs and pharmacometrics training omits. |
+
+## Strand S5–S6 · Statistics, ML and decisions
+
+| | Why |
+|---|---|
+| Talevi A, Morales JF, Hather G, et al. **Machine learning in drug discovery and development part 1: a primer.** *CPT Pharmacometrics Syst Pharmacol* 2020;9:129–142. [DOI](https://doi.org/10.1002/psp4.12491) · PMID 31905263 · **[free]** | Written for pharmacometricians rather than for computer scientists. Includes a reproducible example. |
+| Bauer RJ, Hooker AC, Mentré F. **Tutorial for $DESIGN in NONMEM: clinical trial evaluation and optimization.** *CPT Pharmacometrics Syst Pharmacol* 2021;10:1452–1465. [DOI](https://doi.org/10.1002/psp4.12713) · PMID 34559958 · **[free]** | Optimal design via the Fisher information matrix — how to know a study can answer the question before running it. |
+| Kulesh V, Vasyutin I, Volkova A, et al. **A tutorial for model-based evaluation and translation of cardiovascular safety in preclinical trials.** *CPT Pharmacometrics Syst Pharmacol* 2024;13:5–22. [DOI](https://doi.org/10.1002/psp4.13082) · PMID 37950388 · **[free]** | Safety modelling done quantitatively, with a reproducible example. Background for `P-16`. |
+| Zhu H, Huang S-M, Madabushi R, et al. **Model-informed drug development: a regulatory perspective on progress.** *Clin Pharmacol Ther* 2019;106:91–93. [DOI](https://doi.org/10.1002/cpt.1475) · PMID 31162631 | What regulators have actually accepted, and where they push back. |
+| Anziano RJ, Milligan PA. **Model informed drug development: collaboration through a common framework.** *Clin Pharmacol Ther* 2021;110:1165–1167. [DOI](https://doi.org/10.1002/cpt.2066) · PMID 33111309 · **[free]** | The organisational half of MIDD — why good models fail to influence decisions. |
+
+## How to read a tutorial paper
+
+Do not read it like a review. These have supplements with code, and the code is
+the point.
+
+1. Read the abstract and skip to the **worked example**.
+2. Download the supplement and **run it before understanding it**. Getting the
+   authors' output on your machine is worth more than a careful first read.
+3. **Break it** — change a parameter, remove a term, see what the diagnostics do.
+   This is `S0-01`'s failure-mode habit applied to somebody else's model.
+4. Only then read the theory, with a concrete thing in front of you.
+
+## What is missing here
+
+Honest gaps in this list, which will fill as the strands are written:
+
+- **No textbooks.** Rowland & Tozer, Gabrielsson & Weiner and Rang & Dale are
+  each worth owning; none is on PubMed, so none is on this page.
+- **No regulatory guidances.** The FDA and EMA population PK, exposure–response
+  and PBPK guidances are short, free and tell you exactly what a deliverable
+  looks like. They belong in a separate list.
+- **Thin on pharmacology proper.** Strand `P` needs primers on ADME, transporters
+  and physiology that this first pass did not cover.
+- **Nothing on cell and gene therapy kinetics**, which `CASE-CELL` will need.
+
+---
+
+*Bibliographic metadata for every entry retrieved from **PubMed**. DOIs link to
+the publisher of record; **[free]** marks a full text available in PubMed
+Central.*

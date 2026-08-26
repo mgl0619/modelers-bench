@@ -204,9 +204,11 @@ changed; the dose did. This is why a safety margin is expressed as a ratio of
 - **Next:** [P-03 · Drug targets: receptors, enzymes, transporters, channels](../p-03-drug-targets/)
 - **Uses this:** `P-04` puts numbers on binding; `P-08` on free versus bound;
   `S1` builds target-mediated disposition on exactly this picture.
-- **Reference:** Alberts, *Molecular Biology of the Cell*, chapters on membranes
-  and protein function — dense but the standard; Rang & Dale for the
-  pharmacology-first version.
+- **Reference:** Kenakin T, *Receptor theory*
+  ([DOI](https://doi.org/10.1002/0471141755.ph0102s41)) for the quantitative
+  treatment of everything in this lesson. Textbooks: Alberts, *Molecular Biology
+  of the Cell*, on membranes and protein function — dense but the standard; Rang
+  & Dale for the pharmacology-first version.
 
 *Seen in the wild:* a programme once spent eighteen months optimising affinity
 from 5 nM to 0.5 nM. Clinical effect did not improve, because at the doses given
