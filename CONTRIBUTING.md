@@ -12,15 +12,26 @@ expected to happen.
 2. **No proprietary software, licence keys, or vendor model files.** Reference
    them and link to their documentation; never redistribute.
 3. **No papers.** Never commit a PDF, a scanned chapter, or a copied figure.
-   Of the 28 works cited on the Reading page, 22 are all-rights-reserved and the
-   other 6 are Creative Commons **NC**/**ND**, which this project's CC BY-SA
-   licence cannot absorb. Free to read on PubMed Central is a permission to
-   read, not a licence to copy. Cite by DOI, add the entry to
+   Of the 53 works cited on the Reading page, 46 are all-rights-reserved and 6
+   of the remaining 7 are Creative Commons **NC**/**ND**, which this project's
+   CC BY-SA licence cannot absorb. Free to read on PubMed Central is a
+   permission to read, not a licence to copy. Cite by DOI, add the entry to
    `references.bib`, and draw any figure yourself from the equations or the
    underlying data.
+
+   The one exception is instructive: Liu 2017 in *Protein Cell*
+   ([DOI](https://doi.org/10.1007/s13238-017-0408-4)) is plain **CC BY 4.0**, so
+   its figures *could* be adapted here with attribution. One paper in
+   fifty-three. Check the licence before assuming you are in that case — and
+   note that the PubMed API reports licences incompletely, so a paper showing no
+   licence may still carry one.
 4. **Nothing traceable to a real programme.** No compound names, no internal
    methods, no unpublished parameter values.
-5. **Every runnable lesson must execute in CI.** A notebook that does not run is
+5. **One working copy.** Edit tracked files in the repository, not in a copy
+   made elsewhere. A file edited in two places outside git will diverge without
+   any warning, and the older version can silently win — see *One working copy*
+   in `LOCAL.md` for the time this happened and what it cost.
+6. **Every runnable lesson must execute in CI.** A notebook that does not run is
    a build failure, not a footnote.
 
 ## Adding a lesson

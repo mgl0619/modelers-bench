@@ -135,6 +135,32 @@ the corrupted copy to produce **exactly** the eleven defects in its manifest —
 no misses, no false positives. If you add a check to the battery, add its defect
 to `make_messy.py` too, or the battery will report it as spurious.
 
+## One working copy
+
+This repository is the only copy. Edit files here, run `make check` here, commit
+here.
+
+That sounds too obvious to write down, and it is the rule this project has
+already broken once. `scripts/check_resources.py` was extended in place with a
+site-link audit; a separate copy of the same file, made earlier elsewhere and
+edited in parallel, was later copied back over it. The audit disappeared
+silently — the script still ran, still printed `OK`, and simply stopped checking
+one of the two things it existed to check. It was noticed by chance.
+
+The failure mode is worth naming because it is not a merge conflict. Git never
+saw the second copy, so nothing warned anybody. Two files diverged outside
+version control and the older one won.
+
+So: no scratch copies of tracked files outside this working tree. If you need to
+generate a tracked file from a script, put the script in `scripts/` and commit
+it, so the generation is reproducible and the output has one lineage. If you
+edit a tracked file anywhere other than here, treat it as untrusted and diff it
+before it comes back.
+
+`make check` is the backstop. It validates `resources.csv` against its schema and
+audits every external link on the site, and it is cheap enough to run before
+every commit.
+
 ## Adding a lesson
 
 ```bash
