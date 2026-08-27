@@ -1,0 +1,9 @@
+id: p-05
+strand: P
+title: Agonists, antagonists and everything between
+paths: [PATH-A, PATH-B, PATH-C]
+prereqs: [p-04]
+next: p-06
+runnable: true
+notebooks: [notebook-r.qmd, notebook-py.qmd]
+reviewed: 2026-08-27

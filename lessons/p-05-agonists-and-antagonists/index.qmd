@@ -1,0 +1,259 @@
+---
+title: "Agonists, antagonists and everything between"
+subtitle: "Lesson P-05"
+description: >
+  Affinity and efficacy are different quantities measured in different units.
+  Separating them explains partial agonism, receptor reserve, inverse agonism
+  and why an EC50 is a property of a tissue rather than of a drug.
+categories: [pharmacology, foundations, receptors]
+---
+
+::: {.callout-tip appearance="simple"}
+## The decision this serves
+Your compound produces 60% of the maximal response of the reference agonist.
+Is that a property of the molecule or of the preparation it was measured in?
+The answer decides whether you optimise the compound or change the assay — and
+whether the EC~50~ you were handed can be carried into a model at all.
+:::
+
+## 1. Two quantities, not one
+
+`P-04` treated binding as the whole story: a drug occupies a target, and
+occupancy is governed by $K_d$. That is sufficient for an antagonist, whose job
+ends at occupancy. It is not sufficient for anything that produces a response,
+because occupying a receptor and activating it are separate events with separate
+constants.
+
+- **Affinity** is how readily the drug binds. It has units of concentration
+  ($K_A$, the agonist dissociation constant, used here in place of $K_d$ by
+  convention).
+- **Efficacy** is how effectively the bound complex produces a response. It is
+  dimensionless.
+
+A compound can have high affinity and zero efficacy — that is a competitive
+antagonist. It can have modest affinity and high efficacy. The two are
+independent, they are optimised separately in medicinal chemistry, and
+conflating them is the most common error in reading a concentration–response
+curve.
+
+## 2. The operational model
+
+The standard formalism is Black and Leff's operational model, which is
+constructed rather than assumed: begin with Langmuir binding, then let the
+occupied receptor drive a saturable downstream transduction step. The result is
+
+$$E = \frac{E_m \, \tau \, [A]}{[A]\,(\tau + 1) + K_A}$$
+
+where $E_m$ is the maximum the *system* can produce, and $\tau$ is the
+**transducer ratio**
+
+$$\tau = \frac{[R]_T}{K_E}$$
+
+the total receptor density divided by the concentration of occupied receptor
+needed for half-maximal effect. One parameter, $\tau$, carries both the
+efficacy of the drug and the responsiveness of the tissue. That merging is the
+model's central claim and the source of most of its consequences.
+
+Two quantities follow directly:
+
+$$E_{max} = \frac{E_m \tau}{\tau + 1} \qquad\qquad EC_{50} = \frac{K_A}{\tau + 1}$$
+
+Both are worth sitting with. The observed maximum is not $E_m$ unless $\tau$ is
+large. And **the observed potency is not the affinity** — it is the affinity
+divided by $(\tau + 1)$.
+
+## 3. Receptor reserve, and why EC~50~ is not an affinity
+
+If $\tau = 9$, then $EC_{50} = K_A/10$: the curve sits a full log unit to the
+left of the binding curve. Occupancy at the EC~50~ is
+
+$$\frac{EC_{50}}{EC_{50} + K_A} = \frac{1}{\tau + 2} = 9.1\%$$
+
+Half the maximal response from nine percent of the receptors. The remaining
+receptors are **spare** — not idle, but surplus to the requirement for a full
+response. Receptor reserve is a property of the tissue: the same agonist in a
+preparation with fewer receptors, or a less efficient coupling step, has a
+smaller $\tau$, a right-shifted curve and a lower maximum.
+
+::: {.callout-important appearance="simple"}
+**An EC~50~ measured in a high-reserve system is not an affinity, and the gap is
+not small.** With $\tau = 9$ it is off by tenfold; with $\tau = 99$, a hundredfold.
+Carrying such a value into a PK/PD model as though it were $K_A$ will
+systematically overstate potency at the target, and the error is invisible
+because the curve looks perfectly ordinary.
+
+`P-04` made the same point about IC~50~ and the Cheng–Prusoff correction. This is
+the functional-assay version, and it is larger.
+:::
+
+## 4. Partial agonism is a low $\tau$, not a weak drug
+
+A partial agonist cannot produce the system maximum however much is added. In
+the operational model that is simply $\tau$ small enough that
+$E_m\tau/(\tau+1)$ falls short of $E_m$ — with $\tau = 1$ the ceiling is half
+the system maximum, whatever the concentration.
+
+Three consequences that matter more than the definition:
+
+**Partial agonism is system-dependent.** The same molecule can behave as a full
+agonist in a tissue with high receptor density and a partial agonist in one with
+low density, because $\tau$ contains $[R]_T$. "Partial agonist" is therefore not
+a fixed label on a molecule.
+
+**A partial agonist antagonises a full agonist.** It occupies receptors that
+would otherwise be driven harder. In the presence of a full agonist, adding a
+partial agonist reduces the response toward the partial agonist's own ceiling —
+which is why buprenorphine and aripiprazole behave the way they do clinically.
+
+**A ceiling can be the therapeutic point.** Partial agonism buys a bounded
+maximal effect, which is a safety property when the full effect is dangerous.
+
+## 5. Antagonism, and how to tell the mechanisms apart
+
+A **competitive antagonist** binds the same site reversibly. It shifts the
+agonist curve rightward without lowering the maximum, because enough agonist
+displaces it — the antagonism is *surmountable*. The shift is quantified by the
+dose ratio
+
+$$DR = 1 + \frac{[B]}{K_B}$$
+
+and Schild analysis exploits it: plot $\log(DR - 1)$ against $\log[B]$, and
+simple competitive antagonism gives a straight line of **slope 1** whose
+x-intercept estimates $\log K_B$. A slope departing from unity is evidence
+against the mechanism, which makes the Schild plot one of the few routinely used
+graphical tests that can falsify its own assumption.
+
+A **non-competitive** or insurmountable antagonist depresses the maximum
+instead. The distinction is mechanistic and it is visible in the data: rightward
+shift without depression, or depression.
+
+## 6. Inverse agonism requires something to reverse
+
+Many receptors have **constitutive activity** — some fraction is active with no
+ligand bound. Where that is true, a ligand preferring the inactive state reduces
+signalling below baseline. That is an inverse agonist, and a large share of
+drugs historically classified as antagonists are inverse agonists in systems
+with measurable basal tone.
+
+The distinction is not semantic. A neutral antagonist blocks; an inverse agonist
+blocks *and* suppresses basal signalling, and only the latter can produce
+receptor upregulation on chronic dosing and rebound on withdrawal. Whether the
+distinction appears at all depends on whether the assay has basal tone to
+suppress, which is again a property of the preparation.
+
+## 7. Allosteric modulation has a ceiling
+
+An allosteric ligand binds a site distinct from the agonist's and changes what
+the agonist does — affinity by a cooperativity factor $\alpha$, efficacy by
+$\beta$. Two properties distinguish this from orthosteric competition and both
+have practical consequences:
+
+**Saturability.** Once the allosteric site is occupied the effect stops
+increasing. The maximum possible shift is $\alpha$, however much modulator is
+added. Competitive antagonism has no such bound — enough antagonist shifts the
+curve arbitrarily far. A bounded effect is a genuine safety argument.
+
+**Probe dependence.** The cooperativity is a property of the *pair*, so a
+modulator can potentiate one agonist and inhibit another at the same receptor.
+The consequence for a modeller is that a modulator characterised against a
+synthetic probe may behave differently against the endogenous ligand, which is
+the case that matters.
+
+## Work through it
+
+The notebooks build the operational model directly, then use it to separate
+what a concentration–response curve can and cannot tell you.
+
+- **Receptor reserve.** Vary $\tau$ over two orders of magnitude and watch
+  EC~50~ separate from $K_A$ while the binding curve stays fixed. Confirm
+  $EC_{50} = K_A/(\tau+1)$ and occupancy at EC~50~ of $1/(\tau+2)$ numerically.
+- **Partial agonism.** Same $K_A$, three values of $\tau$ — one molecule
+  presenting as full or partial depending only on the tissue.
+- **Schild analysis.** Simulate a competitive antagonist at four
+  concentrations, measure the dose ratios from the simulated curves, and recover
+  $K_B$ from the Schild regression. The slope comes back at 1 because the
+  simulation was competitive; the exercise then breaks that assumption and
+  watches the slope leave unity.
+- **Allosteric ceiling.** Push a modulator to saturation and confirm the shift
+  stops at $\alpha$.
+
+::: {.callout-note appearance="simple"}
+[Notebook — R](notebook-r.qmd) · [Notebook — Python](notebook-py.qmd)
+:::
+
+## Failure mode — an EC~50~ carried across systems
+
+A compound is characterised in a recombinant cell line overexpressing the
+receptor. Reserve is large, $\tau$ is perhaps 50, and the reported EC~50~ is
+1 nM. The number goes into a slide, then into a PK/PD model as the potency term,
+then into a human dose projection.
+
+The affinity was never 1 nM. With $\tau = 50$ it was about 51 nM, and in the
+target tissue — normal receptor density, ordinary coupling — $\tau$ might be 2,
+giving an EC~50~ near 17 nM. The projected dose is low by more than an order of
+magnitude, and every downstream analysis inherits it.
+
+The diagnostic is available and cheap: **compare the functional EC~50~ against a
+binding $K_i$ from the same compound**. A large gap is not an error, it is
+receptor reserve, and it tells you the functional potency will not transfer to a
+tissue with different receptor density. The failure is not measuring the gap; it
+is not looking for it.
+
+## Check yourself
+
+::: {.callout-note collapse="true"}
+## 1. Two labs report EC₅₀ values for the same agonist differing 30-fold, and both are careful. What is the most likely explanation?
+Different receptor reserve. EC~50~ = $K_A/(\tau+1)$, and $\tau$ scales with
+receptor density and coupling efficiency, both of which differ between a
+recombinant overexpressing line and a native tissue. Neither number is wrong;
+they are measurements of different systems, and neither is the affinity. Ask for
+a binding $K_i$, which is a property of the drug–target pair and should agree.
+:::
+
+::: {.callout-note collapse="true"}
+## 2. A candidate is a full agonist in your assay. What would make you doubt that it will be a full agonist in patients?
+High receptor reserve in the assay. If $\tau$ is large, the observed maximum
+approaches $E_m$ even for a compound with modest intrinsic efficacy, so full
+agonism in that system is partly an artefact of the system. The test is to
+reduce reserve — a lower-expressing line, or partial irreversible receptor
+inactivation — and see whether the maximum falls. A compound whose maximum
+survives reduced reserve has genuine efficacy; one whose maximum collapses was
+borrowing it from the tissue.
+:::
+
+::: {.callout-note collapse="true"}
+## 3. A Schild plot for your antagonist has a slope of 0.6. What does that rule out, and what does it suggest?
+It is evidence against simple reversible competitive antagonism at a single
+site, which predicts unity. Candidate explanations include a non-equilibrium
+condition (insufficient incubation time), removal of the agonist by uptake or
+metabolism during the assay, more than one receptor subtype contributing to the
+response, or an allosteric rather than orthosteric mechanism. The practical
+consequence is that the x-intercept should not be reported as a $pK_B$, because
+the estimator assumes the mechanism the slope has just called into question.
+:::
+
+## Going further
+
+- **Next:** `P-06 · Absorption I` — the strand turns from what the drug does at
+  the target to how it gets there. Not yet written; the
+  [strand P index](../../pharmacology.qmd) tracks what exists.
+- **Uses this:** `P-14` for dose–response and the Hill coefficient; `P-15` for
+  where target engagement sits in the biomarker hierarchy; `S1` for
+  concentration–effect models built on these quantities.
+- **Primary references:** Kenakin T, *Receptor theory*
+  ([DOI](https://doi.org/10.1002/0471141755.ph0102s41)) for the operational
+  model and its derivation. Kenakin T, *Biased agonism*
+  ([DOI](https://doi.org/10.3410/B1-87), free full text) for why a single
+  efficacy parameter is an approximation: the same agonist pair can **reverse**
+  their relative potencies between two readouts of the same receptor, so
+  $\tau$ is properly a per-pathway quantity. Read it after this lesson, not
+  before — it is easier to see what is being dismantled once it is built.
+- **Measured occupancy:** where imaging data exist, the reserve question is
+  answerable directly rather than by inference — see `P-04` §6 and Burvenich et
+  al. ([DOI](https://doi.org/10.1208/s12248-018-0203-z)).
+
+*Seen in the wild:* a programme carried a functional EC~50~ from an
+overexpressing line through to human dose projection without ever comparing it
+to the binding affinity. The first-in-human doses were far below anything that
+could engage the target in tissue. Two cohorts were spent discovering that the
+potency was a property of the cell line.

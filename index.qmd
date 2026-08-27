@@ -71,7 +71,7 @@ free-only filter for exactly that reason.
 
 | Strand | Status |
 |---|---|
-| **P · Pharmacology from the beginning** | 4 of 18 lessons — in progress |
+| **P · Pharmacology from the beginning** | 5 of 18 lessons — in progress |
 | **S0 · Foundations** | 7 lessons — complete |
 | S1 · PK/PD core | planned |
 | S2 · Population PK/PD | planned |

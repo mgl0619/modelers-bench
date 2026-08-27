@@ -66,6 +66,13 @@ website:
                 href: lessons/p-04-binding-quantified/notebook-r.qmd
               - text: "Notebook — Python"
                 href: lessons/p-04-binding-quantified/notebook-py.qmd
+          - section: "P-05 · Agonists and antagonists"
+            href: lessons/p-05-agonists-and-antagonists/index.qmd
+            contents:
+              - text: "Notebook — R"
+                href: lessons/p-05-agonists-and-antagonists/notebook-r.qmd
+              - text: "Notebook — Python"
+                href: lessons/p-05-agonists-and-antagonists/notebook-py.qmd
       - section: "S0 · Foundations"
         contents:
           - text: "S0-00 · What quantitative pharmacology is"

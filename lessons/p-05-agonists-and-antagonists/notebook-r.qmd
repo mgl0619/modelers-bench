@@ -1,0 +1,296 @@
+---
+title: "P-05 notebook — R"
+subtitle: "Agonists, antagonists and everything between"
+execute:
+  freeze: auto
+---
+
+```{r setup}
+#| message: false
+library(ggplot2)
+theme_set(theme_minimal(base_size = 11))
+
+nM <- 1e-9
+KA <- 120 * nM       # agonist affinity — the same target as P-04
+Em <- 100            # maximum the system can produce, arbitrary units
+
+TEAL <- "#0F6E63"; RUST <- "#8E6410"; SLATE <- "#4C5B54"
+```
+
+## 1. The operational model
+
+Occupancy drives a saturable transduction step. One parameter, `tau`, carries
+both the efficacy of the drug and the responsiveness of the tissue.
+
+```{r}
+# Black & Leff operational model. KA and Em are taken from the setup chunk.
+response  <- function(A, tau = 1, KA. = KA, Em. = Em) Em. * tau * A / (A * (tau + 1) + KA.)
+occupancy <- function(A, KA. = KA)                    A / (A + KA.)
+emax_obs  <- function(tau, Em. = Em)                  Em. * tau / (tau + 1)
+ec50_obs  <- function(tau, KA. = KA)                  KA. / (tau + 1)
+```
+
+The two closed-form results the lesson claims. Confirm them numerically rather
+than taking them on trust — solve for the half-maximal point on a fine grid and
+compare.
+
+```{r}
+A <- 10^seq(-11, -4, length.out = 20001)
+
+cat(sprintf("%6s %9s %11s %12s %9s %10s\n",
+            "tau", "Emax obs", "EC50 (nM)", "KA/(1+tau)", "occ@EC50", "1/(tau+2)"))
+for (tau in c(0.5, 1, 3, 9, 99)) {
+  E        <- response(A, tau = tau)
+  half     <- emax_obs(tau) / 2
+  ec50_num <- A[which.min(abs(E - half))]
+  ec50_ana <- ec50_obs(tau)
+  stopifnot(isTRUE(all.equal(ec50_num, ec50_ana, tolerance = 2e-3)))
+  occ <- occupancy(ec50_ana)
+  stopifnot(isTRUE(all.equal(occ, 1 / (tau + 2))))
+  cat(sprintf("%6g %9.1f %11.2f %12.2f %8.1f%% %9.1f%%\n",
+              tau, emax_obs(tau), ec50_num / nM, ec50_ana / nM,
+              100 * occ, 100 / (tau + 2)))
+}
+```
+
+Both identities hold exactly. The third column is what an experiment reports;
+the affinity is fixed at 120 nM throughout and never appears in it.
+
+## 2. Receptor reserve
+
+The binding curve does not move. The response curve does.
+
+```{r}
+#| fig-height: 4.2
+taus <- c(0.5, 3, 9, 99)
+cols <- c("#C9A227", RUST, "#2E8B7A", TEAL)
+
+curves <- do.call(rbind, lapply(seq_along(taus), function(i) {
+  data.frame(A = A, y = response(A, tau = taus[i]),
+             lab = paste0("response, tau = ", taus[i]))
+}))
+occ_df <- data.frame(A = A, y = 100 * occupancy(A), lab = "occupancy (fixed)")
+pts <- data.frame(A = ec50_obs(taus), y = emax_obs(taus) / 2,
+                  lab = paste0("response, tau = ", taus))
+
+ggplot(curves, aes(A / nM, y, colour = lab)) +
+  geom_line(data = occ_df, aes(A / nM, y), colour = SLATE,
+            linetype = "dashed", linewidth = 0.9, inherit.aes = FALSE) +
+  geom_line(linewidth = 0.85) +
+  geom_point(data = pts, size = 1.9) +
+  geom_vline(xintercept = KA / nM, colour = SLATE, linewidth = 0.35, alpha = 0.6) +
+  scale_x_log10() +
+  scale_colour_manual(values = setNames(cols, paste0("response, tau = ", taus))) +
+  coord_cartesian(ylim = c(0, 103)) +
+  labs(x = "Agonist concentration (nM, log scale)",
+       y = "Occupancy or response (% of system max)", colour = NULL,
+       title = "Increasing tau raises the ceiling and shifts EC50 left of KA",
+       subtitle = "dashed = occupancy, which does not move") +
+  theme(legend.position = "top", legend.text = element_text(size = 8))
+```
+
+```{r}
+tau <- 9
+cat(sprintf("tau = %g\n", tau))
+cat(sprintf("  KA                : %.0f nM\n", KA / nM))
+cat(sprintf("  EC50              : %.0f nM   <- %.0fx left of KA\n",
+            ec50_obs(tau) / nM, KA / ec50_obs(tau)))
+cat(sprintf("  occupancy at EC50 : %.1f%%\n", 100 * occupancy(ec50_obs(tau))))
+```
+
+Half the maximal response from **9% occupancy**. Reporting that EC~50~ as a
+potency and then treating it as an affinity understates the concentration needed
+at the target by tenfold.
+
+## 3. Partial agonism is a property of the pair, not the molecule
+
+One molecule, one affinity, three tissues.
+
+```{r}
+#| fig-height: 4
+tissue <- data.frame(
+  tau = c(30, 2.0, 0.4),
+  lab = c("tau = 30 — high receptor density",
+          "tau = 2 — intermediate",
+          "tau = 0.4 — low density / poor coupling"))
+
+df3 <- do.call(rbind, lapply(seq_len(nrow(tissue)), function(i)
+  data.frame(A = A, y = response(A, tau = tissue$tau[i]), lab = tissue$lab[i])))
+
+ggplot(df3, aes(A / nM, y, colour = lab)) +
+  geom_line(linewidth = 0.9) +
+  geom_hline(yintercept = emax_obs(tissue$tau), linetype = "dotted",
+             colour = SLATE, linewidth = 0.35) +
+  scale_x_log10() +
+  scale_colour_manual(values = setNames(c(TEAL, RUST, "#B5482F"), tissue$lab)) +
+  coord_cartesian(ylim = c(0, 103)) +
+  labs(x = "Agonist concentration (nM, log scale)",
+       y = "Response (% of system max)", colour = NULL,
+       title = "The same compound reads as full or partial depending on the tissue") +
+  theme(legend.position = "top", legend.text = element_text(size = 8))
+```
+
+```{r}
+for (tau in c(30, 2.0, 0.4)) {
+  cat(sprintf("  tau = %-5g ceiling = %5.1f%% of system max   -> reads as %s agonist\n",
+              tau, emax_obs(tau), if (emax_obs(tau) > 90) "full" else "partial"))
+}
+```
+
+## 4. Schild analysis
+
+Add a competitive antagonist. It divides the apparent agonist concentration by
+the dose ratio `DR = 1 + [B]/KB`, so the curve shifts right without losing
+height.
+
+```{r}
+#| fig-height: 4
+KB  <- 50 * nM
+tau <- 3
+
+response_antag <- function(A, B, KB. = KB, tau. = 3)
+  Em * tau. * A / (A * (tau. + 1) + KA * (1 + B / KB.))
+
+Bs <- c(0, 10, 50, 250, 1250) * nM
+lab_of <- function(B) if (B == 0) "no antagonist" else sprintf("[B] = %.0f nM", B / nM)
+
+df4 <- do.call(rbind, lapply(Bs, function(B)
+  data.frame(A = A, y = response_antag(A, B), lab = lab_of(B))))
+df4$lab <- factor(df4$lab, levels = vapply(Bs, lab_of, ""))
+
+ggplot(df4, aes(A / nM, y, colour = lab)) +
+  geom_line(linewidth = 0.9) +
+  scale_x_log10() +
+  scale_colour_manual(values = c(SLATE, "#C9A227", RUST, "#2E8B7A", TEAL)) +
+  coord_cartesian(ylim = c(0, 103)) +
+  labs(x = "Agonist concentration (nM, log scale)",
+       y = "Response (% of system max)", colour = NULL,
+       title = "Competitive antagonism: parallel rightward shift, maximum preserved") +
+  theme(legend.position = "top", legend.text = element_text(size = 8))
+```
+
+The maximum is preserved — that is what *surmountable* means, and it is the
+observation that distinguishes this mechanism from a non-competitive one.
+
+```{r}
+ec50s <- vapply(Bs, function(B) {
+  E <- response_antag(A, B); A[which.min(abs(E - emax_obs(tau) / 2))]
+}, numeric(1))
+DR <- ec50s / ec50s[1]
+
+cat(sprintf("%8s %9s %11s %10s\n", "[B] nM", "EC50 nM", "dose ratio", "1+[B]/KB"))
+for (i in seq_along(Bs))
+  cat(sprintf("%8.0f %9.2f %11.2f %10.2f\n",
+              Bs[i] / nM, ec50s[i] / nM, DR[i], 1 + Bs[i] / KB))
+```
+
+Now the Schild regression: `log(DR - 1)` against `log[B]`.
+
+```{r}
+keep <- Bs > 0
+x <- log10(Bs[keep]); y <- log10(DR[keep] - 1)
+fit <- lm(y ~ x)
+slope <- unname(coef(fit)[2]); intercept <- unname(coef(fit)[1])
+pA2 <- -intercept / slope
+
+cat(sprintf("  Schild slope : %.3f      (1.0 for simple competition)\n", slope))
+cat(sprintf("  x-intercept  : %.3f = log10 KB\n", pA2))
+cat(sprintf("  KB recovered : %.1f nM\n", 10^pA2 / nM))
+cat(sprintf("  KB truth     : %.1f nM\n", KB / nM))
+stopifnot(abs(slope - 1) < 0.02,
+          isTRUE(all.equal(10^pA2, KB, tolerance = 0.02)))
+```
+
+```{r}
+#| fig-height: 3.6
+ggplot(data.frame(x = x, y = y), aes(x, y)) +
+  geom_abline(slope = slope, intercept = intercept, colour = RUST, linewidth = 0.7) +
+  geom_hline(yintercept = 0, colour = SLATE, linewidth = 0.35) +
+  geom_point(size = 2.6, colour = TEAL) +
+  geom_point(data = data.frame(x = pA2, y = 0), shape = 15, size = 2.8, colour = RUST) +
+  annotate("text", x = pA2, y = 0.28, hjust = -0.05, size = 3.2, colour = SLATE,
+           label = sprintf("log KB = %.2f\nKB = %.0f nM", pA2, 10^pA2 / nM)) +
+  labs(x = "log10 [B]", y = "log10 (DR - 1)",
+       title = sprintf("Schild plot — slope = %.2f is the falsification test", slope))
+```
+
+### Breaking the assumption
+
+The slope came back at 1 because the simulation *was* competitive. Simulate a
+mechanism that is not — here the antagonist also depresses the maximum, as an
+insurmountable antagonist does — and the diagnostic reacts.
+
+```{r}
+response_insurm <- function(A, B, KB. = KB, tau. = 3) {
+  tau_eff <- tau. / (1 + B / KB.)
+  Em * tau_eff * A / (A * (tau_eff + 1) + KA)
+}
+
+ec_i <- vapply(Bs, function(B) {
+  E <- response_insurm(A, B); A[which.min(abs(E - max(E) / 2))]
+}, numeric(1))
+DR_i <- ec_i / ec_i[1]
+slope_i <- unname(coef(lm(log10(pmax(DR_i[keep] - 1, 1e-6)) ~ log10(Bs[keep])))[2])
+
+cat(sprintf("  competitive     slope = %.3f   maximum preserved\n", slope))
+cat(sprintf("  insurmountable  slope = %.3f   maximum falls with [B]\n\n", slope_i))
+for (B in Bs)
+  cat(sprintf("    [B] = %5.0f nM  ->  observed max %5.1f%% of system max\n",
+              B / nM, max(response_insurm(A, B))))
+```
+
+A depressed maximum, and a Schild slope away from unity. Either observation
+alone should stop you reporting an x-intercept as a `pKB`.
+
+## 5. The allosteric ceiling
+
+An allosteric modulator shifts agonist affinity by a cooperativity factor
+`alpha`. Unlike competition, the shift **saturates**.
+
+```{r}
+alpha <- 10; KX <- 100 * nM
+
+response_allo <- function(A, X, alpha. = alpha, KX. = KX, tau. = 3) {
+  KA_app <- KA * (1 + X / KX.) / (1 + alpha. * X / KX.)
+  Em * tau. * A / (A * (tau. + 1) + KA_app)
+}
+
+Xs <- c(0, 30, 100, 300, 1000, 10000, 100000) * nM
+ec_x <- vapply(Xs, function(X) {
+  E <- response_allo(A, X); A[which.min(abs(E - emax_obs(3) / 2))]
+}, numeric(1))
+
+cat(sprintf("%10s %9s %11s\n", "[X] nM", "EC50 nM", "fold shift"))
+for (i in seq_along(Xs))
+  cat(sprintf("%10.0f %9.2f %11.2f\n", Xs[i] / nM, ec_x[i] / nM, ec_x[1] / ec_x[i]))
+cat(sprintf("\n  cooperativity alpha = %.0f  <- the shift cannot exceed this,\n", alpha))
+cat("  however much modulator is added. Competitive antagonism has no such bound.\n")
+```
+
+```{r}
+#| fig-height: 4
+show <- c(0, 100, 1000, 100000) * nM
+lab_x <- function(X) if (X == 0) "no modulator" else sprintf("[X] = %.0f nM", X / nM)
+df5 <- do.call(rbind, lapply(show, function(X)
+  data.frame(A = A, y = response_allo(A, X), lab = lab_x(X))))
+df5$lab <- factor(df5$lab, levels = vapply(show, lab_x, ""))
+
+ggplot(df5, aes(A / nM, y, colour = lab)) +
+  geom_line(linewidth = 0.9) +
+  scale_x_log10() +
+  scale_colour_manual(values = c(SLATE, "#C9A227", RUST, TEAL)) +
+  coord_cartesian(ylim = c(0, 103)) +
+  labs(x = "Agonist concentration (nM, log scale)",
+       y = "Response (% of system max)", colour = NULL,
+       title = "Positive allosteric modulation saturates at a 10-fold shift") +
+  theme(legend.position = "top", legend.text = element_text(size = 8))
+```
+
+## What to take from this
+
+```{r}
+cat("EC50 is a property of a tissue, not a drug:\n")
+for (tau in c(0.4, 2, 9, 50))
+  cat(sprintf("  tau = %-5g -> EC50 = %6.1f nM   (affinity is %.0f nM in every row)\n",
+              tau, ec50_obs(tau) / nM, KA / nM))
+```

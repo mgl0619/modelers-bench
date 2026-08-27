@@ -32,7 +32,7 @@ development process or a tour of therapeutic areas would be contrived.
 | P-02 | [Cells, proteins, and why molecules stick together](lessons/p-02-cells-and-binding/) — the minimum molecular biology; what binding physically is | | **ready** |
 | P-03 | [Drug targets](lessons/p-03-drug-targets/) — receptors, enzymes, transporters, ion channels; reading effect delay off the target family | | **ready** |
 | P-04 | [Binding, quantified](lessons/p-04-binding-quantified/) — mass action, occupancy, residence time, what an IC₅₀ measures | ✓ | **ready** |
-| P-05 | Agonists, antagonists and everything between — efficacy versus affinity, partial and inverse agonism, allosteric modulation, spare receptors | ✓ | planned |
+| P-05 | [Agonists, antagonists and everything between](lessons/p-05-agonists-and-antagonists/) — efficacy versus affinity, partial and inverse agonism, allosteric modulation, spare receptors | ✓ | **ready** |
 
 ## Part 2 · What the body does to the drug
 

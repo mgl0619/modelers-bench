@@ -1,0 +1,277 @@
+---
+title: "P-05 notebook — Python"
+subtitle: "Agonists, antagonists and everything between"
+jupyter: python3
+execute:
+  freeze: auto
+---
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+
+plt.rcParams.update({"figure.figsize": (7, 4.2), "axes.grid": True,
+                     "grid.alpha": 0.25, "font.size": 10})
+
+nM = 1e-9
+KA = 120 * nM          # agonist affinity — the same target as P-04
+Em = 100.0             # maximum the system can produce, arbitrary units
+
+TEAL, RUST, SLATE = "#0F6E63", "#8E6410", "#4C5B54"
+```
+
+## 1. The operational model
+
+Occupancy drives a saturable transduction step. One parameter, `tau`, carries
+both the efficacy of the drug and the responsiveness of the tissue.
+
+```{python}
+def response(A, KA=KA, tau=1.0, Em=Em):
+    """Black & Leff operational model."""
+    return Em * tau * A / (A * (tau + 1) + KA)
+
+def occupancy(A, KA=KA):
+    return A / (A + KA)
+
+def emax_obs(tau, Em=Em):  return Em * tau / (tau + 1)
+def ec50_obs(tau, KA=KA):  return KA / (tau + 1)
+```
+
+The two closed-form results the lesson claims. Confirm them numerically rather
+than taking them on trust — solve for the half-maximal point on a fine grid and
+compare.
+
+```{python}
+A = np.logspace(-11, -4, 20001)
+
+print(f"{'tau':>6} {'Emax obs':>9} {'EC50 (nM)':>11} {'KA/(1+tau)':>12} {'occ@EC50':>9} {'1/(tau+2)':>10}")
+for tau in (0.5, 1, 3, 9, 99):
+    E = response(A, tau=tau)
+    half = emax_obs(tau) / 2
+    ec50_num = A[np.argmin(np.abs(E - half))]      # numeric
+    ec50_ana = ec50_obs(tau)                        # analytic
+    assert np.isclose(ec50_num, ec50_ana, rtol=2e-3), (tau, ec50_num, ec50_ana)
+    occ = occupancy(ec50_ana)
+    assert np.isclose(occ, 1 / (tau + 2), rtol=1e-12)
+    print(f"{tau:>6} {emax_obs(tau):>9.1f} {ec50_num/nM:>11.2f} "
+          f"{ec50_ana/nM:>12.2f} {100*occ:>8.1f}% {100/(tau+2):>9.1f}%")
+```
+
+Both identities hold exactly. The third column is what an experiment reports;
+the affinity is fixed at 120 nM throughout and never appears in it.
+
+## 2. Receptor reserve
+
+The binding curve does not move. The response curve does.
+
+```{python}
+fig, ax = plt.subplots()
+ax.semilogx(A / nM, 100 * occupancy(A), lw=2.2, color=SLATE, ls="--",
+            label="occupancy (fixed, $K_A$ = 120 nM)")
+for tau, c in zip((0.5, 3, 9, 99), ["#C9A227", RUST, "#2E8B7A", TEAL]):
+    ax.semilogx(A / nM, response(A, tau=tau), lw=2, color=c, label=f"response, $\\tau$ = {tau}")
+    ax.plot([ec50_obs(tau) / nM], [emax_obs(tau) / 2], "o", ms=5, color=c, zorder=3)
+ax.axvline(KA / nM, color=SLATE, lw=0.9, alpha=0.6)
+ax.annotate("$K_A$", (KA / nM, 4), xytext=(5, 0), textcoords="offset points",
+            fontsize=9, color=SLATE)
+ax.set(xlabel="Agonist concentration (nM, log scale)",
+       ylabel="Occupancy or response (% of system max)", ylim=(0, 103))
+ax.set_title("Increasing $\\tau$ raises the ceiling and shifts EC$_{50}$ left of $K_A$",
+             loc="left", fontsize=10)
+ax.legend(fontsize=8, loc="upper left", framealpha=0.9)
+plt.tight_layout()
+```
+
+```{python}
+tau = 9
+print(f"tau = {tau}")
+print(f"  KA                 : {KA/nM:.0f} nM")
+print(f"  EC50               : {ec50_obs(tau)/nM:.0f} nM   <- {KA/ec50_obs(tau):.0f}x left of KA")
+print(f"  occupancy at EC50  : {100*occupancy(ec50_obs(tau)):.1f}%")
+print(f"  occupancy at Emax95: {100*occupancy(A[np.argmin(np.abs(response(A, tau=tau) - 0.95*emax_obs(tau)))]):.1f}%")
+```
+
+Half the maximal response from **9% occupancy**. Reporting that EC~50~ as a
+potency and then treating it as an affinity understates the concentration needed
+at the target by tenfold.
+
+## 3. Partial agonism is a property of the pair, not the molecule
+
+One molecule, one affinity, three tissues.
+
+```{python}
+fig, ax = plt.subplots()
+for tau, lab, c in [(30, "high receptor density", TEAL),
+                    (2.0, "intermediate", RUST),
+                    (0.4, "low density / poor coupling", "#B5482F")]:
+    ax.semilogx(A / nM, response(A, tau=tau), lw=2, color=c,
+                label=f"$\\tau$ = {tau} — {lab}")
+    ax.axhline(emax_obs(tau), color=c, lw=0.8, ls=":", alpha=0.7)
+ax.set(xlabel="Agonist concentration (nM, log scale)",
+       ylabel="Response (% of system max)", ylim=(0, 103))
+ax.set_title("The same compound reads as full or partial depending on the tissue",
+             loc="left", fontsize=10)
+ax.legend(fontsize=8.5, loc="upper left", framealpha=0.9)
+plt.tight_layout()
+```
+
+```{python}
+for tau in (30, 2.0, 0.4):
+    print(f"  tau = {tau:<5} ceiling = {emax_obs(tau):5.1f}% of system max"
+          f"   -> reads as {'full' if emax_obs(tau) > 90 else 'partial'} agonist")
+```
+
+## 4. Schild analysis
+
+Add a competitive antagonist. It divides the apparent agonist concentration by
+the dose ratio $DR = 1 + [B]/K_B$, so the curve shifts right without losing
+height.
+
+```{python}
+KB = 50 * nM
+
+def response_with_antagonist(A, B, KB=KB, tau=3.0):
+    """Competitive antagonism: the agonist sees an inflated apparent KA."""
+    dr = 1 + B / KB
+    return Em * tau * A / (A * (tau + 1) + KA * dr)
+
+tau = 3.0
+Bs = np.array([0, 10, 50, 250, 1250]) * nM
+
+fig, ax = plt.subplots()
+ec50s = []
+for B, c in zip(Bs, [SLATE, "#C9A227", RUST, "#2E8B7A", TEAL]):
+    E = response_with_antagonist(A, B, tau=tau)
+    ax.semilogx(A / nM, E, lw=2, color=c,
+                label=f"[B] = {B/nM:.0f} nM" if B else "no antagonist")
+    ec50s.append(A[np.argmin(np.abs(E - emax_obs(tau) / 2))])
+ax.set(xlabel="Agonist concentration (nM, log scale)",
+       ylabel="Response (% of system max)", ylim=(0, 103))
+ax.set_title("Competitive antagonism: parallel rightward shift, maximum preserved",
+             loc="left", fontsize=10)
+ax.legend(fontsize=8.5, loc="upper left", framealpha=0.9)
+plt.tight_layout()
+```
+
+The maximum is preserved — that is what *surmountable* means, and it is the
+observation that distinguishes this mechanism from a non-competitive one.
+
+```{python}
+ec50s = np.array(ec50s)
+DR = ec50s / ec50s[0]
+print(f"{'[B] nM':>8} {'EC50 nM':>9} {'dose ratio':>11} {'1+[B]/KB':>10}")
+for B, e, dr in zip(Bs, ec50s, DR):
+    print(f"{B/nM:>8.0f} {e/nM:>9.2f} {dr:>11.2f} {1 + B/KB:>10.2f}")
+```
+
+Now the Schild regression: $\log(DR - 1)$ against $\log[B]$.
+
+```{python}
+mask = Bs > 0
+x = np.log10(Bs[mask])
+y = np.log10(DR[mask] - 1)
+slope, intercept = np.polyfit(x, y, 1)
+pA2 = -intercept / slope          # x-intercept, where log(DR-1) = 0
+
+print(f"  Schild slope   : {slope:.3f}      (1.0 for simple competition)")
+print(f"  x-intercept    : {pA2:.3f} = log10 KB")
+print(f"  KB recovered   : {10**pA2 / nM:.1f} nM")
+print(f"  KB truth       : {KB/nM:.1f} nM")
+assert abs(slope - 1) < 0.02, slope
+assert np.isclose(10**pA2, KB, rtol=0.02)
+```
+
+```{python}
+fig, ax = plt.subplots(figsize=(5.6, 3.8))
+ax.plot(x, y, "o", ms=7, color=TEAL, zorder=3)
+xs = np.linspace(x.min() - 0.4, x.max() + 0.2, 50)
+ax.plot(xs, slope * xs + intercept, lw=1.6, color=RUST,
+        label=f"slope = {slope:.2f}")
+ax.axhline(0, color=SLATE, lw=0.8)
+ax.plot([pA2], [0], "s", ms=7, color=RUST, zorder=3)
+ax.annotate(f"$\\log K_B$ = {pA2:.2f}\n$K_B$ = {10**pA2/nM:.0f} nM", (pA2, 0),
+            xytext=(6, 10), textcoords="offset points", fontsize=9, color=SLATE)
+ax.set(xlabel="log$_{10}$ [B]", ylabel="log$_{10}$ (DR $-$ 1)")
+ax.set_title("Schild plot — the slope is the falsification test", loc="left", fontsize=10)
+ax.legend(fontsize=9)
+plt.tight_layout()
+```
+
+### Breaking the assumption
+
+The slope came back at 1 because the simulation *was* competitive. Simulate a
+mechanism that is not — here the antagonist also depresses the maximum, as an
+insurmountable antagonist does — and the diagnostic reacts.
+
+```{python}
+def response_insurmountable(A, B, KB=KB, tau=3.0):
+    """Antagonist removes receptors from the pool: tau falls, maximum drops."""
+    tau_eff = tau / (1 + B / KB)
+    return Em * tau_eff * A / (A * (tau_eff + 1) + KA)
+
+ec_i = []
+for B in Bs:
+    E = response_insurmountable(A, B, tau=tau)
+    ec_i.append(A[np.argmin(np.abs(E - E.max() / 2))])
+ec_i = np.array(ec_i); DR_i = ec_i / ec_i[0]
+xi, yi = np.log10(Bs[mask]), np.log10(np.maximum(DR_i[mask] - 1, 1e-6))
+slope_i = np.polyfit(xi, yi, 1)[0]
+
+print(f"  competitive     slope = {slope:.3f}   maximum preserved")
+print(f"  insurmountable  slope = {slope_i:.3f}   maximum falls with [B]")
+print()
+for B in Bs:
+    print(f"    [B] = {B/nM:>5.0f} nM  ->  observed max "
+          f"{response_insurmountable(A, B, tau=tau).max():5.1f}% of system max")
+```
+
+A depressed maximum, and a Schild slope away from unity. Either observation
+alone should stop you reporting an x-intercept as a $pK_B$.
+
+## 5. The allosteric ceiling
+
+An allosteric modulator shifts agonist affinity by a cooperativity factor
+$\alpha$. Unlike competition, the shift **saturates**.
+
+```{python}
+alpha, KX = 10.0, 100 * nM        # 10-fold positive cooperativity
+
+def response_allosteric(A, X, alpha=alpha, KX=KX, tau=3.0):
+    """Allosteric ternary complex, affinity modulation only."""
+    KA_app = KA * (1 + X / KX) / (1 + alpha * X / KX)
+    return Em * tau * A / (A * (tau + 1) + KA_app)
+
+Xs = np.array([0, 30, 100, 300, 1000, 10000, 100000]) * nM
+print(f"{'[X] nM':>10} {'EC50 nM':>9} {'fold shift':>11}")
+base = None
+for X in Xs:
+    E = response_allosteric(A, X)
+    e = A[np.argmin(np.abs(E - emax_obs(3.0) / 2))]
+    if base is None: base = e
+    print(f"{X/nM:>10.0f} {e/nM:>9.2f} {base/e:>11.2f}")
+print(f"\n  cooperativity alpha = {alpha:.0f}  <- the shift cannot exceed this,")
+print( "  however much modulator is added. Competitive antagonism has no such bound.")
+```
+
+```{python}
+fig, ax = plt.subplots()
+for X, c in zip([0, 100 * nM, 1000 * nM, 100000 * nM],
+                [SLATE, "#C9A227", RUST, TEAL]):
+    ax.semilogx(A / nM, response_allosteric(A, X), lw=2, color=c,
+                label=f"[X] = {X/nM:.0f} nM" if X else "no modulator")
+ax.set(xlabel="Agonist concentration (nM, log scale)",
+       ylabel="Response (% of system max)", ylim=(0, 103))
+ax.set_title("Positive allosteric modulation saturates at a 10-fold shift",
+             loc="left", fontsize=10)
+ax.legend(fontsize=8.5, loc="upper left", framealpha=0.9)
+plt.tight_layout()
+```
+
+## What to take from this
+
+```{python}
+print("EC50 is a property of a tissue, not a drug:")
+for tau in (0.4, 2, 9, 50):
+    print(f"  tau = {tau:<5} -> EC50 = {ec50_obs(tau)/nM:6.1f} nM   "
+          f"(affinity is {KA/nM:.0f} nM in every row)")
+```

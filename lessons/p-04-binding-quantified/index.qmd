@@ -277,13 +277,11 @@ is the difference between a dose that works and one that does not.
 
 ## Going further
 
-- **Next:** `P-05 · Agonists, antagonists and everything between` — **not yet
-  written**. It is where affinity, which is all this lesson covers, separates
-  from *efficacy*, and where efficacy turns out not to be a single number at all.
-  Until it exists, read [Kenakin on biased
-  agonism](https://doi.org/10.3410/B1-87) (free full text) directly; it is short,
-  and it is the argument the lesson will be built around. The
-  [strand P index](../../pharmacology.qmd) tracks what is written and what is not.
+- **Next:** [P-05 · Agonists, antagonists and everything between](../p-05-agonists-and-antagonists/)
+  — where affinity, which is all this lesson covers, separates from *efficacy*.
+  It shows why the EC~50~ from a functional assay is a property of the tissue
+  rather than of the drug, and can sit a hundredfold away from the affinity
+  measured here.
 - **Uses this:** `P-14` for dose–response and the Hill coefficient; `S1` for
   target-mediated disposition; `S0-02` for the free-versus-total arithmetic.
 - **Reference:** Kenakin T, *Receptor theory*
