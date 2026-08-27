@@ -22,9 +22,9 @@ from pathlib import Path
 CSV_PATH = Path(__file__).resolve().parent.parent / "resources.csv"
 
 COLUMNS = [
-    "id", "name", "category", "subcategory", "domains", "url", "cost",
-    "licence", "language", "maintainer", "description", "best_for",
-    "notes", "verified",
+    "id", "name", "category", "subcategory", "domains", "modality", "disease",
+    "url", "cost", "licence", "language", "maintainer", "description",
+    "best_for", "notes", "verified",
 ]
 
 CATEGORIES = {"software", "course", "guidance", "repository", "reference"}
@@ -34,9 +34,27 @@ DOMAINS = {
     "stats-ml", "regulatory", "general",
 }
 
+# Drug modality. `any` is the honest default and the majority value: an ODE
+# solver does not care what the molecule is. Tag a row only where the resource
+# is genuinely specialised — tagging a general tool with a modality would make
+# the facet worse than useless, because a filtered view would then be wrong
+# rather than merely incomplete.
+MODALITIES = {
+    "any", "small-molecule", "peptide", "protein-mab", "adc", "bispecific",
+    "oligonucleotide", "cell-therapy", "gene-therapy", "vaccine", "radioligand",
+}
+
+# Therapeutic area. Same rule: `any` unless the resource is about one disease.
+DISEASES = {
+    "any", "oncology", "immunology", "infectious-disease", "cns",
+    "cardiometabolic", "respiratory", "hepatology", "nephrology",
+    "haematology", "rare-disease",
+}
+
 # Required to be non-empty. `notes` and `subcategory` may be blank.
-REQUIRED = ["id", "name", "category", "domains", "url", "cost",
-            "licence", "maintainer", "description", "best_for", "verified"]
+REQUIRED = ["id", "name", "category", "domains", "modality", "disease", "url",
+            "cost", "licence", "maintainer", "description", "best_for",
+            "verified"]
 
 ID_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -93,6 +111,17 @@ def main() -> int:
             if d not in DOMAINS:
                 bad(n, f"domain '{d}' not in {sorted(DOMAINS)}")
 
+        for field, vocab in (("modality", MODALITIES), ("disease", DISEASES)):
+            values = row[field].split("|")
+            for v in values:
+                if v not in vocab:
+                    bad(n, f"{field} '{v}' not in {sorted(vocab)}")
+            # "any" means "not specialised"; combining it with a specific value
+            # is a contradiction, and it makes the filter behave unpredictably.
+            if "any" in values and len(values) > 1:
+                bad(n, f"{field} combines 'any' with a specific value: "
+                       f"{row[field]!r} — pick one or the other")
+
         if not DATE_RE.match(row["verified"]):
             bad(n, f"verified '{row['verified']}' is not YYYY-MM-DD")
 
@@ -121,16 +150,20 @@ def main() -> int:
             print(f"    {k:<16s} {v:>4d}")
         print()
 
-    domains = Counter()
-    for r in rows:
-        for d in r["domains"].split("|"):
-            domains[d] += 1
-    print("  by domain (a resource may carry several):")
-    for k, v in domains.most_common():
-        print(f"    {k:<16s} {v:>4d}")
+    for label, key in (("domain", "domains"), ("modality", "modality"),
+                       ("disease", "disease")):
+        counts = Counter()
+        for r in rows:
+            for v in r[key].split("|"):
+                counts[v] += 1
+        print(f"  by {label} (a resource may carry several):")
+        for k, v in counts.most_common():
+            flag = "  <- not specialised" if k == "any" else ""
+            print(f"    {k:<20s} {v:>4d}{flag}")
+        print()
 
     free = sum(1 for r in rows if r["cost"] in ("free", "free-academic"))
-    print(f"\n  usable at no cost: {free} of {len(rows)} "
+    print(f"  usable at no cost: {free} of {len(rows)} "
           f"({100 * free / len(rows):.0f}%)")
 
     return audit_site_links({r["url"] for r in rows})
@@ -139,16 +172,13 @@ def main() -> int:
 def audit_site_links(known_urls):
     """Every external link on the site must trace to something we verified.
 
-    The rule this enforces: a reader clicking a link on any page is clicking
-    something that was either (a) a row in resources.csv, whose URL was fetched
-    and confirmed, or (b) a DOI or PubMed/PMC link, which reading.qmd verified
-    against PubMed. Anything else is a link nobody checked, and this is where
-    rot starts.
+    The rule: a reader clicking a link on any page is clicking something that
+    was either (a) a row in resources.csv, whose URL was fetched and confirmed,
+    or (b) a DOI or PubMed/PMC link, which reading.qmd verified against PubMed.
+    Anything else is a link nobody checked, and that is where rot starts.
 
     Add a genuine exception to ALLOWED below rather than weakening the rule.
     """
-    import glob
-
     ALLOWED = {
         # self-reference to this repository
         "https://github.com/mgl0619/modelers-bench/blob/main/resources.csv",
@@ -161,8 +191,7 @@ def audit_site_links(known_urls):
         for path in sorted(root.glob(pat)):
             text = path.read_text(encoding="utf-8")
             for url in pattern.findall(text):
-                found.setdefault(url, set()).add(
-                    str(path.relative_to(root)))
+                found.setdefault(url, set()).add(str(path.relative_to(root)))
 
     def traced(u):
         return (u in known_urls or u in ALLOWED
@@ -182,9 +211,8 @@ def audit_site_links(known_urls):
         for u, files in sorted(untraced.items()):
             print(f"  - {u}")
             print(f"      in: {', '.join(sorted(files))}")
-        print("\n  Fix by adding the resource to resources.csv (after "
-              "fetching it), or\n  by adding it to ALLOWED in this script "
-              "with a reason.")
+        print("\n  Fix by adding the resource to resources.csv (after fetching "
+              "it), or\n  by adding it to ALLOWED in this script with a reason.")
         return 1
 
     print("    untraced         : 0")

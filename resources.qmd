@@ -3,33 +3,132 @@ title: "Resources"
 subtitle: "Software, courses, guidances, repositories and reference databases"
 ---
 
-The [Reading](reading.qmd) page lists papers. This page lists everything else:
-the software you would actually run, the courses you could actually enrol in,
-the regulatory guidances that tell you what a deliverable must contain, the
-repositories where a runnable model or a real dataset can be downloaded, and the
-databases you consult when you need a fact about a drug.
+The [Reading](reading.qmd) page indexes papers. This page indexes everything
+else: software that can be executed, courses that can be enrolled in, regulatory
+guidance that specifies what a deliverable must contain, repositories from which
+a runnable model or a real dataset can be obtained, and databases consulted for
+a fact about a drug.
 
-The source of truth is [`resources.csv`](https://github.com/mgl0619/modelers-bench/blob/main/resources.csv)
-in this repository — one row per resource, plain text, diffable, and validated
-by `scripts/check_resources.py`. This page is generated from it. To add a
-resource, add a row and open a pull request.
+The source of truth is [`resources.csv`](https://github.com/mgl0619/modelers-bench/blob/main/resources.csv),
+one row per resource, validated by `scripts/check_resources.py`. This page is
+generated from it. To add a resource, add a row and open a pull request.
 
 ::: {.callout-important appearance="simple"}
-## How these were checked, and what that does and does not guarantee
+## Provenance, and the limits of it
 
-**Every URL in this table was fetched and confirmed before the row was written**,
-and the `cost` and `licence` fields were read off the page rather than recalled.
-That matters most where the answer is counterintuitive: Open Systems Pharmacology
-is genuinely free for commercial use, KEGG is explicitly *not* a public database,
-and DrugBank requires a licence for any redistribution of its content.
+**Every URL below was retrieved and confirmed before its row was written**, and
+the `cost` and `licence` fields were read from the page rather than recalled.
+This matters most where the answer is counterintuitive: Open Systems Pharmacology
+is free for commercial use, KEGG states explicitly that it is not a public
+database, and DrugBank requires a licence for any redistribution of its content.
 
-What this does **not** guarantee: that a link is still live today, that a price
-has not changed, or that a description is right about something the page did not
-say. Where a page was silent, the field says `unknown` rather than a guess —
-there are more `unknown` licences here than we would like, and each one is a real
-gap, not a formatting choice.
+This procedure does **not** establish that a link remains live, that a price is
+unchanged, or that a description is correct about something the page did not
+state. Where a page was silent, the field records `unknown` rather than an
+inference. The number of `unknown` licences here is higher than is comfortable;
+each is a gap in the record, not a formatting convention.
 
-If a row is wrong, that is a bug. Open an issue.
+Errors are bugs. Open an issue.
+:::
+
+## Two facets, and why most rows are `any`
+
+Beyond category and domain, each row carries a **modality** and a **therapeutic
+area**. Both default to `any`, and that default is the majority value for a
+defensible reason: an ODE solver does not know what molecule it is integrating.
+Tagging `nlmixr2` as *oncology* would not make the database more useful, it
+would make a filtered view actively wrong.
+
+So a row is tagged only where it is genuinely specialised — a guidance that
+governs one modality, a model built for one disease, a dataset from one
+indication. The consequence is that filtering by modality or disease returns a
+**small, dense set**, which is the intent.
+
+```{python}
+#| echo: false
+#| output: asis
+import csv, html, json, collections
+from pathlib import Path
+
+rows = list(csv.DictReader(Path("resources.csv").open(encoding="utf-8", newline="")))
+
+MOD_ORDER = ["small-molecule", "peptide", "protein-mab", "adc", "bispecific",
+             "oligonucleotide", "cell-therapy", "gene-therapy", "vaccine",
+             "radioligand"]
+MOD_LABEL = {"small-molecule": "small molecule", "peptide": "peptide",
+             "protein-mab": "mAb / Fc-fusion", "adc": "ADC",
+             "bispecific": "bispecific / TCE", "oligonucleotide": "oligonucleotide",
+             "cell-therapy": "cell therapy", "gene-therapy": "gene therapy",
+             "vaccine": "vaccine", "radioligand": "radioligand", "any": "any"}
+DIS_ORDER = ["oncology", "immunology", "infectious-disease", "cns",
+             "cardiometabolic", "respiratory", "hepatology", "nephrology",
+             "haematology", "rare-disease"]
+DIS_LABEL = {"oncology": "oncology", "immunology": "immunology",
+             "infectious-disease": "infectious disease", "cns": "CNS",
+             "cardiometabolic": "cardiometabolic", "respiratory": "respiratory",
+             "hepatology": "hepatology", "nephrology": "nephrology",
+             "haematology": "haematology", "rare-disease": "rare disease",
+             "any": "any"}
+
+def runnable(r):
+    return (r["category"] == "software"
+            or (r["category"] == "repository"
+                and r["subcategory"] in ("model repository", "QSP", "reproducibility")))
+
+print("### Where the field's tooling actually sits\n")
+print("Counting rows by modality against what kind of resource they are. "
+      "This is a census of this database, not of the world — but the database "
+      "was assembled by searching each modality deliberately, so the shape is "
+      "informative.\n")
+print("| Modality | Regulatory guidance | Runnable models / tools | Datasets | Reference |")
+print("|---|---:|---:|---:|---:|")
+gaps = []
+for m in MOD_ORDER:
+    sel = [r for r in rows if m in r["modality"].split("|")]
+    g = sum(1 for r in sel if r["category"] == "guidance")
+    run = sum(1 for r in sel if runnable(r))
+    d = sum(1 for r in sel if r["category"] == "repository" and r["subcategory"] == "dataset")
+    ref = sum(1 for r in sel if r["category"] == "reference")
+    mark = " **←**" if (g > 0 and run == 0) else ""
+    if g > 0 and run == 0:
+        gaps.append((MOD_LABEL[m], g))
+    print(f"| {MOD_LABEL[m]} | {g} | {run}{mark} | {d} | {ref} |")
+
+if gaps:
+    names = " and ".join(f"**{n}** ({g} guidance documents)" for n, g in gaps)
+    print(f"\nThe marked rows are the finding. For {names}, **no** runnable, "
+          f"openly licensed quantitative model could be located and verified at "
+          f"all. Regulators have specified what these modalities must "
+          f"demonstrate before the open modelling community has produced "
+          f"anything to demonstrate it with. That asymmetry is not a gap in "
+          f"this database so much as a gap in the field — and it marks where a "
+          f"motivated modeller could contribute something that does not "
+          f"currently exist.\n")
+```
+
+::: {.callout-note appearance="simple"}
+## What was searched for and not found
+
+Three modality-specific searches returned nothing open and runnable, and the
+absence is recorded here rather than quietly omitted:
+
+- **Gene therapy and AAV pharmacokinetics.** Every public repository located was
+  capsid engineering, sequencing analysis or vector quality control. No open
+  vector biodistribution, transduction or transgene-expression PK model was
+  found. ICH S12 specifies how to run the biodistribution studies; nothing open
+  exists to model their output.
+- **Oligonucleotide PK/PD.** Published GalNAc-siRNA and antisense PBPK models
+  have no accompanying public code, and the open oligonucleotide repositories on
+  GitHub are sequence-design tools. FDA finalised clinical pharmacology guidance
+  for this modality in June 2024.
+- **Immunogenicity and anti-drug antibody PK/PD.** Assay guidance and data
+  standards are abundant; an open implementation of an ADA-mediated clearance
+  model is not. This is conspicuous given that ADA is a routine covariate in
+  biologics population PK.
+
+Respiratory disease progression was searched and produced one qualified
+biomarker (plasma fibrinogen in COPD, inside the EMA qualification catalogue) and
+no obtainable model.
 :::
 
 ```{python}
@@ -38,8 +137,7 @@ If a row is wrong, that is a bug. Open an issue.
 import csv, html, json
 from pathlib import Path
 
-CSV = Path("resources.csv")
-rows = list(csv.DictReader(CSV.open(encoding="utf-8", newline="")))
+rows = list(csv.DictReader(Path("resources.csv").open(encoding="utf-8", newline="")))
 
 CATEGORY_ORDER = ["guidance", "software", "repository", "reference", "course"]
 CATEGORY_LABEL = {
@@ -50,45 +148,54 @@ CATEGORY_LABEL = {
     "course":     "Courses, training and societies",
 }
 CATEGORY_BLURB = {
-    "guidance":   "All free, all public, and mostly short. These state what a "
-                  "deliverable must contain — which makes them the most "
-                  "specific description of the job available anywhere.",
-    "software":   "The cost column is the one to read first. A great deal of "
-                  "population PK can be done for nothing; PBPK used to be the "
-                  "exception until Open Systems Pharmacology.",
-    "repository": "Places to get a runnable model or a real dataset without "
-                  "asking anyone's permission.",
-    "reference":  "Lookup resources. Read the licence column before you copy "
-                  "anything out of them into your own work.",
-    "course":     "Ordered so that the things a person with no budget and no "
-                  "institution can start tonight come first.",
+    "guidance":   "Free, public, and mostly short. These state what a submitted "
+                  "analysis must contain, which makes them the most precise "
+                  "available specification of the work.",
+    "software":   "Read the cost column first. Population PK can be done "
+                  "entirely without licence fees; PBPK could not, until Open "
+                  "Systems Pharmacology.",
+    "repository": "Sources from which a runnable model or a real dataset can be "
+                  "obtained. Where access requires an application rather than a "
+                  "download, the note says so.",
+    "reference":  "Lookup resources. The licence column governs whether anything "
+                  "found here may be reproduced in your own work.",
+    "course":     "Ordered so that material requiring neither budget nor "
+                  "institutional affiliation appears first.",
 }
-COST_LABEL = {
-    "free": "free", "free-academic": "free for academics",
-    "freemium": "free tier", "commercial": "paid", "unknown": "cost unstated",
-}
+COST_LABEL = {"free": "free", "free-academic": "free for academics",
+              "freemium": "free tier", "commercial": "paid",
+              "unknown": "cost unstated"}
+DOMAIN_LABEL = {"pharmacology": "pharmacology", "pkpd": "PK/PD", "poppk": "PopPK",
+                "pbpk": "PBPK", "qsp": "QSP", "stats-ml": "stats & ML",
+                "regulatory": "regulatory", "general": "general"}
+MOD_LABEL = {"small-molecule": "small molecule", "peptide": "peptide",
+             "protein-mab": "mAb / Fc-fusion", "adc": "ADC",
+             "bispecific": "bispecific / TCE", "oligonucleotide": "oligonucleotide",
+             "cell-therapy": "cell therapy", "gene-therapy": "gene therapy",
+             "vaccine": "vaccine", "radioligand": "radioligand"}
+DIS_LABEL = {"oncology": "oncology", "immunology": "immunology",
+             "infectious-disease": "infectious disease", "cns": "CNS",
+             "cardiometabolic": "cardiometabolic", "respiratory": "respiratory",
+             "hepatology": "hepatology", "nephrology": "nephrology",
+             "haematology": "haematology", "rare-disease": "rare disease"}
 
 n_free = sum(1 for r in rows if r["cost"] in ("free", "free-academic"))
 verified = sorted({r["verified"] for r in rows})[-1]
 
+print(f"## The database\n")
 print(f"**{len(rows)} resources**, of which **{n_free}** are usable at no cost. "
       f"Links last verified {verified}.\n")
 
-# --- filter UI -------------------------------------------------------------
 print("""
 <div class="res-controls">
   <input type="search" id="res-q" placeholder="Search name, description, maintainer…" aria-label="Search resources">
-  <span class="res-chips" id="res-domains"></span>
   <label class="res-freeonly"><input type="checkbox" id="res-free"> free only</label>
   <span class="res-count" id="res-count"></span>
+  <div class="res-facet"><span class="res-facet-l">domain</span><span class="res-chips" id="res-domains"></span></div>
+  <div class="res-facet"><span class="res-facet-l">modality</span><span class="res-chips" id="res-modality"></span></div>
+  <div class="res-facet"><span class="res-facet-l">disease</span><span class="res-chips" id="res-disease"></span></div>
 </div>
 """)
-
-DOMAIN_LABEL = {
-    "pharmacology": "pharmacology", "pkpd": "PK/PD", "poppk": "PopPK",
-    "pbpk": "PBPK", "qsp": "QSP", "stats-ml": "stats & ML",
-    "regulatory": "regulatory", "general": "general",
-}
 
 def esc(s):
     return html.escape(s or "")
@@ -97,8 +204,8 @@ for cat in CATEGORY_ORDER:
     group = [r for r in rows if r["category"] == cat]
     if not group:
         continue
-    print(f'\n<h2 class="res-h" data-cat="{cat}">{CATEGORY_LABEL[cat]} '
-          f'<span class="res-n">{len(group)}</span></h2>')
+    print(f'\n<h3 class="res-h" data-cat="{cat}">{CATEGORY_LABEL[cat]} '
+          f'<span class="res-n">{len(group)}</span></h3>')
     print(f'<p class="res-blurb">{esc(CATEGORY_BLURB[cat])}</p>')
 
     subs = []
@@ -108,46 +215,58 @@ for cat in CATEGORY_ORDER:
 
     for sub in subs:
         items = [r for r in group if r["subcategory"] == sub]
-        print(f'<h3 class="res-sub">{esc(sub)}</h3>')
+        print(f'<h4 class="res-sub">{esc(sub)}</h4>')
         print('<div class="res-list">')
         for r in items:
             doms = r["domains"].split("|")
+            mods = [m for m in r["modality"].split("|") if m != "any"]
+            diss = [d for d in r["disease"].split("|") if d != "any"]
             blob = " ".join([r["name"], r["description"], r["best_for"],
                              r["maintainer"], r["notes"], r["licence"]]).lower()
             free = "1" if r["cost"] in ("free", "free-academic") else "0"
-            print(f'''<div class="res-item" data-domains="{esc(r["domains"])}" data-free="{free}" data-blob="{esc(blob)}">
+            tags = "".join(f'<span class="res-dom">{DOMAIN_LABEL.get(d, d)}</span>' for d in doms)
+            tags += "".join(f'<span class="res-mod">{MOD_LABEL.get(m, m)}</span>' for m in mods)
+            tags += "".join(f'<span class="res-dis">{DIS_LABEL.get(d, d)}</span>' for d in diss)
+            lang = f' &middot; {esc(r["language"])}' if r["language"] not in ("n/a", "") else ""
+            note = f'<p class="res-note">{esc(r["notes"])}</p>' if r["notes"] else ""
+            print(f'''<div class="res-item" data-domains="{esc(r["domains"])}" data-modality="{esc(r["modality"])}" data-disease="{esc(r["disease"])}" data-free="{free}" data-blob="{esc(blob)}">
   <div class="res-head">
     <a class="res-name" href="{esc(r["url"])}" target="_blank" rel="noopener">{esc(r["name"])}</a>
     <span class="res-cost res-cost-{esc(r["cost"])}">{esc(COST_LABEL[r["cost"]])}</span>
   </div>
-  <div class="res-meta">{esc(r["maintainer"])}{" &middot; " + esc(r["language"]) if r["language"] not in ("n/a", "") else ""} &middot; <span class="res-lic">{esc(r["licence"])}</span></div>
+  <div class="res-meta">{esc(r["maintainer"])}{lang} &middot; <span class="res-lic">{esc(r["licence"])}</span></div>
   <p class="res-desc">{esc(r["description"])}</p>
   <p class="res-use"><strong>Use it for:</strong> {esc(r["best_for"])}</p>
-  {f'<p class="res-note">{esc(r["notes"])}</p>' if r["notes"] else ""}
-  <div class="res-doms">{"".join(f'<span class="res-dom">{DOMAIN_LABEL.get(d, d)}</span>' for d in doms)}</div>
+  {note}
+  <div class="res-doms">{tags}</div>
 </div>''')
         print('</div>')
 
-print(f"\n<script>window.RES_DOMAINS = {json.dumps(DOMAIN_LABEL)};</script>")
+print("\n<script>")
+print(f"window.RES_LABELS = {json.dumps({'domains': DOMAIN_LABEL, 'modality': MOD_LABEL, 'disease': DIS_LABEL})};")
+print("</script>")
 ```
 
 ```{=html}
 <style>
-.res-controls{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;
-  padding:.7rem .8rem;margin:1.2rem 0 1.6rem;border:1px solid var(--bs-border-color,#dee2e6);border-radius:8px;
-  background:var(--bs-body-bg,#fff)}
-#res-q{flex:1 1 16rem;min-width:12rem;padding:.4rem .6rem;font-size:.92rem;
+.res-controls{display:flex;flex-wrap:wrap;gap:.5rem .7rem;align-items:center;
+  padding:.75rem .85rem;margin:1.2rem 0 1.6rem;border:1px solid var(--bs-border-color,#dee2e6);
+  border-radius:8px;background:var(--bs-body-bg,#fff)}
+#res-q{flex:1 1 18rem;min-width:12rem;padding:.4rem .6rem;font-size:.92rem;
   border:1px solid var(--bs-border-color,#dee2e6);border-radius:6px;background:transparent;color:inherit}
+.res-facet{flex:1 1 100%;display:flex;gap:.5rem;align-items:baseline;flex-wrap:wrap}
+.res-facet-l{font:600 .7rem/1.6 ui-monospace,Menlo,monospace;text-transform:uppercase;
+  letter-spacing:.07em;opacity:.5;min-width:4.6rem}
 .res-chips{display:flex;flex-wrap:wrap;gap:.3rem}
-.res-chip{cursor:pointer;font-size:.78rem;padding:.2rem .55rem;border-radius:999px;
-  border:1px solid var(--bs-border-color,#dee2e6);background:transparent;color:inherit;line-height:1.5}
+.res-chip{cursor:pointer;font-size:.78rem;padding:.15rem .55rem;border-radius:999px;
+  border:1px solid var(--bs-border-color,#dee2e6);background:transparent;color:inherit;line-height:1.55}
 .res-chip[aria-pressed="true"]{background:#2c6e63;border-color:#2c6e63;color:#fff}
 .res-freeonly{font-size:.82rem;display:flex;align-items:center;gap:.3rem;white-space:nowrap}
 .res-count{font-size:.78rem;opacity:.65;margin-left:auto;white-space:nowrap}
 .res-h{margin-top:2.4rem}
 .res-n{font-size:.65em;opacity:.5;font-weight:400}
 .res-blurb{font-size:.92rem;opacity:.8;margin-top:-.4rem}
-.res-sub{font-size:.95rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6;
+.res-sub{font-size:.9rem;text-transform:uppercase;letter-spacing:.06em;opacity:.6;
   margin:1.6rem 0 .6rem;font-weight:600}
 .res-list{display:grid;gap:.75rem}
 .res-item{border:1px solid var(--bs-border-color,#dee2e6);border-left:3px solid #2c6e63;
@@ -156,8 +275,7 @@ print(f"\n<script>window.RES_DOMAINS = {json.dumps(DOMAIN_LABEL)};</script>")
 .res-head{display:flex;gap:.6rem;align-items:baseline;flex-wrap:wrap}
 .res-name{font-weight:600;font-size:1.02rem;text-decoration:none}
 .res-cost{font-size:.72rem;padding:.1rem .45rem;border-radius:4px;border:1px solid currentColor;white-space:nowrap}
-.res-cost-free{color:#1f6f4a}
-.res-cost-free-academic{color:#1f6f4a}
+.res-cost-free,.res-cost-free-academic{color:#1f6f4a}
 .res-cost-freemium{color:#8a6d1f}
 .res-cost-commercial{color:#8a3b3b}
 .res-cost-unknown{opacity:.6}
@@ -165,14 +283,20 @@ print(f"\n<script>window.RES_DOMAINS = {json.dumps(DOMAIN_LABEL)};</script>")
 .res-lic{font-family:ui-monospace,Menlo,monospace;font-size:.95em}
 .res-desc{margin:.45rem 0 .3rem;font-size:.93rem}
 .res-use{margin:.2rem 0;font-size:.87rem;opacity:.85}
-.res-note{margin:.35rem 0 0;font-size:.83rem;opacity:.75;padding-left:.6rem;border-left:2px solid var(--bs-border-color,#dee2e6)}
+.res-note{margin:.35rem 0 0;font-size:.83rem;opacity:.75;padding-left:.6rem;
+  border-left:2px solid var(--bs-border-color,#dee2e6)}
 .res-doms{display:flex;flex-wrap:wrap;gap:.25rem;margin-top:.5rem}
-.res-dom{font-size:.7rem;padding:.1rem .4rem;border-radius:3px;background:rgba(44,110,99,.1);opacity:.85}
+.res-dom,.res-mod,.res-dis{font-size:.7rem;padding:.1rem .4rem;border-radius:3px;opacity:.9}
+.res-dom{background:rgba(44,110,99,.12)}
+.res-mod{background:rgba(120,80,160,.14)}
+.res-dis{background:rgba(190,120,40,.15)}
 @media (prefers-color-scheme:dark){
   .res-cost-free,.res-cost-free-academic{color:#5fbf90}
   .res-cost-freemium{color:#d4b35c}
   .res-cost-commercial{color:#e08a8a}
   .res-chip[aria-pressed="true"]{background:#3d9184;border-color:#3d9184}
+  .res-mod{background:rgba(160,120,210,.22)}
+  .res-dis{background:rgba(220,150,70,.22)}
 }
 </style>
 <script>
@@ -181,26 +305,42 @@ print(f"\n<script>window.RES_DOMAINS = {json.dumps(DOMAIN_LABEL)};</script>")
   if(!items.length) return;
   var q=document.getElementById('res-q'),
       freeBox=document.getElementById('res-free'),
-      chipBox=document.getElementById('res-domains'),
       countEl=document.getElementById('res-count'),
-      labels=window.RES_DOMAINS||{}, active=new Set();
+      L=window.RES_LABELS||{},
+      facets=[
+        {key:'domains', box:document.getElementById('res-domains'), active:new Set()},
+        {key:'modality',box:document.getElementById('res-modality'),active:new Set()},
+        {key:'disease', box:document.getElementById('res-disease'), active:new Set()}
+      ];
 
-  var present=[];
-  items.forEach(function(el){
-    el.dataset.domains.split('|').forEach(function(d){
-      if(present.indexOf(d)<0) present.push(d);
+  facets.forEach(function(f){
+    if(!f.box) return;
+    var present=[];
+    items.forEach(function(el){
+      el.dataset[f.key].split('|').forEach(function(v){
+        if(v!=='any' && present.indexOf(v)<0) present.push(v);
+      });
     });
-  });
-  present.forEach(function(d){
-    var b=document.createElement('button');
-    b.className='res-chip'; b.type='button'; b.textContent=labels[d]||d;
-    b.setAttribute('aria-pressed','false');
-    b.addEventListener('click',function(){
-      if(active.has(d)){active.delete(d);b.setAttribute('aria-pressed','false');}
-      else{active.add(d);b.setAttribute('aria-pressed','true');}
-      apply();
+    var labels=L[f.key]||{};
+    // keep the declared label order where we have one, else alphabetical
+    var order=Object.keys(labels);
+    present.sort(function(a,b){
+      var ia=order.indexOf(a), ib=order.indexOf(b);
+      if(ia<0&&ib<0) return a<b?-1:1;
+      if(ia<0) return 1; if(ib<0) return -1; return ia-ib;
     });
-    chipBox.appendChild(b);
+    present.forEach(function(v){
+      var b=document.createElement('button');
+      b.className='res-chip'; b.type='button';
+      b.textContent=labels[v]||v;
+      b.setAttribute('aria-pressed','false');
+      b.addEventListener('click',function(){
+        if(f.active.has(v)){f.active.delete(v);b.setAttribute('aria-pressed','false');}
+        else{f.active.add(v);b.setAttribute('aria-pressed','true');}
+        apply();
+      });
+      f.box.appendChild(b);
+    });
   });
 
   function apply(){
@@ -210,19 +350,31 @@ print(f"\n<script>window.RES_DOMAINS = {json.dumps(DOMAIN_LABEL)};</script>")
       var ok=true;
       if(term && el.dataset.blob.indexOf(term)<0) ok=false;
       if(ok && onlyFree && el.dataset.free!=='1') ok=false;
-      if(ok && active.size){
-        var ds=el.dataset.domains.split('|'), hit=false;
-        active.forEach(function(d){ if(ds.indexOf(d)>=0) hit=true; });
+      // facets combine as AND across facets, OR within a facet.
+      // A row tagged `any` is deliberately EXCLUDED when a specific value is
+      // selected: asking for "cell therapy" should not return every ODE solver.
+      if(ok) facets.forEach(function(f){
+        if(!ok || !f.active.size) return;
+        var vals=el.dataset[f.key].split('|'), hit=false;
+        f.active.forEach(function(v){ if(vals.indexOf(v)>=0) hit=true; });
         if(!hit) ok=false;
-      }
+      });
       el.hidden=!ok; if(ok) shown++;
     });
-    // hide a subsection heading and its list when nothing in it survives
     [].slice.call(document.querySelectorAll('.res-list')).forEach(function(list){
       var any=[].slice.call(list.querySelectorAll('.res-item')).some(function(e){return !e.hidden;});
       list.style.display=any?'':'none';
       var h=list.previousElementSibling;
       if(h&&h.classList.contains('res-sub')) h.style.display=any?'':'none';
+    });
+    [].slice.call(document.querySelectorAll('.res-h')).forEach(function(h){
+      var n=h, anyLeft=false;
+      while((n=n.nextElementSibling) && !n.classList.contains('res-h')){
+        if(n.classList.contains('res-list') && n.style.display!=='none') anyLeft=true;
+      }
+      h.style.display=anyLeft?'':'none';
+      var blurb=h.nextElementSibling;
+      if(blurb&&blurb.classList.contains('res-blurb')) blurb.style.display=anyLeft?'':'none';
     });
     countEl.textContent=shown+' of '+items.length+' shown';
   }
@@ -235,30 +387,33 @@ print(f"\n<script>window.RES_DOMAINS = {json.dumps(DOMAIN_LABEL)};</script>")
 
 ## Where these are used in the curriculum
 
-The database is not meant to be read straight through. Each strand pulls from it:
-
-| Page | What it pulls |
+| Page | What it draws on |
 |---|---|
-| [S0-00 · What quantitative pharmacology is](lessons/s0-00-what-is-qp/index.qmd) | The free courses a twelve-month self-study route can be built from |
-| [S0-03 · Data assembly](lessons/s0-03-data-assembly/index.qmd) | Real datasets to practise on once `CASE-SM` stops surprising you |
-| [S0-04 · Choosing a stack](lessons/s0-04-choosing-a-stack/index.qmd) | The whole software table, priced, with a free-only column |
-| [S0-06 · Reading a model report](lessons/s0-06-reading-a-model-report/index.qmd) | FDA, EMA and ICH M15 — the review checklists written by the people who review |
+| [S0-00 · What quantitative pharmacology is](lessons/s0-00-what-is-qp/index.qmd) | The free courses from which a twelve-month self-study route can be assembled |
+| [S0-03 · Data assembly](lessons/s0-03-data-assembly/index.qmd) | Datasets to work on once `CASE-SM` has taught what it can |
+| [S0-04 · Choosing a stack](lessons/s0-04-choosing-a-stack/index.qmd) | The software table, priced, with free and paid alternatives set side by side |
+| [S0-06 · Reading a model report](lessons/s0-06-reading-a-model-report/index.qmd) | FDA, EMA and ICH M15 — the review criteria written by those who review |
 | [Strand P · Pharmacology](pharmacology.qmd) | Lecture courses, target databases, label archives and PBPK parameter sources |
-| [Cases](cases.qmd) | Model repositories, for when synthetic data has taught you what it can |
+| [Cases](cases.qmd) | Model repositories, and the modality-specific models `CASE-MAB` and `CASE-CELL` will build on |
 
-## What is deliberately not here
+## Exclusions
 
-- **Anything we could not fetch.** Around twenty candidates were dropped because
-  a URL 404'd, redirected somewhere unrelated, or returned a JavaScript shell
-  with no readable content. A few are real resources that simply could not be
+- **Anything that could not be retrieved.** Roughly thirty candidates were
+  dropped for a failed fetch, a redirect to unrelated content, or a page that
+  returned only a JavaScript shell. Several are real resources that could not be
   verified from their own page — PharmGKB and the Therapeutic Target Database
   among them — and they are omitted rather than described from memory.
+- **Consortia presented as models.** The distinction between an organisation
+  that has built a model and a model that can be obtained is recorded in the
+  `notes` field throughout. C-Path's paediatric IBD coalition is listed with the
+  explicit statement that nothing is available yet; the Alzheimer's trial
+  simulation tool is listed with the statement that its application is under
+  construction.
 - **Anything defunct presented as current.** The DDMoRe Model Repository is
-  listed because its models are still downloadable, but its row says plainly
-  that every date signal on the site stops in 2018.
+  included because its models remain downloadable, and its row states that every
+  date signal on the site stops in 2018.
 - **Textbooks.** Rowland & Tozer, Gabrielsson & Weiner and Rang & Dale are each
-  worth owning. None has a canonical free page to link, so none is here.
-- **Prices, mostly.** Very few vendors publish them. Where a page stated a
-  figure — Manchester's MSc fees, Certara University's course range — the row
-  says so; everywhere else it says pricing is not published, which is itself
-  information.
+  worth owning. None has a canonical free page to link.
+- **Prices, mostly.** Few vendors publish them. Where a page stated a figure the
+  row records it; elsewhere it records that pricing is not published, which is
+  itself informative.
