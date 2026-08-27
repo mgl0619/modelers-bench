@@ -42,6 +42,25 @@ Do them in one language. Come back for the second later, or never.
 | S6 · Decisions | Exposure–response for labeling; presenting to a non-modeler | planned |
 | S7 · Practice | Writing the modeling report; peer review | planned |
 
+## What to install, and what to read alongside
+
+You have a deliverable due, so this is the short list rather than the survey
+(everything is on [Resources](../resources.qmd) with its licence checked):
+
+- **Install:** [nlmixr2](https://nlmixr2.org/) for estimation and
+  [mrgsolve](https://mrgsolve.org/) for simulation — both free, both in R. If
+  your group runs NONMEM, add [PsN](https://uupharmacometrics.github.io/PsN/)
+  and [xpose](https://uupharmacometrics.github.io/xpose/), which are also free
+  and which your NONMEM licence makes usable.
+- **Read before you write the report:** [FDA *Population
+  Pharmacokinetics*](https://www.fda.gov/regulatory-information/search-fda-guidance-documents/population-pharmacokinetics)
+  (final, 2022) and the [EMA reporting
+  guideline](https://www.ema.europa.eu/en/reporting-results-population-pharmacokinetic-analyses-scientific-guideline).
+  Between them they are the report template, and neither is long.
+- **When you get stuck on a method:** [Metrum Open
+  Courseware](https://metrumrg.com/courses/), specifically *Essentials of
+  Population PK-PD*. Free, no login.
+
 ## How to know you have finished
 
 Not "I read the lessons." The bar is:

@@ -218,6 +218,31 @@ question 9 again, wearing different clothes.
 - **An $f_u$ carried through as a constant** across a dose range or a population
   where albumin varies — see `S0-02` §4.
 
+### The checklists somebody else already wrote
+
+The twelve questions above are ours. Three public documents cover the same
+ground with the authority of the people who will actually review your work, and
+all three are free:
+
+- **[FDA, *Population Pharmacokinetics*](https://www.fda.gov/regulatory-information/search-fda-guidance-documents/population-pharmacokinetics)**
+  (final, February 2022) — what the analysis plan, the report and the submitted
+  data files must contain. If you are writing a popPK report and have not read
+  this, you are guessing at the format.
+- **[EMA, *Guideline on reporting the results of population pharmacokinetic
+  analyses*](https://www.ema.europa.eu/en/reporting-results-population-pharmacokinetic-analyses-scientific-guideline)**
+  (adopted 2007) — older, shorter, and still the most usable report template in
+  print. Written so an assessor can evaluate the analysis, which is exactly the
+  question this lesson asks.
+- **[ICH M15, *General Principles for Model-Informed Drug
+  Development*](https://www.fda.gov/regulatory-information/search-fda-guidance-documents/m15-general-principles-model-informed-drug-development)**
+  (final, June 2026) — the newest and now the umbrella above the others. Its
+  central idea is **model credibility assessed in proportion to regulatory
+  impact**: how much evidence a model needs depends on what is being decided
+  with it. That is a sharper version of question 1.
+
+More at [Resources](../../resources.qmd), which lists 26 FDA, EMA, ICH and PMDA
+guidances with their draft-versus-final status checked.
+
 ## 6. Reviewing in thirty minutes
 
 1. **(2 min)** Read the conclusions. Write down what is being claimed.

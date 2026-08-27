@@ -49,10 +49,35 @@ the analytical two-compartment solution, before the data shipped. For any linear
 model $AUC_{\tau,ss} = D/CL$ exactly — at 50 mg that is 4166.7 ng·h/mL, and the
 simulation reproduces it to four figures.
 
+## When you outgrow synthetic data
+
+The cases here are simulated so that your answer can be graded against a
+published truth. That is their whole reason for existing, and it is also their
+limit: nothing in `CASE-SM` will surprise you in the way real data does, because
+nothing in it is accidental.
+
+When you are ready for data that nobody arranged for your benefit, these are
+free and open (details on [Resources](resources.qmd)):
+
+- [PK-DB](https://pk-db.com/) — 819 curated published studies, 17,285
+  individuals, 6,103 concentration timecourses, open API, no registration.
+- [`nlmixr2data`](https://nlmixr2.github.io/nlmixr2data/reference/index.html) —
+  26 classic datasets including `Theoph`, warfarin and phenobarbital, plus
+  `nmtest`, which carries reference NONMEM output to check a solver against.
+- [Open Systems Pharmacology PBPK model library](https://github.com/Open-Systems-Pharmacology/OSP-PBPK-Model-Library)
+  — around 45 published, qualified PBPK models for real drugs, runnable in the
+  free PK-Sim suite.
+- [DDMoRe Model Repository](https://repository.ddmore.foundation/) — 128
+  published pharmacometric models with their original control streams. **Dormant
+  since 2018**, so treat it as an archive rather than a living project, but it
+  is still the largest free collection of NONMEM-style models.
+- [BioModels](https://www.ebi.ac.uk/biomodels/) — 3,595 systems-biology models
+  in SBML, 1,096 of them manually curated. The starting point for `S4`.
+
 ## Planned
 
 | Case | What it is | Arrives with |
 |---|---|---|
 | `CASE-MAB` "Tezumab" | IgG1 monoclonal antibody, target-mediated disposition, subcutaneous, immunogenicity | S1 |
 | `CASE-CELL` "CT-19" | CD19 CAR-T: expansion, contraction, persistence, cytokine release | S4 |
-| `CASE-ONC` | Oncology dose-optimization exercise, Project Optimus framing | S6 |
+| `CASE-ONC` | Oncology dose-optimization exercise, [Project Optimus](https://www.fda.gov/about-fda/oncology-center-excellence/project-optimus) framing | S6 |

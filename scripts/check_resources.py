@@ -132,6 +132,62 @@ def main() -> int:
     free = sum(1 for r in rows if r["cost"] in ("free", "free-academic"))
     print(f"\n  usable at no cost: {free} of {len(rows)} "
           f"({100 * free / len(rows):.0f}%)")
+
+    return audit_site_links({r["url"] for r in rows})
+
+
+def audit_site_links(known_urls):
+    """Every external link on the site must trace to something we verified.
+
+    The rule this enforces: a reader clicking a link on any page is clicking
+    something that was either (a) a row in resources.csv, whose URL was fetched
+    and confirmed, or (b) a DOI or PubMed/PMC link, which reading.qmd verified
+    against PubMed. Anything else is a link nobody checked, and this is where
+    rot starts.
+
+    Add a genuine exception to ALLOWED below rather than weakening the rule.
+    """
+    import glob
+
+    ALLOWED = {
+        # self-reference to this repository
+        "https://github.com/mgl0619/modelers-bench/blob/main/resources.csv",
+    }
+
+    root = CSV_PATH.parent
+    pattern = re.compile(r"\]\((https?://[^)\s]+)\)")
+    found = {}
+    for pat in ("*.qmd", "lessons/*/*.qmd", "paths/*.qmd"):
+        for path in sorted(root.glob(pat)):
+            text = path.read_text(encoding="utf-8")
+            for url in pattern.findall(text):
+                found.setdefault(url, set()).add(
+                    str(path.relative_to(root)))
+
+    def traced(u):
+        return (u in known_urls or u in ALLOWED
+                or "doi.org" in u or "ncbi.nlm.nih.gov" in u)
+
+    untraced = {u: v for u, v in found.items() if not traced(u)}
+
+    print(f"\n  site links checked: {len(found)}")
+    print(f"    in resources.csv : "
+          f"{sum(1 for u in found if u in known_urls)}")
+    print(f"    DOI / PubMed     : "
+          f"{sum(1 for u in found if 'doi.org' in u or 'ncbi.nlm.nih.gov' in u)}")
+
+    if untraced:
+        print(f"\nFAIL  {len(untraced)} link(s) on the site trace to nothing "
+              f"we verified:\n")
+        for u, files in sorted(untraced.items()):
+            print(f"  - {u}")
+            print(f"      in: {', '.join(sorted(files))}")
+        print("\n  Fix by adding the resource to resources.csv (after "
+              "fetching it), or\n  by adding it to ALLOWED in this script "
+              "with a reason.")
+        return 1
+
+    print("    untraced         : 0")
     return 0
 
 

@@ -67,6 +67,49 @@ development process or a tour of therapeutic areas would be contrived.
 | P-17 | How a drug gets made — discovery to approval, who does what, the phases, GxP, the regulators, the documents you will be asked to write | | planned |
 | P-18 | Therapeutic areas for a modeller — oncology, immunology, CNS, infectious disease, metabolic and rare disease: what differs in endpoints, biomarkers and dosing | | planned |
 
+## Free resources for this strand
+
+Strand `P` is where a curriculum most often sends you to a textbook you have to
+buy. These are the free alternatives, each checked (all on
+[Resources](resources.qmd)):
+
+**To learn from**
+
+- [NIH *Principles of Clinical Pharmacology*](https://ocreco.od.nih.gov/courses/principles-clinical-pharmacology)
+  — 48 recorded lectures on pharmacokinetics, drug metabolism and transport,
+  special populations and pharmacogenomics. The closest free equivalent to the
+  course this strand is trying to be.
+- [MIT OpenCourseWare HST.151, *Principles of Pharmacology*](https://ocw.mit.edu/courses/hst-151-principles-of-pharmacology-spring-2005/)
+  — lecture notes, problem sets and exams **with solutions**, CC BY-NC-SA.
+
+**To look things up in**
+
+- [IUPHAR/BPS Guide to PHARMACOLOGY](https://www.guidetopharmacology.org/) —
+  expert-curated targets with referenced affinity values across GPCRs, ion
+  channels, nuclear receptors, kinases, transporters and enzymes. Where `P-03`
+  and `P-04` send you for a real K~d~. CC BY-SA, so compatible with this site's
+  own licence — one of the few sources here of which that is true.
+- [FDA Table of Substrates, Inhibitors and Inducers](https://www.fda.gov/drugs/drug-interactions-labeling/drug-development-and-drug-interactions-table-substrates-inhibitors-and-inducers)
+  — which CYP and transporter probes are regulatorily acceptable, and for what.
+  `P-09` and `P-10`.
+- [DailyMed](https://dailymed.nlm.nih.gov/dailymed/) and
+  [Drugs@FDA](https://www.accessdata.fda.gov/scripts/cder/daf/) — the current
+  label, and the FDA clinical pharmacology review behind it. Reading one review
+  for a drug you know teaches more about `P-17` than any summary can.
+- [Reactome](https://reactome.org/) (CC0) and
+  [WikiPathways](https://www.wikipathways.org/) (CC0) for pathway topology.
+  Prefer these to KEGG, which despite appearances is **not** a public database
+  and licenses commercial use separately.
+
+**To get parameters from**
+
+- [Open Systems Pharmacology PBPK model library](https://github.com/Open-Systems-Pharmacology/OSP-PBPK-Model-Library)
+  — around 45 published, qualified whole-body PBPK models for real drugs,
+  free to download and re-run. `P-11` and `P-12`.
+- [EPA Physiological Information Database](https://cfpub.epa.gov/ncea/risk/recordisplay.cfm?deid=202847)
+  — organ blood flows, tissue volumes and GFR across human life stages. A 2009
+  static archive, and still the most complete free compilation of its kind.
+
 ## Where this sits
 
 `P` comes before [`S0` Foundations](lessons/s0-00-what-is-qp/). Neither depends

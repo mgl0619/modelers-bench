@@ -62,7 +62,7 @@ This is where the money and the politics are.
 | Best for | Anything that will be filed | Learning, and open reproducible work | Complex models, teams that value the interface | Teams already in Julia; heavy simulation |
 
 ::: {.callout-note appearance="simple"}
-**If you are learning alone, start with `nlmixr2`.** It costs nothing, it runs
+**If you are learning alone, start with [`nlmixr2`](https://nlmixr2.org/).** It costs nothing, it runs
 in the language you are already learning, its syntax is readable, and the
 concepts transfer directly. Learn NONMEM when a job requires it — and one will,
 because the installed base in regulatory submissions is enormous and will remain
@@ -74,15 +74,49 @@ models is the single most common way people waste six months.
 
 ## 4. Simulation and mechanistic tools
 
-| Tool | What it is for | Notes |
+| Tool | Cost | What it is for | Notes |
+|---|---|---|---|
+| [`mrgsolve`](https://mrgsolve.org/) (R) | free, GPL-2 | Fast ODE simulation from a compact model spec | The standard for clinical trial simulation in R. Ships a model library via `mread("pk1", modlib())` |
+| [`rxode2`](https://nlmixr2.github.io/rxode2/) (R) | free, GPL | Simulation engine underneath `nlmixr2` | Same model syntax as the estimation step — a real advantage |
+| [`DifferentialEquations.jl`](https://docs.sciml.ai/Catalyst/stable/) | free, MIT | General, very fast ODE/SDE/DDE solving | Best numerics available in any of the three languages |
+| `scipy.integrate` | free, BSD | General-purpose Python solving | Fine for teaching and moderate problems; slower at population scale |
+| [**PK-Sim / MoBi**](https://www.open-systems-pharmacology.org/) | **free, GPL-2** | Whole-body PBPK, open source | The Open Systems Pharmacology suite. Free even for commercial use — the only PBPK platform of which that is true |
+| [Simcyp](https://www.certara.com/software/simcyp-pbpk/) / [GastroPlus](https://www.simulations-plus.com/software/gastroplus/) | commercial | Commercial PBPK platforms | Extensive built-in populations and *in vitro* databases. No free tier at all; academic schemes require an institution that already pays |
+| [**Stan**](https://mc-stan.org/) / [Torsten](https://metrumresearchgroup.github.io/Torsten/) | free | Full Bayesian PK/PD | Torsten adds PK/PD event handling to Stan; the serious Bayesian route. Torsten's own docs still call it a prototype |
+
+### The whole stack, priced
+
+Everything named on this page — and the diagnostics, NCA and optimal-design
+packages around it — is on the [Resources](../../resources.qmd) page with its
+licence and cost as stated on the vendor's own site. Tick **free only** and the
+list that remains is a complete, working pharmacometrics stack that costs
+nothing:
+
+| Job | Free tool | Paid alternative |
 |---|---|---|
-| `mrgsolve` (R) | Fast ODE simulation from a compact model spec | The standard for clinical trial simulation in R |
-| `rxode2` (R) | Simulation engine underneath `nlmixr2` | Same model syntax as the estimation step — a real advantage |
-| `DifferentialEquations.jl` | General, very fast ODE/SDE/DDE solving | Best numerics available in any of the three languages |
-| `scipy.integrate` | General-purpose Python solving | Fine for teaching and moderate problems; slower at population scale |
-| **PK-Sim / MoBi** | Whole-body PBPK, open source | The Open Systems Pharmacology suite — free, credible, used in submissions |
-| **Simcyp / GastroPlus** | Commercial PBPK platforms | Extensive built-in populations and *in vitro* databases; expensive |
-| **Stan / Torsten** | Full Bayesian PK/PD | Torsten adds PK/PD event handling to Stan; the serious Bayesian route |
+| Estimation | [nlmixr2](https://nlmixr2.org/), [Pmetrics](https://lapkb.org/), [saemix](https://saemix.r-forge.r-project.org/) | NONMEM, Monolix, Phoenix NLME |
+| Simulation | [mrgsolve](https://mrgsolve.org/), [rxode2](https://nlmixr2.github.io/rxode2/), [PKPDsim](https://github.com/InsightRX/PKPDsim) | Simulx |
+| Bayesian | [Stan](https://mc-stan.org/) + [Torsten](https://metrumresearchgroup.github.io/Torsten/) | — |
+| Diagnostics | [xpose](https://uupharmacometrics.github.io/xpose/), [ggPMX](https://github.com/ggPMXdevelopment/ggPMX), [tidyvpc](https://github.com/certara/tidyvpc) | Pirana |
+| NCA | [PKNCA](https://github.com/billdenney/pknca) | Phoenix WinNonlin |
+| PBPK | [PK-Sim / MoBi](https://www.open-systems-pharmacology.org/) | Simcyp, GastroPlus |
+| Optimal design | [PopED](https://andrewhooker.github.io/PopED/), [PFIM](http://www.pfim.biostat.fr/) | — |
+| QSP | [mrgsolve](https://mrgsolve.org/), [COPASI](https://copasi.org/), [Tellurium](http://tellurium.analogmachine.org/) | SimBiology, DILIsym |
+
+The only row with no free entry that a working group would miss is a
+NONMEM-equivalent with decades of regulatory precedent. That is the honest
+shape of the gap: not capability, but institutional familiarity.
+
+::: {.callout-warning appearance="simple"}
+**"Free" and "open source" are different claims, and vendors blur them.**
+[ADAPT](https://bmsr.usc.edu/software/adapt/) costs nothing but requires a
+signed release agreement and is not open source. [IQR
+Tools](https://www.intiquan.com/iqr-tools/) is free for academics and
+proprietary for everyone else. [Pmetrics](https://lapkb.org/) is distributed as
+shareware with a suggested donation rather than under a standard licence. The
+Resources page records the licence separately from the cost for precisely this
+reason — check both before you build anything you intend to redistribute.
+:::
 
 ## 5. What to standardise on, if you are choosing for a group
 
@@ -149,8 +183,16 @@ fine choice for simulation, data assembly, ML work and reporting.
   Baron KT on mrgsolve for PBPK and QSP
   ([DOI](https://doi.org/10.1002/psp4.12467)); Keizer RJ, Karlsson MO, Hooker A
   on the Pirana/PsN/Xpose workbench ([DOI](https://doi.org/10.1038/psp.2013.24)).
-  Also the Open Systems Pharmacology suite for PBPK, and Torsten's user guide for
-  Bayesian PK/PD.
+  Also the [Open Systems Pharmacology](https://www.open-systems-pharmacology.org/)
+  suite for PBPK, and [Torsten's](https://metrumresearchgroup.github.io/Torsten/)
+  user guide for Bayesian PK/PD.
+- **The full list:** [Resources](../../resources.qmd) — 56 software entries with
+  licence, cost, language and maintainer, each URL checked.
+- **Free courses that teach these tools:**
+  [Metrum Open Courseware](https://metrumrg.com/courses/) (fifteen courses under
+  CC BY, no login) covers R for pharmacometrics, population PK/PD, Bayesian
+  modelling with Stan and Torsten, and mrgsolve. It is the closest thing to a
+  free graduate course in this stack.
 
 *Seen in the wild:* a team spent four months porting a model from one platform to
 another for reasons that were entirely about a licence renewal. The port

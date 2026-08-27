@@ -46,6 +46,29 @@ not get the opportunity again:
 That third step is a study-design analysis, and it is the difference between
 using a model and understanding one.
 
+## Where to get the tools and the models
+
+This path ends at a reproducible, citable analysis, which makes the free and
+open end of the stack the right end for you (full list on
+[Resources](../resources.qmd)):
+
+- **Estimation you can publish without a licence server:**
+  [nlmixr2](https://nlmixr2.org/), or [Stan](https://mc-stan.org/) with
+  [Torsten](https://metrumresearchgroup.github.io/Torsten/) if the thesis wants
+  posteriors rather than point estimates.
+- **Identifiability and design:** [PopED](https://andrewhooker.github.io/PopED/)
+  and [PFIM](http://www.pfim.biostat.fr/) — two independent implementations of
+  Fisher-information-based optimal design, which makes cross-checking one
+  against the other a genuinely useful exercise.
+- **Models to reproduce:** the [DDMoRe Model
+  Repository](https://repository.ddmore.foundation/) (dormant since 2018, but
+  128 published models with their control streams) and the [Open Systems
+  Pharmacology PBPK library](https://github.com/Open-Systems-Pharmacology/OSP-PBPK-Model-Library).
+  Reproducing somebody else's published model is the single most instructive
+  week available in this field, and it is how you find out what papers leave out.
+- **Where the field publishes first:** the [PAGE abstract
+  archive](https://www.page-meeting.org/), free and searchable back to 1992.
+
 ## What comes next
 
 | Strand | On this path | Status |

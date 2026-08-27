@@ -233,6 +233,19 @@ print(f"\n<script>window.RES_DOMAINS = {json.dumps(DOMAIN_LABEL)};</script>")
 </script>
 ```
 
+## Where these are used in the curriculum
+
+The database is not meant to be read straight through. Each strand pulls from it:
+
+| Page | What it pulls |
+|---|---|
+| [S0-00 · What quantitative pharmacology is](lessons/s0-00-what-is-qp/index.qmd) | The free courses a twelve-month self-study route can be built from |
+| [S0-03 · Data assembly](lessons/s0-03-data-assembly/index.qmd) | Real datasets to practise on once `CASE-SM` stops surprising you |
+| [S0-04 · Choosing a stack](lessons/s0-04-choosing-a-stack/index.qmd) | The whole software table, priced, with a free-only column |
+| [S0-06 · Reading a model report](lessons/s0-06-reading-a-model-report/index.qmd) | FDA, EMA and ICH M15 — the review checklists written by the people who review |
+| [Strand P · Pharmacology](pharmacology.qmd) | Lecture courses, target databases, label archives and PBPK parameter sources |
+| [Cases](cases.qmd) | Model repositories, for when synthetic data has taught you what it can |
+
 ## What is deliberately not here
 
 - **Anything we could not fetch.** Around twenty candidates were dropped because

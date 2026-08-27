@@ -46,6 +46,26 @@ the rest combined.
 | 4 | [S0-01 · Compartments and ODEs](../lessons/s0-01-compartments-and-odes/index.qmd) | Sections 1–4. Enough to know what a compartment claims and why terminal half-life is a trap. Skip the notebook. |
 | 5 | [S0-03 · Data assembly](../lessons/s0-03-data-assembly/index.qmd) | If you supply data to modelers, this explains what they need and why they keep asking. |
 
+## If you never model, these are still worth bookmarking
+
+This path is allowed to end here, and for many readers it should. Four free
+resources remain useful even if you never fit a model (all on
+[Resources](../resources.qmd)):
+
+- [Drugs@FDA](https://www.accessdata.fda.gov/scripts/cder/daf/) — the clinical
+  pharmacology review behind an approval. If a modeller shows you a report and
+  you want to see what a good one looks like, read a review for a drug you
+  already know.
+- [IUPHAR/BPS Guide to PHARMACOLOGY](https://www.guidetopharmacology.org/) — a
+  curated, referenced affinity value when someone quotes you an IC~50~ with no
+  assay conditions attached. `P-04` explains why that matters.
+- [FDA Table of Substrates, Inhibitors and Inducers](https://www.fda.gov/drugs/drug-interactions-labeling/drug-development-and-drug-interactions-table-substrates-inhibitors-and-inducers)
+  — the regulatorily accepted probe drugs, in one table.
+- [ICH M15](https://www.fda.gov/regulatory-information/search-fda-guidance-documents/m15-general-principles-model-informed-drug-development)
+  (final, June 2026) — the shortest statement of what regulators now expect a
+  model to justify. If you sit in meetings where models are discussed, this is
+  the document that tells you what question to ask.
+
 ## The three things worth remembering
 
 1. **A compartment is not an organ.** It is a kinetically homogeneous space

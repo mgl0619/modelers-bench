@@ -55,6 +55,18 @@ then branch deeper — or stop satisfied. Both are wins.
 lessons that assume nothing, written for people arriving from statistics,
 mathematics, engineering or software.
 
+## Two reference pages, both free to use
+
+[**Reading**](reading.qmd) — 53 papers, every one verified against PubMed, with
+a one-line note on what it is actually for and an honest statement of which we
+have read in full.
+
+[**Resources**](resources.qmd) — 167 software packages, courses, regulatory
+guidances, model repositories and reference databases. **Every URL was fetched
+and checked**, and the cost and licence of each was read off the page rather
+than recalled. 137 of the 167 are usable at no cost, and the page has a
+free-only filter for exactly that reason.
+
 ## What is here today
 
 | Strand | Status |

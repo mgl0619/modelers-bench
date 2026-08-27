@@ -304,6 +304,24 @@ employable at L2; if you are missing any, you are not, whatever else you know.
    to a reproducible analysis every time.
 :::
 
+### What the twelve months can be built from, at zero cost
+
+Every item below was checked and is free; the full set is on the
+[Resources](../../resources.qmd) page.
+
+| Need | Free resource |
+|---|---|
+| Clinical pharmacology grounding | [NIH *Principles of Clinical Pharmacology*](https://ocreco.od.nih.gov/courses/principles-clinical-pharmacology) — 48 recorded lectures, publicly viewable |
+| A full pharmacometrics curriculum | [Metrum Open Courseware](https://metrumrg.com/courses/) — fifteen courses under CC BY, no login: R for pharmacometrics, population PK/PD, Bayesian, mrgsolve |
+| Structured course with a cohort | [Pharmacometrics Africa](https://pmxafrica.org/moodle/) — open-access self-paced course in English and French, free registration |
+| Pharmacology fundamentals | [MIT OCW HST.151](https://ocw.mit.edu/courses/hst-151-principles-of-pharmacology-spring-2005/) — notes, problem sets and exams with solutions, CC BY-NC-SA |
+| Software | [nlmixr2](https://nlmixr2.org/), [mrgsolve](https://mrgsolve.org/), [PK-Sim/MoBi](https://www.open-systems-pharmacology.org/) — see `S0-04` |
+| What the field is arguing about | [PAGE abstract archive](https://www.page-meeting.org/) — every abstract since 1992, free to browse |
+| What regulators expect | The 26 guidances on [Resources](../../resources.qmd) — all free, most short |
+
+There is no paywall between you and this job. There is a time cost, and it is
+large, but the materials are not the constraint.
+
 ## 10. Getting the first job
 
 **Where the roles are.** Large pharma (deepest specialisation, most process);

@@ -132,6 +132,26 @@ Nominal time still has a job: it is the right x-axis for descriptive summaries
 and mean-profile plots, where averaging across subjects requires a common grid.
 Keep both columns. Label them unambiguously.
 
+### Where to get real data to practise on
+
+`CASE-SM` is synthetic, and deliberately so — it is the only way to grade your
+answer against a published truth. But at some point you should assemble a
+dataset nobody built for teaching. These are all free and none requires anyone's
+permission (full details on the [Resources](../../resources.qmd) page):
+
+| Source | What you get |
+|---|---|
+| [`nlmixr2data`](https://nlmixr2.github.io/nlmixr2data/reference/index.html) | 26 datasets in one R package: theophylline, warfarin PK/PD, phenobarbital, mavoglurant, nimotuzumab. Includes `nmtest`, which ships **reference NONMEM output** so you can check your own solver against a known answer |
+| [`Theoph`](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/Theoph.html), [`Phenobarb`](https://stat.ethz.ch/R-manual/R-devel/library/nlme/html/Phenobarb.html) | The canonical teaching datasets, already installed with any R. `Phenobarb` is the classic *sparse-sampling* case — 744 rows from newborn infants |
+| [PK-DB](https://pk-db.com/) | 819 curated published studies, 17,285 individuals, 6,103 concentration timecourses, with subject-level covariates, through an open API |
+| [NHANES](https://wwwn.cdc.gov/nchs/nhanes/Default.aspx) | Real covariate distributions — weight, height, age, creatinine — for building a virtual population that is not made up |
+| [pharmaverseadam](https://github.com/pharmaverse/pharmaverseadam) | Synthetic **ADaM-format** trial data, so you can practise the CDISC layer this section describes rather than skipping straight to NM-TRAN |
+
+The order matters. Start with `Theoph` because it is small enough to check by
+eye, move to `Phenobarb` because sparse data is where population methods earn
+their keep, and only then take something out of PK-DB, where nobody has cleaned
+it for you.
+
 ## 4. Below the limit of quantification
 
 Some fraction of samples come back below what the assay can measure. `CASE-SM`
