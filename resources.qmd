@@ -229,17 +229,34 @@ for cat in CATEGORY_ORDER:
             tags += "".join(f'<span class="res-dis">{DIS_LABEL.get(d, d)}</span>' for d in diss)
             lang = f' &middot; {esc(r["language"])}' if r["language"] not in ("n/a", "") else ""
             note = f'<p class="res-note">{esc(r["notes"])}</p>' if r["notes"] else ""
-            print(f'''<div class="res-item" data-domains="{esc(r["domains"])}" data-modality="{esc(r["modality"])}" data-disease="{esc(r["disease"])}" data-free="{free}" data-blob="{esc(blob)}">
-  <div class="res-head">
-    <a class="res-name" href="{esc(r["url"])}" target="_blank" rel="noopener">{esc(r["name"])}</a>
-    <span class="res-cost res-cost-{esc(r["cost"])}">{esc(COST_LABEL[r["cost"]])}</span>
-  </div>
-  <div class="res-meta">{esc(r["maintainer"])}{lang} &middot; <span class="res-lic">{esc(r["licence"])}</span></div>
-  <p class="res-desc">{esc(r["description"])}</p>
-  <p class="res-use"><strong>Use it for:</strong> {esc(r["best_for"])}</p>
-  {note}
-  <div class="res-doms">{tags}</div>
-</div>''')
+            # Emitted as ONE line, deliberately. Quarto runs this output
+            # through Pandoc as markdown, and a line indented four spaces
+            # inside a raw HTML block becomes an indented code block - which
+            # is exactly what happened to the anchor and cost badge here
+            # before. Keeping each card on a single line means Pandoc passes
+            # it through untouched, with no injected <pre> and no stray <p>
+            # wrappers that would break the flex layout in .res-head.
+            card = (
+                f'<div class="res-item" data-domains="{esc(r["domains"])}"'
+                f' data-modality="{esc(r["modality"])}"'
+                f' data-disease="{esc(r["disease"])}"'
+                f' data-free="{free}" data-blob="{esc(blob)}">'
+                f'<div class="res-head">'
+                f'<a class="res-name" href="{esc(r["url"])}" target="_blank"'
+                f' rel="noopener">{esc(r["name"])}</a>'
+                f'<span class="res-cost res-cost-{esc(r["cost"])}">'
+                f'{esc(COST_LABEL[r["cost"]])}</span>'
+                f'</div>'
+                f'<div class="res-meta">{esc(r["maintainer"])}{lang}'
+                f' &middot; <span class="res-lic">{esc(r["licence"])}</span></div>'
+                f'<p class="res-desc">{esc(r["description"])}</p>'
+                f'<p class="res-use"><strong>Use it for:</strong>'
+                f' {esc(r["best_for"])}</p>'
+                f'{note}'
+                f'<div class="res-doms">{tags}</div>'
+                f'</div>'
+            )
+            print(card)
         print('</div>')
 
 print("\n<script>")

@@ -216,6 +216,55 @@ def audit_site_links(known_urls):
         return 1
 
     print("    untraced         : 0")
+
+    return audit_rendered_page(len(known_urls))
+
+
+def audit_rendered_page(n_expected):
+    """If the site has been built, check that resources.html actually rendered.
+
+    This exists because of a specific failure. resources.qmd generates its cards
+    from Python, and Quarto passes that output through Pandoc as markdown. A
+    generated line indented four spaces inside a raw HTML block is an indented
+    CODE block to Pandoc, so the anchor and cost badge on every card were
+    rendered as escaped source text instead of as a link. The page looked
+    plausible, the build succeeded, and nothing failed - it was caught by eye.
+
+    So: two assertions against the built page, and only if it exists. Skipping
+    when unbuilt keeps `make check` usable offline and before a render.
+    """
+    page = CSV_PATH.parent / "_site" / "resources.html"
+    if not page.exists():
+        print("\n  rendered page      : not built yet (run `make render`)")
+        return 0
+
+    html = page.read_text(encoding="utf-8", errors="replace")
+    problems = []
+
+    # 1. No escaped markup. If Pandoc turned generated HTML into a code block,
+    #    the literal string `&lt;a class=` or `&lt;span class=` appears.
+    for needle in ("&lt;a class=", "&lt;span class=", "&lt;div class="):
+        n = html.count(needle)
+        if n:
+            problems.append(f"{n} occurrence(s) of escaped markup {needle!r} "
+                            f"- generated HTML was parsed as a code block")
+
+    # 2. Every row reached the page. Silent card loss is the other way this
+    #    generation step can fail without erroring.
+    n_cards = html.count('class="res-item"')
+    if n_cards != n_expected:
+        problems.append(f"{n_cards} cards rendered but {n_expected} rows in "
+                        f"the CSV")
+
+    print(f"\n  rendered page      : {n_cards} cards")
+    if problems:
+        print(f"\nFAIL  resources.html did not render correctly:\n")
+        for pr in problems:
+            print(f"  - {pr}")
+        print("\n  The usual cause is a generated HTML line indented four or "
+              "more\n  spaces. Emit each card on a single line instead.")
+        return 1
+    print("    escaped markup   : none")
     return 0
 
 
