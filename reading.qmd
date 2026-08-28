@@ -11,14 +11,14 @@ curriculum that costs nothing should send you to papers that cost nothing.
 ::: {.callout-important appearance="simple"}
 ## Why this page links rather than hosts
 
-We checked the licence of all 73 papers through PubMed. The result is worth
+We checked the licence of all 84 papers through PubMed. The result is worth
 knowing before anyone proposes bundling PDFs with the course:
 
 | | Papers |
 |---|---|
 | Open licence (Creative Commons) | **7** |
-| All rights reserved or unstated, but free to *read* on PubMed Central | **30** |
-| No free full text found | **36** |
+| All rights reserved or unstated, but free to *read* on PubMed Central | **33** |
+| No free full text found | **44** |
 | Carrying a plain **CC BY** licence | **1** |
 
 : Counts from PubMed and PubMed Central metadata. Treat the open-licence row as a
@@ -27,15 +27,18 @@ knowing before anyone proposes bundling PDFs with the course:
 terms that the API had not reported. Neither is BY-SA-compatible, so the
 practical conclusion below is unchanged — but the number is a lower bound.
 
-**Free to read is not free to redistribute.** Thirty-seven of these are readable
+**Free to read is not free to redistribute.** Forty of these are readable
 at no cost on PubMed Central, and that is a permission to read, not a licence to
 copy. Redistributing those PDFs — in this repository, in a course pack, in a
 shared folder — would infringe copyright.
 
 Six of the seven openly licensed papers still cannot be folded into this site.
-(The strand D additions of August 2026 brought twenty more papers, none of them
-openly licensed, so the open-licence count did not move — a fair illustration of
-the base rate in the oncology literature.)
+(The strand D additions of August 2026 brought twenty more papers, and the
+strand C additions eleven more; none of the thirty-one is openly licensed, so
+the open-licence count did not move — a fair illustration of the base rate in
+this literature. The three strand C papers counted as free to read carry PubMed
+Central identifiers; the specific licence terms of the eleven were **not**
+individually checked, so the open-licence row remains a floor.)
 This curriculum is **CC BY-SA 4.0**, and BY-SA is incompatible with both **NC**
 (non-commercial) and **ND** (no derivatives). We can cite them, describe their
 findings, and quote briefly with attribution. We cannot absorb their text or
@@ -44,7 +47,7 @@ adapt their figures.
 The seventh is the exception, and it is new. Liu's 2017 review of monoclonal
 antibody pharmacokinetics is **CC BY 4.0**, which *is* compatible with BY-SA.
 Its figures could be adapted into a lesson with attribution. That is one paper
-out of fifty-three, which is itself the argument: the default in this literature
+out of eighty-four, which is itself the argument: the default in this literature
 is that you may read but not reuse.
 
 So: **link, never host.** Read them through the DOI or your institution's
@@ -197,6 +200,45 @@ Not PDAC-specific, and the quantitative backbone of `D1-11`.
 | Bruno R, Mercier F, Claret L. **Evaluation of tumor size response metrics to predict survival in oncology clinical trials.** *Clin Pharmacol Ther* 2014;95:386–393. [DOI](https://doi.org/10.1038/clpt.2014.4) · PMID 24419563 | The review of *which* tumour-size metric predicts survival, and an honest account of why the approach is not yet routine despite being available for a decade. |
 | Claret L, Mercier F, Houk BE, Milligan PA, Bruno R. **Modeling and simulations relating overall survival to tumor growth inhibition in renal cell carcinoma patients.** *Cancer Chemother Pharmacol* 2015;76:567–573. [DOI](https://doi.org/10.1007/s00280-015-2820-x) · PMID 26198314 | 2,552 patients across ten studies. Time to tumour growth was the best predictor of survival, but week-8 early tumour shrinkage performed well enough to be preferred for its clinical usability — a real methodological trade-off, stated. |
 | Claret L, Zheng J, Mercier F, et al. **Model-based prediction of progression-free survival using week 8 tumor size change from baseline.** *Cancer Chemother Pharmacol* 2016;78:605–610. [DOI](https://doi.org/10.1007/s00280-016-3116-5) · PMID 27468922 | Extends the framework to progression-free survival with external validation, and simulates the hazard ratio a new agent would need to achieve. |
+
+## Strand C · Approved drugs — clinical pharmacology from the regulatory record
+
+Eleven papers gathered before the lessons, as with strand `D`. All verified
+through PubMed; all annotations rest on abstracts. See
+[Strand C](drugs.qmd) for the outline they support, and for the twelve FDA
+approval packages — public-domain documents, cited from
+[Resources](resources.qmd) rather than from here.
+
+### A model in place of a trial
+
+| | Why |
+|---|---|
+| Lala M, Li TR, de Alwis DP, et al. **A six-weekly dosing schedule for pembrolizumab in patients with cancer based on evaluation using modelling and simulation.** *Eur J Cancer* 2020;131:68–75. [DOI](https://doi.org/10.1016/j.ejca.2020.02.016) · PMID 32305010 | The central document of `C-02`. A population model on 2,993 subjects from five trials, used to bridge 400 mg Q6W to the established 200 mg Q3W on exposure alone: average concentration about 1% higher, peak concentration roughly 65% below the highest dose ever given clinically. Read it for the structure of the argument, not the result. |
+| Lala M, Li TR, de Alwis DP, et al. **Corrigendum.** *Eur J Cancer* 2021;144:400. [DOI](https://doi.org/10.1016/j.ejca.2020.12.006) · PMID 33414065 | Listed separately and deliberately. `C-02` teaches close reading of a regulatory argument; citing the paper without its correction would undercut the lesson. |
+| Zhao Y, Tsujimoto A, Ide T, et al. **Model-based population pharmacokinetic and exposure response analyses for safety and efficacy of nivolumab as adjuvant treatment in subjects with resected oesophageal or gastroesophageal junction cancer.** *Br J Clin Pharmacol* 2024;90:2920–2930. [DOI](https://doi.org/10.1111/bcp.16188) · PMID 39054780 | PopPK on 1,493 subjects; exposure–response on 756 from CheckMate 577. Hazard ratios at the 5th and 95th exposure percentiles were similar for both disease-free survival and grade ≥2 immune-mediated events. `C-03` is about what a flat relationship licenses — and what it quietly does not. |
+
+### Doses that were argued over
+
+| | Why |
+|---|---|
+| Ratain MJ, Tannock IF, Lichter AS. **Dose optimization of sotorasib: is the US Food and Drug Administration sending a message?** *J Clin Oncol* 2021;39:3423–3426. [DOI](https://doi.org/10.1200/JCO.21.01371) · PMID 34543056 | Three pages, and the sharpest regulatory argument on this page. The origin text for `C-04` and for the Project Optimus framing that runs through the strand. |
+| Hanley MJ, Diderichsen P, Rich B, et al. **Response-based dosing for ponatinib: model-based analyses of the dose-ranging OPTIC study.** *Clin Pharmacol Ther* 2023;114:413–422. [DOI](https://doi.org/10.1002/cpt.2956) · PMID 37219378 | A four-state discrete-time Markov model for molecular response, time-to-event models for harm. A 15 mg dose increase gave an odds ratio of 2.05 (95% CI 1.53–2.89) for one response transition and a hazard ratio of 2.05 (95% CI 1.43–2.93) for arterial occlusive events. `C-05` exists because those two numbers are the same. |
+
+### Modalities where the standard framework bends
+
+| | Why |
+|---|---|
+| Luo Z, Huang Z, Sun F, et al. **The clinical effects of inclisiran, a first-in-class LDL-C lowering siRNA therapy, on the LDL-C levels in Chinese patients with hypercholesterolemia.** *J Clin Lipidol* 2023;17:392–400. [DOI](https://doi.org/10.1016/j.jacl.2023.04.010) · PMID 37164838 | Single subcutaneous dose, elimination half-life 6.5 hours, LDL-C still down 49.6% (100 mg) and 58.3% (300 mg) at day 90. The cleanest published statement of the PK/PD disconnect `C-08` is built on. |
+| Barkas F, Ray K. **An update on inclisiran for the treatment of elevated LDL cholesterol.** *Expert Opin Pharmacother* 2024;25:349–358. [DOI](https://doi.org/10.1080/14656566.2024.2337253) · PMID 38549399 | Places inclisiran's kinetics against the PCSK9 antibodies, which is the comparison that makes the disconnect legible rather than merely odd. |
+| Guo Y, Quijano Cardé NA, Kang L, et al. **Teclistamab: mechanism of action, clinical, and translational science.** *Clin Transl Sci* 2024;17:e13717. [DOI](https://doi.org/10.1111/cts.13717) · PMID 38266057 · **[free]** | 1.5 mg/kg weekly reached through step-up doses of 0.06 and 0.3 mg/kg, selected on exposure–response for efficacy and safety together. `C-09`: the dose is a schedule, because the toxicity tracks the first exposure rather than the steady-state one. |
+| Brendel K, Bekaii-Saab T, Boland PM, et al. **Population pharmacokinetics of liposomal irinotecan in patients with cancer and exposure-safety analyses in patients with metastatic pancreatic cancer.** *CPT Pharmacometrics Syst Pharmacol* 2021;10:1550–1563. [DOI](https://doi.org/10.1002/psp4.12725) · PMID 34750990 · **[free]** | 440 patients, seven studies, exposure–safety in mPDAC from NAPOLI-1. Total irinotecan clearance 0.107 L/h against SN-38 clearance 118 L/h; UGT1A1\*28 7/7 homozygosity had **no** significant effect on SN-38 clearance. Shared between `C-11` and `D1-08`, and worth reading for the negative covariate result. |
+
+### What modelling has not yet been allowed to do
+
+| | Why |
+|---|---|
+| Belov A, Schultz K, Forshee R, Tegenge MA. **Opportunities and challenges for applying model-informed drug development approaches to gene therapies.** *CPT Pharmacometrics Syst Pharmacol* 2021;10:286–290. [DOI](https://doi.org/10.1002/psp4.12597) · PMID 33608998 · **[free]** | Written by FDA CBER staff: the authors of the gap describing the gap. The reference behind `C-12` and behind the empty gene-therapy cells in the [Resources](resources.qmd) coverage matrix. |
+| Desborough L, Jaffe K, Hanna J, Ulloa J, Kaiserman K. **Transforming evidence generation for drug label changes: a case study.** *Ann Biomed Eng* 2023;51:137–149. [DOI](https://doi.org/10.1007/s10439-022-03062-4) · PMID 36070049 | An MIDD pilot submission for an Afrezza label change: FDA found the simulation credible and informative, and still asked for conventional clinical evidence. A published account of a modelling argument that was accepted and was not sufficient. Rare, and the honest counterweight to `C-02`. |
 
 ## Strand S0 · Foundations
 

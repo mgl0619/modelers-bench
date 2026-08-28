@@ -1,0 +1,207 @@
+---
+title: "Strand C · Approved drugs"
+subtitle: "Clinical pharmacology as the regulator actually saw it"
+---
+
+Strands `P`, `S` and `D` teach ideas: what a drug does to a receptor, how to
+estimate a parameter, what a disease does to a model. Strand `C` teaches
+something different — **what happened when someone had to convince a regulator**.
+
+Every approved drug carries a public record of an argument that was made and
+adjudicated: a dose was proposed, a model was fitted, a reviewer agreed or did
+not, and a number went into a label that now governs how the drug is given to
+patients. That record is the closest thing this field has to a worked-answer
+key, and it is almost entirely unread outside the industry.
+
+::: {.callout-tip appearance="simple"}
+## The inclusion test
+A drug earns a place here only if its review shows **a modelling decision doing
+work that could have gone the other way**. A clean, uncontested development
+programme teaches nothing that strand `S` does not teach better. What is wanted
+is the drug where the model replaced a trial, or where the model was overruled,
+or where the analysis was fine and the conclusion was still wrong.
+:::
+
+## Why these sources are different
+
+Everything in [Reading](reading.qmd) is copyrighted literature that this project
+can link to and never reproduce. FDA review documents are not. They are works of
+the United States Government, and are in the **public domain**.
+
+That single fact changes what strand `C` can be. For the first time in this
+curriculum, the numbers underlying a lesson — clearance estimates, covariate
+coefficients, exposure–response slopes — can be transcribed into a CSV, committed
+to the repository, and reproduced by anyone, without a licence question. The
+lessons in `P` and `S` teach methods on simulated data because that is all they
+may use. `C` does not have that constraint.
+
+The standing rules still hold: no PDF is committed, no figure is copied, and
+every transcribed row carries its source document and page so a reader can check
+the transcription against the original.
+
+## Planned lessons
+
+Nothing below is written yet. As with strand [`D`](diseases.qmd), the outline is
+published before the prose so the plan can be argued with while changing it is
+still cheap.
+
+Every application number, sponsor and approval date in this table was confirmed
+by retrieving the product's record from **Drugs@FDA** or, for the biologics
+licensed by CBER, from the FDA's cellular and gene therapy product pages. None
+was written from memory.
+
+| | Drug and application | What the review shows | Status |
+|---|---|---|---|
+| C-01 | *How to read an FDA review* | The document set — multi-discipline review, clinical pharmacology review, summary basis of regulatory action — and which reviewer discipline owns which claim | planned |
+| C-02 | **Pembrolizumab** · [BLA 125514](https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=125514), Merck, 2014 | A dosing regimen approved on exposure matching with no new efficacy trial. The clearest case of a model substituting for data | planned |
+| C-03 | **Nivolumab** · [BLA 125554](https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=125554), Bristol Myers Squibb, 2014 | A *flat* exposure–response, and the uncomfortable fact that flatness both licenses the regimen change and makes the analysis nearly uninformative about dose | planned |
+| C-04 | **Sotorasib** · [NDA 214665](https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=214665), Amgen, 2021 | A dose carried from the MTD paradigm into a targeted agent, approved with a postmarketing requirement to compare it against a lower one. The origin story of Project Optimus | planned |
+| C-05 | **Ponatinib** · [NDA 203469](https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=203469), Takeda, 2012 | Exposure predicts response and arterial occlusion with almost the same coefficient. The model quantifies the trade; it does not resolve it | planned |
+| C-06 | **Ribociclib** · [NDA 209092](https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=209092), Novartis, 2017 | Concentration–QTc as a dose-limiting model, and what a cardiac safety analysis is allowed to conclude | planned |
+| C-07 | **Rivaroxaban** · [NDA 022406](https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=022406), Janssen, 2011 | Exposure–response where both directions of error are fatal — bleeding against thrombosis — and a review that did not simply accept the sponsor's reading | planned |
+| C-08 | **Inclisiran** · [NDA 214012](https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=214012), Novartis, 2021 | Elimination half-life of hours, pharmacological effect lasting months. The case where plasma PK predicts almost nothing and the effect model is the entire model | planned |
+| C-09 | **Teclistamab** · [BLA 761291](https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=761291), Janssen Biotech, 2022 | Step-up dosing: when the answer to "what is the dose" is a schedule, because the toxicity is driven by the first exposure rather than the steady-state one | planned |
+| C-10 | **Trastuzumab deruxtecan** · [BLA 761139](https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=761139), Daiichi Sankyo, 2019 | One drug, three analytes — conjugate, total antibody, released payload — and the question of which exposure the response is a response to | planned |
+| C-11 | **Liposomal irinotecan** · [NDA 207793](https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=207793), Ipsen, 2015 | What a liposome does to an exposure metric, and a published population model in the disease strand `D` is built on | planned |
+| C-12 | **Tisagenlecleucel** · [BLA 125646](https://www.fda.gov/vaccines-blood-biologics/cellular-gene-therapy-products/kymriah-tisagenlecleucel), Novartis, 2017 | The review that contains no clinical pharmacology at all, and why cell and gene therapy sit outside the framework the other eleven lessons share | planned |
+
+Nab-paclitaxel is deliberately absent. Its pancreatic indication
+([NDA 021660](https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=021660),
+supplement 37, September 2013) belongs to `D1-08` alongside the other standard-of-care
+comparators, and repeating it here would split one discussion across two strands.
+
+## Two findings from building this outline
+
+Both came out of checking sources rather than reading about them, and both change
+what the lessons can claim.
+
+### The machine-readable route is real, and it lies by default
+
+The **openFDA** label API returns structured JSON, and for sotorasib it carries
+`clinical_pharmacology`, `pharmacodynamics` and `pharmacokinetics` as separate
+fields — enough to build a notebook that needs nothing committed and never goes
+stale.
+
+The trap is that an unfiltered query returns whichever label ranks first, and for
+both PD-1 antibodies that is now the recently approved **subcutaneous
+coformulation** — `KEYTRUDA QLEX`, `OPDIVO QVANTIG` — not the intravenous product
+the modelling literature describes. Querying `openfda.generic_name:"pembrolizumab"`
+silently hands back a different drug's label. Adding `_exists_:pharmacokinetics`
+fixes the missing-field symptom without fixing the wrong-product cause. Any
+notebook in this strand pins the specific SPL and asserts on the brand name before
+parsing a single number.
+
+### Cell and gene therapy has no clinical pharmacology review to read
+
+[Kymriah](https://www.fda.gov/vaccines-blood-biologics/cellular-gene-therapy-products/kymriah-tisagenlecleucel)'s
+public document set is the package insert, the approval letters, a Summary Basis
+for Regulatory Action, a statistical review, a clinical memo and a REMS. There is
+no clinical pharmacology review and no multi-discipline review, because CBER's
+review pathway does not produce one.
+
+This is the structural explanation for the gap the [Resources](resources.qmd)
+page found empirically — gene therapy has seven regulatory guidances in the
+database and zero runnable open models. It is not that the modelling is being
+done and withheld. For this product class the document that strand `C` is built
+on does not exist. `C-12` is that lesson, and it is the reason the strand ends
+with a product it cannot analyse the way it analyses the other eleven.
+
+## The source material, verified
+
+Every reference below was retrieved and checked through **PubMed** — title,
+journal, year, authors and DOI. Full entries are on the [Reading](reading.qmd)
+page under *Strand C*.
+
+**A model instead of a trial.** Lala et al., Eur J Cancer 2020
+([DOI](https://doi.org/10.1016/j.ejca.2020.02.016)) is the pembrolizumab Q6W
+analysis: a population model built on 2,993 subjects across five trials, used to
+show that 400 mg every six weeks produces a geometric mean average concentration
+about 1% above the established 200 mg every three weeks, with peak concentrations
+roughly 65% below the highest dose ever given clinically. Efficacy and safety
+were bridged by exposure alone. Note the corrigendum
+([DOI](https://doi.org/10.1016/j.ejca.2020.12.006)) — `C-02` cites both, because
+a lesson about careful reading should not misquote its own source.
+
+**Flat exposure–response.** Zhao et al., Br J Clin Pharmacol 2024
+([DOI](https://doi.org/10.1111/bcp.16188)) analysed 1,493 subjects for
+pharmacokinetics and 756 from CheckMate 577 for exposure–response, and found the
+hazard ratios at the 5th and 95th exposure percentiles were similar for both
+disease-free survival and grade ≥2 immune-mediated adverse events. `C-03` is
+about what that symmetry does and does not permit you to conclude.
+
+**The dose nobody defended.** Ratain, Tannock and Lichter, J Clin Oncol 2021
+([DOI](https://doi.org/10.1200/JCO.21.01371)) — *Dose Optimization of Sotorasib:
+Is the US Food and Drug Administration Sending a Message?* Three pages, and the
+sharpest regulatory argument in this reading list.
+
+**Exposure–response as a trade, quantified.** Hanley et al., Clin Pharmacol Ther
+2023 ([DOI](https://doi.org/10.1002/cpt.2956)) modelled the OPTIC dose-ranging
+study with a four-state discrete-time Markov model for molecular response and
+time-to-event models for harm. A 15 mg dose increase carried an odds ratio of
+2.05 (95% CI 1.53–2.89) for one molecular response transition — and a hazard
+ratio of 2.05 (95% CI 1.43–2.93) for arterial occlusive events. The same
+coefficient, for the benefit and for the harm. `C-05` exists because of that
+coincidence.
+
+**When PK stops predicting PD.** Luo et al., J Clin Lipidol 2023
+([DOI](https://doi.org/10.1016/j.jacl.2023.04.010)) reported a single
+subcutaneous dose of inclisiran with an elimination half-life of **6.5 hours**
+and LDL-C still reduced by 49.6% (100 mg) and 58.3% (300 mg) at **day 90**.
+Barkas and Ray, Expert Opin Pharmacother 2024
+([DOI](https://doi.org/10.1080/14656566.2024.2337253)) place that alongside the
+PCSK9 antibodies. Roughly three orders of magnitude separate the exposure
+timescale from the effect timescale, and `C-08` is about what a modeller does
+with that.
+
+**Dose as a schedule.** Guo et al., Clin Transl Sci 2024
+([DOI](https://doi.org/10.1111/cts.13717), free full text) describe teclistamab's
+1.5 mg/kg weekly maintenance reached through step-up doses of 0.06 and 0.3 mg/kg,
+selected on exposure–response for both efficacy and safety.
+
+**Liposomal exposure, in pancreatic cancer.** Brendel et al., CPT Pharmacometrics
+Syst Pharmacol 2021 ([DOI](https://doi.org/10.1002/psp4.12725), free full text)
+built a population model on 440 patients across seven studies, with
+exposure–safety analyses in metastatic PDAC from NAPOLI-1. Total irinotecan
+clearance 0.107 L/h against SN-38 clearance 118 L/h; UGT1A1\*28 7/7 homozygosity
+had no significant effect on SN-38 clearance — a negative covariate result worth
+more teaching time than a positive one. This paper is shared with `D1-08`.
+
+**Why C-12 is different.** Belov et al., CPT Pharmacometrics Syst Pharmacol 2021
+([DOI](https://doi.org/10.1002/psp4.12597), free full text), written by FDA CBER
+staff, sets out the opportunities and challenges for model-informed drug
+development in gene therapies. It is the authors of the gap describing the gap.
+
+**Modelling that did not win.** Desborough et al., Ann Biomed Eng 2022
+([DOI](https://doi.org/10.1007/s10439-022-03062-4)) document an MIDD pilot
+submission for an Afrezza label change in which FDA accepted the simulation as
+informative and still asked for conventional clinical evidence. A published
+account of a modelling argument that was found credible and was not sufficient —
+rare, and useful.
+
+::: {.callout-warning appearance="simple"}
+## What this outline is not evidence of
+Twelve verified applications and eleven verified papers are not twelve written
+lessons. The application records were retrieved and confirmed; the **review
+documents themselves have not been read**. Every claim above about what a review
+*shows* is a hypothesis drawn from the published literature and the approval
+history, and each one has to survive contact with the actual document before it
+becomes a lesson. Where it does not survive, the correction gets written down —
+as happened with van der Graaf on the [Reading](reading.qmd) page.
+:::
+
+## What comes next
+
+`C-02` on pembrolizumab is the natural first lesson: the exposure-matching
+argument is self-contained, the supporting paper is unusually clear, and the
+conclusion — that a regimen entered the label without an efficacy trial — is
+striking enough to carry a reader who does not yet care about population models.
+
+`C-08` on inclisiran is the strongest second, because the PK/PD disconnect breaks
+the intuition that strand `S` spends its early lessons building, and breaking a
+freshly built intuition is when it is cheapest to repair.
+
+The runnable component is planned in two halves, per the design decision behind
+this strand: a notebook that queries the openFDA label API live — pinned to a
+specific SPL, for the reasons above — and a small committed CSV of parameters
+transcribed from the public-domain review documents, each row carrying its source
+document and page. Neither exists yet.

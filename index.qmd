@@ -59,17 +59,23 @@ mathematics, engineering or software.
 biology stops being general and starts changing model structure. First up:
 pancreatic cancer.
 
+**Want to see the arguments that actually got made?** [**Strand C · Approved
+drugs**](drugs.qmd) reads the clinical pharmacology of twelve FDA-approved
+products out of the public-domain review record — including one regimen approved
+with no new efficacy trial, and one product whose review contains no clinical
+pharmacology at all.
+
 ## Two reference pages, both free to use
 
-[**Reading**](reading.qmd) — 53 papers, every one verified against PubMed, with
+[**Reading**](reading.qmd) — 84 papers, every one verified against PubMed, with
 a one-line note on what it is actually for and an honest statement of which we
 have read in full.
 
-[**Resources**](resources.qmd) — 167 software packages, courses, regulatory
-guidances, model repositories and reference databases. **Every URL was fetched
-and checked**, and the cost and licence of each was read off the page rather
-than recalled. 137 of the 167 are usable at no cost, and the page has a
-free-only filter for exactly that reason.
+[**Resources**](resources.qmd) — 249 software packages, courses, regulatory
+guidances, model repositories, reference databases and FDA approval packages.
+**Every URL was fetched and checked**, and the cost and licence of each was read
+off the page rather than recalled. 219 of the 249 are usable at no cost, and the
+page has a free-only filter for exactly that reason.
 
 ## What is here today
 
@@ -85,6 +91,7 @@ free-only filter for exactly that reason.
 | S6 · Decisions and MIDD | planned |
 | S7 · Practice and craft | planned |
 | **D · Disease areas** | [D1 pancreatic cancer](diseases.qmd) — outline and 20 verified references, no lessons yet |
+| **C · Approved drugs** | [Twelve FDA products](drugs.qmd) — outline, 12 verified approval packages and 11 verified papers, no lessons yet |
 
 Every runnable lesson ships in **both R and Python**, and every lesson names the
 development decision it serves before it teaches anything.

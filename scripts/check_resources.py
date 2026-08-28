@@ -257,15 +257,33 @@ def audit_rendered_page(n_expected):
                         f"the CSV")
 
     print(f"\n  rendered page      : {n_cards} cards")
-    if problems:
-        print(f"\nFAIL  resources.html did not render correctly:\n")
-        for pr in problems:
-            print(f"  - {pr}")
-        print("\n  The usual cause is a generated HTML line indented four or "
-              "more\n  spaces. Emit each card on a single line instead.")
+    if not problems:
+        print("    escaped markup   : none")
+        return 0
+
+    # Distinguish a stale build from a broken one. If the markup is clean and
+    # the only complaint is that the page has *fewer* cards than the CSV, the
+    # page was simply built before rows were added. That is still a failure -
+    # the built site does not match the source, and CI should say so - but
+    # pointing at the indentation bug would send the reader after the wrong
+    # thing. This mattered the first time it fired: twelve FDA approval
+    # packages were added and the four-space-indent advice was nonsense.
+    stale = (not any("escaped markup" in pr for pr in problems)
+             and n_cards < n_expected)
+
+    if stale:
+        print(f"\nFAIL  _site/resources.html is stale:\n")
+        print(f"  - built from {n_cards} rows, the CSV now has {n_expected}")
+        print("\n  The markup itself is fine. Re-render the site:")
+        print("      make render        (or make render-py without R)")
         return 1
-    print("    escaped markup   : none")
-    return 0
+
+    print(f"\nFAIL  resources.html did not render correctly:\n")
+    for pr in problems:
+        print(f"  - {pr}")
+    print("\n  The usual cause is a generated HTML line indented four or "
+          "more\n  spaces. Emit each card on a single line instead.")
+    return 1
 
 
 if __name__ == "__main__":

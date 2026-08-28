@@ -19,3 +19,4 @@ data/derived/
 # personal library — links page and PDFs stay local
 reading/papers/*
 !reading/papers/README.md
+_to_delete/

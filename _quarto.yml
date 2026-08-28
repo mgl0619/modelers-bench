@@ -25,6 +25,8 @@ website:
         href: pharmacology.qmd
       - text: "Diseases"
         href: diseases.qmd
+      - text: "Drugs"
+        href: drugs.qmd
       - text: "Paths"
         menu:
           - text: "A · The New Modeler"
@@ -79,6 +81,10 @@ website:
         contents:
           - text: "D1 · Pancreatic cancer — outline"
             href: diseases.qmd
+      - section: "C · Approved drugs"
+        contents:
+          - text: "C · Clinical pharmacology from FDA reviews — outline"
+            href: drugs.qmd
       - section: "S0 · Foundations"
         contents:
           - text: "S0-00 · What quantitative pharmacology is"
