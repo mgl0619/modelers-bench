@@ -40,6 +40,15 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
+      # Prints which interpreter make chose and why. Deliberately not pinned
+      # with PY=python: leaving CI on the same resolution path as a developer's
+      # machine means a regression in it is caught here. This step is what makes
+      # such a regression legible -- the last one showed up as an opaque
+      # "missing: numpy,pandas,scipy,matplotlib" with no clue that make and pip
+      # were looking at two different interpreters.
+      - name: Report the toolchain make will use
+        run: make doctor
+
       - name: Regenerate case data
         run: make data
 
