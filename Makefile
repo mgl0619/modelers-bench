@@ -9,18 +9,34 @@
 #
 # Run `make` on its own for the list.
 
-# Pick the newest suitable interpreter unless the caller overrides PY.
-# Override explicitly with:  make check PY=python3.11
-PY ?= $(shell for c in python3.13 python3.12 python3.11 python3.10 python3; do \
-	  command -v $$c >/dev/null 2>&1 && $$c -c 'import sys; raise SystemExit(0 if sys.version_info >= (3,10) else 1)' >/dev/null 2>&1 && { echo $$c; break; }; \
-	done)
+# Pick the interpreter, in this order:
+#
+#   1. PY=... on the command line          explicit always wins
+#   2. an activated venv  ($VIRTUAL_ENV)
+#   3. an activated conda env ($CONDA_PREFIX)
+#   4. ./.venv/bin/python                  what `make setup-py` creates
+#   5. the newest python3.N on PATH that is 3.10+
+#
+# Steps 2-4 exist because of a real failure. The old rule was step 5 alone,
+# which scans python3.13 first -- so a Homebrew python3.13 on PATH beat an
+# ACTIVATED environment holding 3.12 and every package. Activating the
+# environment changed nothing, `make data` re-ran under the bare system
+# interpreter, and the error was a byte-identical ModuleNotFoundError for
+# numpy. An active environment is an instruction; honour it before guessing.
+PY ?= $(shell \
+	if [ -n "$$VIRTUAL_ENV" ] && [ -x "$$VIRTUAL_ENV/bin/python" ]; then echo "$$VIRTUAL_ENV/bin/python"; \
+	elif [ -n "$$CONDA_PREFIX" ] && [ -x "$$CONDA_PREFIX/bin/python" ]; then echo "$$CONDA_PREFIX/bin/python"; \
+	elif [ -x .venv/bin/python ]; then echo .venv/bin/python; \
+	else for c in python3.13 python3.12 python3.11 python3.10 python3; do \
+	       command -v $$c >/dev/null 2>&1 && $$c -c 'import sys; raise SystemExit(0 if sys.version_info >= (3,10) else 1)' >/dev/null 2>&1 && { echo $$c; break; }; \
+	     done; fi)
 ifeq ($(strip $(PY)),)
 PY := python3
 endif
 
 .DEFAULT_GOAL := help
 
-.PHONY: help setup setup-py setup-r doctor-r serve data verify battery check check-resources render render-py preview clean distclean doctor guard-python guard-r
+.PHONY: help setup setup-py setup-r doctor-r serve data verify battery check check-resources render render-py preview clean distclean doctor guard-python guard-version-only guard-r
 
 help:
 	@echo ""
@@ -50,6 +66,13 @@ doctor:
 	@if command -v $(PY) >/dev/null 2>&1; then \
 	  echo "python  : $$($(PY) --version 2>&1)   [$$(command -v $(PY))]$$($(PY) -c 'import sys; print("" if sys.version_info >= (3,10) else "   TOO OLD — needs 3.10+")')"; \
 	else echo "python  : MISSING"; fi
+	@echo "chosen  : $(PY)   <- $$( \
+	  if [ -n "$$VIRTUAL_ENV" ] && [ -x "$$VIRTUAL_ENV/bin/python" ]; then echo "activated venv ($$VIRTUAL_ENV)"; \
+	  elif [ -n "$$CONDA_PREFIX" ] && [ -x "$$CONDA_PREFIX/bin/python" ]; then echo "activated conda env ($$CONDA_PREFIX)"; \
+	  elif [ -x .venv/bin/python ]; then echo "./.venv in this directory"; \
+	  else echo "newest python3.N on PATH — no environment is activated"; fi)"
+	@if command -v uv >/dev/null 2>&1; then echo "uv      : $$(uv --version)"; \
+	else echo "uv      : MISSING  -> brew install uv        (preferred installer; make setup-py falls back to pip)"; fi
 	@if command -v quarto >/dev/null 2>&1; then \
 	  echo "quarto  : $$(quarto --version)"; \
 	else echo "quarto  : MISSING  -> brew install --cask quarto"; fi
@@ -87,6 +110,20 @@ guard-python:
 	  done; \
 	  echo ""; \
 	  exit 1; }
+	@missing=$$($(PY) -c 'import importlib.util as u; print(",".join(x for x in ["numpy","pandas","scipy","matplotlib","yaml"] if not u.find_spec(x)))' 2>/dev/null); \
+	if [ -n "$$missing" ]; then \
+	  echo ""; \
+	  echo "  ERROR  $(PY) is new enough, but is missing: $$missing"; \
+	  echo "         interpreter: $$(command -v $(PY) 2>/dev/null || echo $(PY))"; \
+	  echo ""; \
+	  echo "  Install them:   make setup-py"; \
+	  echo ""; \
+	  echo "  If you activated an environment and still see this, make is not"; \
+	  echo "  using it. make doctor prints which interpreter was chosen and"; \
+	  echo "  why. To force one:   make all PY=\$$(which python)"; \
+	  echo ""; \
+	  exit 1; \
+	fi
 
 setup: setup-py setup-r
 
@@ -97,8 +134,57 @@ doctor-r:
 	else echo "Rscript : MISSING — no R found — install it with: brew install --cask r     (or skip the R notebooks: make render-py)"; fi
 
 
-setup-py: guard-python
-	$(PY) -m pip install -r requirements.txt
+# uv is the preferred installer: it resolves and installs far faster, and
+# `uv venv` sidesteps PEP 668 -- which is what makes a Homebrew interpreter
+# refuse `pip install` outright with "externally-managed-environment".
+#
+# requirements.txt stays the single source of dependency truth. uv reads it
+# through `uv pip`, so there is no second manifest to drift out of step with
+# it. (environment.yml is the one other copy, and is flagged as such.)
+#
+# Note this target does NOT depend on guard-python: guard-python now checks
+# that the packages are importable, and this is the target that installs them.
+setup-py: guard-version-only
+	@if command -v uv >/dev/null 2>&1; then \
+	  echo "uv         : $$(uv --version)"; \
+	  if [ -n "$$VIRTUAL_ENV" ] || [ -n "$$CONDA_PREFIX" ]; then \
+	    echo "target     : the environment you have activated"; \
+	    uv pip install -r requirements.txt || exit 1; \
+	  else \
+	    echo "target     : ./.venv"; \
+	    test -d .venv || uv venv .venv || exit 1; \
+	    VIRTUAL_ENV=$$(pwd)/.venv uv pip install -r requirements.txt || { \
+	      echo ""; \
+	      echo "  ERROR  install failed -- ./.venv is now incomplete."; \
+	      echo "         Leaving it in place would be worse than not having it:"; \
+	      echo "         make prefers ./.venv over any interpreter on PATH, so the"; \
+	      echo "         next build would run against a half-populated environment."; \
+	      echo ""; \
+	      echo "         Remove it and retry:   rm -rf .venv && make setup-py"; \
+	      echo ""; \
+	      exit 1; }; \
+	    echo ""; \
+	    echo "  Done. Activate it before building, so Quarto finds the kernel:"; \
+	    echo "      source .venv/bin/activate"; \
+	    echo "      make all"; \
+	    echo ""; \
+	    echo "  make finds ./.venv on its own if you forget, but quarto render"; \
+	    echo "  will not -- it needs ipykernel on PATH."; \
+	  fi; \
+	else \
+	  echo "uv not found. Install it for faster, PEP 668-proof setup:"; \
+	  echo "    brew install uv"; \
+	  echo "    curl -LsSf https://astral.sh/uv/install.sh | sh"; \
+	  echo ""; \
+	  echo "Falling back to pip."; \
+	  $(PY) -m pip install -r requirements.txt || exit 1; \
+	fi
+
+# The version half of guard-python only. setup-py installs the packages, so
+# it cannot require them to be present first.
+guard-version-only:
+	@$(PY) -c 'import sys; raise SystemExit(0 if sys.version_info >= (3,10) else 1)' 2>/dev/null || { \
+	  echo "  ERROR  $(PY) is $$($(PY) -V 2>&1); this project needs Python 3.10+."; exit 1; }
 
 setup-r:
 	@if command -v Rscript >/dev/null 2>&1; then \
@@ -115,7 +201,11 @@ verify: guard-python
 battery: guard-python
 	$(PY) scripts/check_data.py
 
-check-resources: guard-python
+# stdlib only (csv, pathlib, re) -- so it guards the interpreter version but
+# not the scientific packages. This target must stay runnable on a machine that
+# has never run make setup-py; it is the check that catches CSV and link errors
+# in CI and on a bare clone.
+check-resources: guard-version-only
 	@$(PY) scripts/check_resources.py
 
 check: data verify battery check-resources

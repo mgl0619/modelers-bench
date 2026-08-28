@@ -11,13 +11,45 @@ independent check on a clean machine, and never by accident on a push.
 # Quarto — required
 brew install --cask quarto
 
+# uv — the Python installer this project prefers
+brew install uv
+
 # R — only needed for the R notebooks. The site builds without it.
 brew install --cask r
 
 cd ~/repo/modelers-bench
-make doctor       # what is installed, what is missing
+make doctor       # what is installed, what is missing, and which python make chose
 make setup        # install Python and R packages
 ```
+
+### Python packages, via uv
+
+`make setup-py` uses **uv** when it is on your PATH, and falls back to `pip`
+when it is not. With no environment activated it creates `./.venv` and installs
+there; with a venv or conda environment already activated it installs into that
+instead.
+
+```bash
+make setup-py
+source .venv/bin/activate      # do this before building
+make all
+```
+
+`requirements.txt` stays the single source of dependency truth — uv reads it
+through `uv pip`, so there is no second manifest to drift. `environment.yml` is
+the one other copy, for the conda route.
+
+**Activate the environment before `make render`.** `make` will find `./.venv` on
+its own, but `quarto render` will not: it looks for `ipykernel` on your PATH,
+and an unactivated venv fails at the first notebook rather than at the start.
+
+Two failures uv avoids, both real:
+
+- `error: externally-managed-environment` — a Homebrew interpreter refusing
+  `pip install` under PEP 668. `uv venv` sidesteps it.
+- A half-installed `./.venv` left behind by a failed run. `make setup-py` now
+  fails loudly and tells you to remove it, because `make` **prefers** `./.venv`
+  over anything on PATH — an incomplete one is worse than none.
 
 ### Python 3.10 or newer is required
 
@@ -52,6 +84,34 @@ make check PY=python3.11
 # 3. install one
 brew install python@3.12
 ```
+
+### If you activated an environment and `make` ignored it
+
+This one cost a build. `make` used to pick the newest `python3.N` on your PATH
+and nothing else — so a Homebrew **python3.13** beat an *activated* conda
+environment holding 3.12 and every package. Activating changed nothing, and the
+error was byte-identical each time:
+
+```
+python3.13 cases/case-sm/generate.py
+ModuleNotFoundError: No module named 'numpy'
+```
+
+`make` now honours an active environment first. The order is:
+
+1. `PY=...` on the command line — explicit always wins
+2. an activated venv (`$VIRTUAL_ENV`)
+3. an activated conda environment (`$CONDA_PREFIX`)
+4. `./.venv`
+5. the newest `python3.N` on PATH that is 3.10+
+
+`make doctor` prints which one was chosen **and why**, which is the fastest way
+to tell "the packages are missing" from "make is looking at the wrong python".
+The two produce the same `ModuleNotFoundError` and have different fixes.
+
+`guard-python` also checks that numpy, pandas, scipy, matplotlib and yaml are
+importable, so a bare-but-modern interpreter now stops with a named list and a
+pointer to `make setup-py` instead of a traceback from inside `generate.py`.
 
 `make doctor` now prints your interpreter's version, flags it if it is too old,
 and lists every `python*` on your PATH so you can pick.
