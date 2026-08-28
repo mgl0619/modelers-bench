@@ -1,0 +1,98 @@
+name: publish
+
+# Renders the site and publishes it to GitHub Pages.
+#
+# This workflow installs neither R nor a Jupyter kernel for the notebooks,
+# because _freeze/ is committed. Notebooks are executed on your machine by
+# `make all`, inspected, and the frozen output is what publishes. If a lesson
+# renders here differently from how it renders for you, the freeze is stale --
+# re-run `make all` and commit _freeze/.
+#
+# ONE-TIME REPOSITORY SETUP, required before the first run:
+#   Settings -> Pages -> Build and deployment -> Source: GitHub Actions
+# Without that, this workflow fails at the deploy step with a 404.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two publishes race. Queue rather than cancel: a push landing
+# mid-deploy should still reach the site, not be dropped.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Fail early and legibly. Without a committed freeze, quarto would try to
+      # execute the notebooks here — and there is no R and no kernel — so it
+      # would die somewhere inside a lesson render with an opaque message.
+      - name: Require a committed freeze
+        run: |
+          if [ ! -d _freeze ] || [ -z "$(ls -A _freeze 2>/dev/null)" ]; then
+            echo "::error::_freeze/ is missing or empty."
+            echo ""
+            echo "This workflow renders from frozen notebook output and installs"
+            echo "neither R nor a Jupyter kernel. Populate the freeze locally and"
+            echo "commit it:"
+            echo ""
+            echo "    make all"
+            echo "    git add _freeze && git commit -m 'Refresh notebook freeze'"
+            echo ""
+            exit 1
+          fi
+          echo "_freeze/ present: $(du -sh _freeze | cut -f1), $(find _freeze -name '*.json' | wc -l) frozen documents"
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: 1.6.42
+
+      # Python is here for the checks, not for the notebooks -- the committed
+      # freeze covers those. check_resources.py is stdlib-only, but the case
+      # battery needs numpy, pandas and scipy.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Regenerate the case data and verify it against published truth
+        run: make data verify battery
+
+      # Pre-render pass: CSV schema and site links. The rendered-page audit
+      # skips here, because _site does not exist yet on a clean checkout.
+      - name: Check the resource database and site links
+        run: make check-resources
+
+      - name: Render
+        run: make render-ci
+
+      # Post-render pass: the same target, now auditing a freshly built page
+      # for escaped card markup and lost rows. This is the only point at which
+      # that check can fire.
+      - name: Audit the rendered page
+        run: make check-rendered
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

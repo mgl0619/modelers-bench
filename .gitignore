@@ -1,6 +1,9 @@
 _site/
 .quarto/
-_freeze/
+# _freeze/ is COMMITTED on purpose. Notebooks are executed on your machine by
+# `make all`, inspected, and the frozen output is what publishes -- so CI needs
+# only Quarto, not R and not SciPy. Run `make all` and commit _freeze/ with the
+# lesson it belongs to. See LOCAL.md.
 __pycache__/
 *.pyc
 .Rproj.user/

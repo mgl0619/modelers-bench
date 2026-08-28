@@ -85,6 +85,49 @@ make check PY=python3.11
 brew install python@3.12
 ```
 
+## Publishing: the site is held on GitHub Pages
+
+`main` publishes to <https://mgl0619.github.io/modelers-bench> through
+`.github/workflows/publish.yml` on every push.
+
+**`_freeze/` is committed on purpose.** Notebooks execute on your machine, you
+look at the output, and the frozen result is what publishes. The publish
+workflow therefore installs no R and no Jupyter kernel — it renders in about a
+minute. The cost is one habit:
+
+```bash
+make all                                    # executes and refreshes _freeze/
+git add _freeze && git commit -m "Refresh notebook freeze"
+```
+
+If you edit a notebook and forget, the published page shows output that no
+longer matches its own code, and nothing in the publish path notices. That is
+what `build.yml` is for: run it from the Actions tab and it renders with
+`--execute`, ignoring the freeze entirely and running every cell from source on
+a clean machine. If it agrees with what is published, the freeze is honest.
+
+### The freeze trap, and why resources.qmd opts out
+
+`freeze: auto` decides whether to re-execute by hashing the **`.qmd` source**.
+It knows nothing about data files that source reads.
+
+`resources.qmd` is generated from `resources.csv`. Adding twelve rows to the CSV
+left the `.qmd` untouched, so the hash matched, so Quarto reused frozen output
+built from the old data — a page showing 237 cards against 249 rows, rendered
+successfully, looking entirely normal. `resources.qmd` now sets
+`execute: freeze: false`; executing it is cheap and freezing it was never right.
+
+The post-render `check-resources` pass is the backstop that caught it. If you
+add another page generated from a data file, set `freeze: false` on it too.
+
+### One-time repository setup
+
+Pages must be switched to the Actions source before the first publish:
+
+**Settings → Pages → Build and deployment → Source: GitHub Actions**
+
+Without it the workflow fails at the deploy step with a 404.
+
 ### If you activated an environment and `make` ignored it
 
 This one cost a build. `make` used to pick the newest `python3.N` on your PATH

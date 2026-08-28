@@ -36,7 +36,7 @@ endif
 
 .DEFAULT_GOAL := help
 
-.PHONY: help setup setup-py setup-r doctor-r serve data verify battery check check-resources render render-py preview clean distclean doctor guard-python guard-version-only guard-r
+.PHONY: help setup setup-py setup-r doctor-r serve data verify battery check check-resources check-rendered render render-py render-ci preview clean distclean doctor guard-python guard-version-only guard-r
 
 help:
 	@echo ""
@@ -205,6 +205,7 @@ battery: guard-python
 # not the scientific packages. This target must stay runnable on a machine that
 # has never run make setup-py; it is the check that catches CSV and link errors
 # in CI and on a bare clone.
+# Schema and site links. Does NOT audit the rendered page -- see check-rendered.
 check-resources: guard-version-only
 	@$(PY) scripts/check_resources.py
 
@@ -223,6 +224,15 @@ render: guard-r
 render-py:
 	QUARTO_PROFILE=nor quarto render
 
+# Render without guard-r. For CI only, where _freeze/ supplies the R notebook
+# output and R is deliberately not installed. Locally you want guard-r: it
+# catches a missing R install up front instead of letting quarto produce a
+# half-built site. Do not use this target to dodge a local R problem -- if R
+# is missing on your machine, `make render-py` is the honest answer, and it
+# tells you the R notebook links will 404 in that build.
+render-ci:
+	quarto render
+
 preview:
 	quarto preview
 
@@ -236,12 +246,14 @@ serve:
 	@echo "serving _site on http://localhost:$(PORT)   (ctrl-C to stop)"
 	@$(PY) -m http.server $(PORT) --directory _site
 
-# check runs twice, deliberately. The first pass validates the CSV and the
-# site links; its rendered-page audit skips, because _site predates the edits
-# that prompted the build. render refreshes _site. The second pass then audits
-# the FRESH page -- which is the only moment that audit can catch the bug it
-# exists for: generated card HTML that Pandoc turned into escaped source text.
-all: check render check-resources
+# Audits the freshly built page: escaped card markup, and rows lost during
+# generation. Only meaningful straight after a render, which is why it is a
+# separate target rather than part of check -- `make all` runs check BEFORE
+# render, and failing there would block the build that fixes it.
+check-rendered: guard-version-only
+	@$(PY) scripts/check_resources.py --post-render
+
+all: check render check-rendered
 
 clean:
 	rm -rf _site .quarto _freeze

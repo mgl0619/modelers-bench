@@ -1,6 +1,21 @@
 ---
 title: "Resources"
 subtitle: "Software, courses, guidances, repositories and reference databases"
+
+# Never freeze this page.
+#
+# `freeze: auto` decides whether to re-execute by hashing the .qmd SOURCE. It
+# knows nothing about data files the source reads. This page is generated from
+# resources.csv, so editing the CSV leaves the hash unchanged and Quarto reuses
+# the frozen output -- publishing a page built from rows that no longer exist.
+#
+# That is not hypothetical: resources.qmd last changed at 3a32e9a, the CSV at
+# e89f52e, and the frozen output held 237 cards against 249 rows.
+#
+# Executing this page is cheap -- CSV parsing and string building, no plots and
+# no solver -- so there is nothing to gain from freezing it.
+execute:
+  freeze: false
 ---
 
 The [Reading](reading.qmd) page indexes papers. This page indexes everything

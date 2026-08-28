@@ -1,8 +1,18 @@
 name: build
 
 # Manual only. Local `make all` is the primary build — see LOCAL.md.
-# Run this from the Actions tab when you want an independent check on a
-# clean machine, or before a release.
+#
+# What this workflow is FOR, now that _freeze/ is committed:
+#
+#   publish.yml renders from the frozen output, so the site can be wrong in a
+#   way nothing notices — if a notebook was edited and the freeze was not
+#   refreshed, the published page shows output that no longer matches its own
+#   code. This workflow is the check against that. It renders with --execute,
+#   which ignores the freeze and runs every cell from source on a clean
+#   machine. If it succeeds and the pages look right, the freeze is honest.
+#
+# Run it from the Actions tab before a release, or after any change to a
+# notebook where you are unsure the freeze was updated.
 
 on:
   workflow_dispatch:
@@ -39,6 +49,9 @@ jobs:
       - name: Run the data-check battery
         run: make battery
 
+      - name: Check the resource database and site links
+        run: make check-resources
+
       - uses: r-lib/actions/setup-r@v2
         if: ${{ inputs.run_r }}
         with:
@@ -55,8 +68,24 @@ jobs:
             any::knitr
             any::rmarkdown
 
-      - name: Render the site
-        run: quarto render
+      # --execute overrides `freeze: auto` and re-runs every cell, which is the
+      # entire point of this workflow.
+      #
+      # The run_r=false branch uses the `nor` profile. Previously this step ran
+      # a plain `quarto render` regardless, so unchecking the box did not skip
+      # the R notebooks — it removed R and then failed at the first one.
+      - name: Render, executing every cell from source
+        run: |
+          if [ "${{ inputs.run_r }}" = "true" ]; then
+            quarto render --execute
+          else
+            echo "run_r=false — skipping the R notebooks via the 'nor' profile."
+            echo "Their sidebar links will 404 in this build. That is expected."
+            QUARTO_PROFILE=nor quarto render --execute
+          fi
+
+      - name: Audit the rendered page
+        run: make check-rendered
 
       - uses: actions/upload-artifact@v4
         with:

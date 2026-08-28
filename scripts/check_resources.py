@@ -233,22 +233,40 @@ def audit_rendered_page(n_expected):
     So: two assertions against the built page, and only if it exists. Skipping
     when unbuilt keeps `make check` usable offline and before a render.
     """
+    # Auditing the built page only makes sense straight after a render, so the
+    # caller says when that is: `check_resources.py --post-render`, which is
+    # what `make check-rendered` passes.
+    #
+    # The first design inferred it from mtime, comparing the page against the
+    # CSV. That was guesswork dressed as a check - any touch of either file
+    # flipped the verdict, and it did, during testing. An explicit flag cannot
+    # be fooled that way.
+    #
+    # Why it must be opt-in at all: `make all` is check -> render -> audit. The
+    # pre-render `check` runs against a page that render is about to replace,
+    # so failing there blocks the very build that would fix it. That bug made
+    # `make all` impossible to pass on any commit touching resources.csv.
+    post_render = "--post-render" in sys.argv
     page = CSV_PATH.parent / "_site" / "resources.html"
-    if not page.exists():
-        print("\n  rendered page      : not built yet (run `make render`)")
+
+    if not post_render:
+        print("\n  rendered page      : not audited here - runs after render "
+              "(`make check-rendered`)")
         return 0
 
-    # A build older than the CSV has not had a chance to include the new rows.
-    # Failing here would be a trap rather than a check: `make all` runs `check`
-    # BEFORE `render`, and render is the only thing that can refresh the page.
-    # Blocking on staleness made `make all` impossible to pass on any commit
-    # that touched resources.csv. So: skip while stale, and let the post-render
-    # run of this same target do the real audit against a fresh page.
+    if not page.exists():
+        print("\nFAIL  --post-render was passed but _site/resources.html "
+              "does not exist.\n\n  Render first:   make render\n")
+        return 1
+
+    # Explicitly asked to audit, but the page predates the data: that is a
+    # stale build, not lost cards. Different message, different fix.
     if page.stat().st_mtime < CSV_PATH.stat().st_mtime:
-        print("\n  rendered page      : older than resources.csv - skipping "
-              "audit\n                       (make render rebuilds it; the "
-              "audit runs after)")
-        return 0
+        print("\nFAIL  _site/resources.html is older than resources.csv.\n")
+        print("  The audit was requested, but this page was built before the")
+        print("  current data. Re-render, then audit:")
+        print("      make render && make check-rendered\n")
+        return 1
 
     html = page.read_text(encoding="utf-8", errors="replace")
     problems = []
