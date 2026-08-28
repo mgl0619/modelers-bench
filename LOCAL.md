@@ -120,13 +120,22 @@ successfully, looking entirely normal. `resources.qmd` now sets
 The post-render `check-resources` pass is the backstop that caught it. If you
 add another page generated from a data file, set `freeze: false` on it too.
 
-### One-time repository setup
+### Repository setup
 
-Pages must be switched to the Actions source before the first publish:
+`publish.yml` calls `actions/configure-pages` with `enablement: true`, so it
+switches Pages on by itself. No manual toggle is normally needed.
 
-**Settings → Pages → Build and deployment → Source: GitHub Actions**
+If the first deployment fails, that step is where to look. The two causes:
 
-Without it the workflow fails at the deploy step with a 404.
+- **Pages source was set to a branch.** `configure-pages` corrects this.
+- **The repository is private on GitHub Free.** Pages needs a public repository
+  on Free, or Pro/Team/Enterprise for a private one. No workflow can work around
+  this — make the repository public, or upgrade the plan.
+
+The first version of this workflow relied on the manual toggle and had no
+`configure-pages` step, so a missing setting surfaced only at the very end, as
+`Get Pages site failed` after a full render. Failing at the top of the log is
+worth the extra step.
 
 ### If you activated an environment and `make` ignored it
 

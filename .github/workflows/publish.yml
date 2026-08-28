@@ -8,9 +8,10 @@ name: publish
 # renders here differently from how it renders for you, the freeze is stale --
 # re-run `make all` and commit _freeze/.
 #
-# ONE-TIME REPOSITORY SETUP, required before the first run:
-#   Settings -> Pages -> Build and deployment -> Source: GitHub Actions
-# Without that, this workflow fails at the deploy step with a 404.
+# The Configure Pages step below enables Pages automatically, so no manual
+# setup is normally needed. If it cannot -- a private repository on GitHub Free,
+# where Pages requires Pro or above -- that is where the run fails, early and
+# with a readable message, rather than at the deploy step after a full render.
 
 on:
   push:
@@ -56,6 +57,23 @@ jobs:
             exit 1
           fi
           echo "_freeze/ present: $(du -sh _freeze | cut -f1), $(find _freeze -name '*.json' | wc -l) frozen documents"
+
+      # Turns Pages on if it is not already, and fails fast and legibly if it
+      # cannot. Without this step the workflow does all the work first and then
+      # dies at the very end in deploy-pages with:
+      #
+      #   Get Pages site failed. Please verify that the repository has Pages
+      #   enabled and configured to build using GitHub Actions
+      #
+      # which is a confusing way to be told about a settings toggle. `enablement:
+      # true` also removes the manual step entirely for a repository where Pages
+      # is permitted. Where it is NOT permitted -- a private repository on GitHub
+      # Free -- this step is where that surfaces, at the top of the log, before
+      # five minutes of rendering.
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - uses: quarto-dev/quarto-actions/setup@v2
         with:
