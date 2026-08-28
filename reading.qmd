@@ -11,14 +11,14 @@ curriculum that costs nothing should send you to papers that cost nothing.
 ::: {.callout-important appearance="simple"}
 ## Why this page links rather than hosts
 
-We checked the licence of all 53 papers through PubMed. The result is worth
+We checked the licence of all 73 papers through PubMed. The result is worth
 knowing before anyone proposes bundling PDFs with the course:
 
 | | Papers |
 |---|---|
 | Open licence (Creative Commons) | **7** |
-| All rights reserved or unstated, but free to *read* on PubMed Central | **21** |
-| No free full text found | **25** |
+| All rights reserved or unstated, but free to *read* on PubMed Central | **30** |
+| No free full text found | **36** |
 | Carrying a plain **CC BY** licence | **1** |
 
 : Counts from PubMed and PubMed Central metadata. Treat the open-licence row as a
@@ -27,12 +27,15 @@ knowing before anyone proposes bundling PDFs with the course:
 terms that the API had not reported. Neither is BY-SA-compatible, so the
 practical conclusion below is unchanged — but the number is a lower bound.
 
-**Free to read is not free to redistribute.** Twenty-eight of these are readable
+**Free to read is not free to redistribute.** Thirty-seven of these are readable
 at no cost on PubMed Central, and that is a permission to read, not a licence to
 copy. Redistributing those PDFs — in this repository, in a course pack, in a
 shared folder — would infringe copyright.
 
 Six of the seven openly licensed papers still cannot be folded into this site.
+(The strand D additions of August 2026 brought twenty more papers, none of them
+openly licensed, so the open-licence count did not move — a fair illustration of
+the base rate in the oncology literature.)
 This curriculum is **CC BY-SA 4.0**, and BY-SA is incompatible with both **NC**
 (non-commercial) and **ND** (no derivatives). We can cite them, describe their
 findings, and quote briefly with attribution. We cannot absorb their text or
@@ -146,6 +149,55 @@ Listed as a gap in the first pass. `CASE-CELL` will need these.
 | Liu C, Ayyar VS, Zheng X, et al. **Model-based cellular kinetic analysis of chimeric antigen receptor-T cells in humans.** *Clin Pharmacol Ther* 2021;109:716–727. [DOI](https://doi.org/10.1002/cpt.2040) · PMID 33002189 · **[free]** | 217 patients across seven trials. Responders show higher proliferation and slower contraction; haematologic tumours support more expansion than solid ones; and **dose is only weakly related to exposure or response** — which is roughly the opposite of the small-molecule intuition. |
 | Chaudhury A, Zhu X, Chu L, et al. **Chimeric antigen receptor T cell therapies: a review of cellular kinetic-pharmacodynamic modeling approaches.** *J Clin Pharmacol* 2020;60(S1):S147–S159. [DOI](https://doi.org/10.1002/jcph.1691) · PMID 33205434 | A taxonomy of the model structures, and where to extend them: target binding, tumour distribution, cytokine release syndrome, immunophenotype differentiation. Read after the two above. |
 
+## Strand D · Disease areas — D1 pancreatic cancer
+
+Twenty references gathered *before* the lessons that will use them, which is the
+opposite of how strand `P` was built. All verified through PubMed; all
+annotations rest on abstracts. See [Strand D](diseases.qmd) for the lesson
+outline these support.
+
+### Disease biology
+
+| | Why |
+|---|---|
+| Ying H, Kimmelman AC, Bardeesy N, Kalluri R, Maitra A, DePinho RA. **Genetics and biology of pancreatic ductal adenocarcinoma.** *Genes Dev* 2025;39:36–63. [DOI](https://doi.org/10.1101/gad.351863.124) · PMID 39510840 · **[free]** | The current synthesis: genomic landscape, the cellular composition of the microenvironment from single-cell work, and metabolic cross-talk between cancer and stromal cells. Written at the point KRAS-targeted therapy became real, so it is unusually clear about what changed. `D1-02`, `D1-05`. |
+| Wood LD, Canto MI, Jaffee EM, Simeone DM. **Pancreatic cancer: pathogenesis, screening, diagnosis, and treatment.** *Gastroenterology* 2022;163:386–402. [DOI](https://doi.org/10.1053/j.gastro.2022.03.056) · PMID 35398344 · **[free]** | Broadest single entry point — molecular alterations, microenvironment, population risk, screening, and how treatment changes with stage. The orientation reference for `D1-01`. |
+| Vincent A, Herman J, Schulick R, Hruban RH, Goggins M. **Pancreatic cancer.** *Lancet* 2011;378:607–620. [DOI](https://doi.org/10.1016/S0140-6736(10)62307-0) · PMID 21620466 · **[free]** | Older, and included for one reason: it states plainly that 80–85% of patients present with advanced unresectable disease. That single number explains the shape of every trial population you will model. |
+| Storz P. **Acinar cell plasticity and development of pancreatic ductal adenocarcinoma.** *Nat Rev Gastroenterol Hepatol* 2017;14:296–304. [DOI](https://doi.org/10.1038/nrgastro.2017.12) · PMID 28270694 · **[free]** | Acinar-to-ductal metaplasia as the initiating step. Matters for `D1-03` because it determines what the preclinical models actually model. |
+| McGuigan A, Kelly P, Turkington RC, et al. **Pancreatic cancer: a review of clinical diagnosis, epidemiology, treatment and outcomes.** *World J Gastroenterol* 2018;24:4846–4861. [DOI](https://doi.org/10.3748/wjg.v24.i43.4846) · PMID 30487695 · **[free]** | Epidemiology and outcomes, with five-year survival of 2–9% — last among all cancer sites. `D1-01`. |
+| Bailey P, Chang DK, Nones K, et al. **Genomic analyses identify molecular subtypes of pancreatic cancer.** *Nature* 2016;531:47–52. [DOI](https://doi.org/10.1038/nature16965) · PMID 26909576 | 456 tumours; 32 recurrently mutated genes aggregating into 10 pathways; four expression subtypes — squamous, pancreatic progenitor, immunogenic, ADEX — with squamous carrying a poor prognosis. `D1-04` has to decide whether any of this belongs in a covariate model. |
+
+### The stroma, and the experiment that tested it
+
+| | Why |
+|---|---|
+| Hosein AN, Brekken RA, Maitra A. **Pancreatic cancer stroma: an update on therapeutic targeting strategies.** *Nat Rev Gastroenterol Hepatol* 2020;17:487–505. [DOI](https://doi.org/10.1038/s41575-020-0300-1) · PMID 32393771 · **[free]** | The three stromal compartments — extracellular matrix, vasculature, cancer-associated fibroblasts — and a decade of attempts to target each. States the mechanism `D1-05` and `D1-06` rest on: the matrix functions as a barrier to drug delivery. |
+| Wang W-Q, Liu L, Xu J-Z, Yu X-J. **Reflections on depletion of tumor stroma in pancreatic cancer.** *Biochim Biophys Acta Rev Cancer* 2019;1871:267–272. [DOI](https://doi.org/10.1016/j.bbcan.2019.01.007) · PMID 30738097 | The counter-argument, and the reason `D1-07` is not a simple story: the stroma also *inhibits* metastasis, so depleting it is double-edged. A mechanism can be real and targeting it can still make things worse. |
+| Dimou A, Syrigos KN, Saif MW. **Overcoming the stromal barrier: technologies to optimize drug delivery in pancreatic cancer.** *Ther Adv Med Oncol* 2012;4:271–279. [DOI](https://doi.org/10.1177/1758834012446008) · PMID 22942909 · **[free]** | The delivery-optimisation framing as it stood before the phase 3 results came in. Useful as a record of what the field believed. |
+| Hingorani SR, Zheng L, Bullock AJ, et al. **HALO 202: randomized phase II study of PEGPH20 plus nab-paclitaxel/gemcitabine.** *J Clin Oncol* 2018;36:359–366. [DOI](https://doi.org/10.1200/JCO.2017.74.9564) · PMID 29232172 | The encouraging phase 2. PFS hazard ratio 0.73 overall, **0.51 in hyaluronan-high tumours** — a biomarker-selected signal that justified a phase 3. |
+| Van Cutsem E, Tempero MA, Sigal D, et al. **Randomized phase III trial of pegvorhyaluronidase alfa with nab-paclitaxel plus gemcitabine for hyaluronan-high metastatic pancreatic adenocarcinoma.** *J Clin Oncol* 2020;38:3185–3194. [DOI](https://doi.org/10.1200/JCO.20.00590) · PMID 32706635 · **[free]** | **The lesson.** 492 biomarker-selected patients. Objective response rate rose, 47% versus 36%. Median overall survival: **11.2 versus 11.5 months, hazard ratio 1.00**. The mechanism was real, the biomarker enriched the population, the response endpoint moved — and survival did not. `D1-07` is built entirely on the distance between those results. |
+
+### Treatment, and what any new model must beat
+
+| | Why |
+|---|---|
+| Conroy T, Desseigne F, Ychou M, et al. **FOLFIRINOX versus gemcitabine for metastatic pancreatic cancer.** *N Engl J Med* 2011;364:1817–1825. [DOI](https://doi.org/10.1056/NEJMoa1011923) · PMID 21561347 | Median OS 11.1 versus 6.8 months, HR 0.57, with substantially more toxicity — 5.4% febrile neutropenia. The efficacy–tolerability trade-off that dose-optimisation work in this disease inherits. |
+| Goldstein D, El-Maraghi RH, Hammel P, et al. **nab-Paclitaxel plus gemcitabine for metastatic pancreatic cancer: long-term survival from a phase III trial.** *J Natl Cancer Inst* 2015;107:dju413. [DOI](https://doi.org/10.1093/jnci/dju413) · PMID 25638248 | MPACT long-term follow-up: OS 8.7 versus 6.6 months, HR 0.72. Also reports baseline CA19-9 and neutrophil-to-lymphocyte ratio as prognostic, which is where `D1-10` starts. |
+| Wang-Gillam A, Hubner RA, Siveke JT, et al. **NAPOLI-1 phase 3 study of liposomal irinotecan: final overall survival analysis.** *Eur J Cancer* 2019;108:78–87. [DOI](https://doi.org/10.1016/j.ejca.2018.12.007) · PMID 30654298 | Second-line, post-gemcitabine: OS 6.2 versus 4.2 months, HR 0.75. Also identifies the baseline characteristics associated with surviving a year. |
+| Ohhashi S, Ohuchida K, Mizumoto K, et al. **Down-regulation of deoxycytidine kinase enhances acquired resistance to gemcitabine in pancreatic cancer.** *Anticancer Res* 2008;28:2205–2212. · PMID 18751396 | Mechanistic, and the basis for `D1-09`: gemcitabine requires intracellular phosphorylation by deoxycytidine kinase, so resistance can arise entirely downstream of plasma exposure. **No DOI is registered for this article** — cite by PMID. |
+| Humphris JL, Chang DK, Johns AL, et al. **The prognostic and predictive value of serum CA19.9 in pancreatic cancer.** *Ann Oncol* 2012;23:1713–1722. [DOI](https://doi.org/10.1093/annonc/mdr561) · PMID 22241899 · **[free]** | CA19-9 in 260 resected patients, with the awkward detail `D1-10` must handle: the marker is informative only in patients who express it, and the paper defines that subgroup explicitly. |
+
+### The modelling framework
+
+Not PDAC-specific, and the quantitative backbone of `D1-11`.
+
+| | Why |
+|---|---|
+| Claret L, Girard P, Hoff PM, et al. **Model-based prediction of phase III overall survival in colorectal cancer on the basis of phase II tumor dynamics.** *J Clin Oncol* 2009;27:4103–4108. [DOI](https://doi.org/10.1200/JCO.2008.21.0807) · PMID 19636014 | The paper that established the approach: a longitudinal tumour growth inhibition model plus a parametric survival model, used to predict a phase 3 outcome from phase 2 data. Predicted median survival 431 days against 401 observed. |
+| Bruno R, Mercier F, Claret L. **Evaluation of tumor size response metrics to predict survival in oncology clinical trials.** *Clin Pharmacol Ther* 2014;95:386–393. [DOI](https://doi.org/10.1038/clpt.2014.4) · PMID 24419563 | The review of *which* tumour-size metric predicts survival, and an honest account of why the approach is not yet routine despite being available for a decade. |
+| Claret L, Mercier F, Houk BE, Milligan PA, Bruno R. **Modeling and simulations relating overall survival to tumor growth inhibition in renal cell carcinoma patients.** *Cancer Chemother Pharmacol* 2015;76:567–573. [DOI](https://doi.org/10.1007/s00280-015-2820-x) · PMID 26198314 | 2,552 patients across ten studies. Time to tumour growth was the best predictor of survival, but week-8 early tumour shrinkage performed well enough to be preferred for its clinical usability — a real methodological trade-off, stated. |
+| Claret L, Zheng J, Mercier F, et al. **Model-based prediction of progression-free survival using week 8 tumor size change from baseline.** *Cancer Chemother Pharmacol* 2016;78:605–610. [DOI](https://doi.org/10.1007/s00280-016-3116-5) · PMID 27468922 | Extends the framework to progression-free survival with external validation, and simulates the hazard ratio a new agent would need to achieve. |
+
 ## Strand S0 · Foundations
 
 | | Why |
@@ -197,7 +249,7 @@ Listed as a gap in the first pass. `CASE-CELL` will need these.
 
 Nothing above stops **you** from downloading these and reading them. Personal
 reading copies are ordinary scholarly practice, and the restriction is on
-redistribution, not on you. Twenty-eight of the fifty-three are free:
+redistribution, not on you. Thirty-seven of the seventy-three are free:
 
 | Paper | Free full text |
 |---|---|
@@ -270,7 +322,7 @@ So:
 |---|---|
 | Dua on TMDD, Keizer on the NONMEM workbench, Kenakin on biased agonism, van der Graaf's book review, Lesko on MIDD | The full text, read |
 | The other CC-licensed papers | Retrievable, not yet read |
-| The remaining 44 | Title, journal, abstract, and subject knowledge |
+| The remaining 64 | Title, journal, abstract, and subject knowledge |
 
 **Reading two of them changed two entries, and one of those was an error.** The
 van der Graaf item was described here as an orientation to population modelling.
@@ -287,9 +339,9 @@ Savic & Karlsson on shrinkage, Anderson & Holford on allometry). Those
 annotations describe what the papers are *for*, from their abstracts and their
 place in the field, not a close reading.
 
-**The whole of the strand `P` second pass is in that third group.** Those
-twenty-one entries were verified against PubMed for title, journal, year,
-authors and DOI, and annotated from their abstracts. Where an annotation states
+**The whole of the strand `P` second pass, and all twenty strand `D` entries,
+are in that third group.** Those entries were verified against PubMed for title,
+journal, year, authors and DOI, and annotated from their abstracts. Where an annotation states
 a specific number — 24 of 30 studies, 40–50% of ICU patients, a 0.78-day
 doubling time — that number is quoted from the paper's own abstract, not
 computed by us and not checked against its results section.
@@ -325,6 +377,10 @@ Honest gaps in this list, which will fill as the strands are written:
   2026 and now sits above all the others; and FDA's 2020 *Clinical Drug
   Interaction Studies* guidance no longer resolves on FDA's site, having been
   overtaken by **ICH M12** (final, August 2024).
+- **No PDAC-specific pharmacometric modelling.** Strand `D`'s TGI→OS references
+  are colorectal and renal cell carcinoma. A published tumour-growth-inhibition
+  model fitted to pancreatic cancer data was searched for and not found in this
+  pass; `D1-11` will have to say so, or the search has to go deeper.
 - **Nothing on immunogenicity and anti-drug antibodies** beyond a mention inside
   the biologics reviews. `CASE-MAB` will need a source of its own.
 - **Nothing on pharmacogenomics** — CYP2D6, CYP2C19, DPYD, TPMT — which `P-09`

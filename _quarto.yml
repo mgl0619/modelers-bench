@@ -23,6 +23,8 @@ website:
         href: lessons/s0-00-what-is-qp/index.qmd
       - text: "Pharmacology 101"
         href: pharmacology.qmd
+      - text: "Diseases"
+        href: diseases.qmd
       - text: "Paths"
         menu:
           - text: "A · The New Modeler"
@@ -73,6 +75,10 @@ website:
                 href: lessons/p-05-agonists-and-antagonists/notebook-r.qmd
               - text: "Notebook — Python"
                 href: lessons/p-05-agonists-and-antagonists/notebook-py.qmd
+      - section: "D · Disease areas"
+        contents:
+          - text: "D1 · Pancreatic cancer — outline"
+            href: diseases.qmd
       - section: "S0 · Foundations"
         contents:
           - text: "S0-00 · What quantitative pharmacology is"

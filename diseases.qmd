@@ -1,0 +1,155 @@
+---
+title: "Strand D · Disease areas"
+subtitle: "Where the biology stops being general"
+---
+
+Strands `P` and `S` are deliberately disease-agnostic. `P` teaches what a drug
+does to a receptor; `S` teaches how to estimate a parameter. Neither asks what
+illness is being treated, and for most of what a modeller does, neither needs to.
+
+That generality has a limit. At some point a structural modelling decision stops
+following from pharmacology and starts following from **this disease, in this
+tissue, with this natural history**. Strand `D` is where those decisions live.
+
+The organising rule is narrow, and it is what keeps this strand from becoming a
+pathology textbook:
+
+::: {.callout-tip appearance="simple"}
+## The inclusion test
+A piece of disease biology earns a place here only if it **changes a model** —
+its structure, its covariates, its endpoint, or the interpretation of its
+parameters. Mechanism that is fascinating but modelling-neutral belongs in a
+review article, not in this curriculum.
+:::
+
+## D1 · Pancreatic ductal adenocarcinoma
+
+The first disease, chosen because it fails the standard oncology modelling
+playbook in an unusually instructive way. In PDAC:
+
+- The tumour is **hypovascular and encased in dense desmoplastic stroma**, so
+  the assumption that plasma exposure approximates tumour exposure — implicit in
+  most exposure–response analyses — is least defensible exactly where it matters.
+- The **most direct test of that idea failed**. Degrading the stromal barrier
+  improved response rate and did not improve survival, in a phase 3 trial
+  designed on a biomarker-selected population. That result is a better teacher
+  than any successful one.
+- Survival is short and tumour shrinkage is modest, which stresses the
+  **tumour-size-to-survival link** that oncology pharmacometrics is built on.
+- A widely used circulating biomarker, **CA19-9**, is informative, non-linear in
+  its relationship to outcome, and undefined in a subset of patients for a
+  reason worth understanding.
+
+### Planned lessons
+
+Nothing below is written yet. This is the outline, published before the prose so
+the plan can be criticised before it is expensive to change — and so the
+citations exist before the lessons that will rest on them.
+
+| | Lesson | Modelling consequence | Status |
+|---|---|---|---|
+| D1-01 | The disease in numbers — incidence, presentation, stage at diagnosis, survival | Why the trial populations you will model look the way they do, and why median OS sits where it does | planned |
+| D1-02 | The genetic spine — KRAS, CDKN2A, TP53, SMAD4 and progression through PanIN | Which alterations are near-universal (so useless as covariates) and which stratify | planned |
+| D1-03 | Cell of origin and acinar-to-ductal metaplasia | Why the preclinical models you will be handed behave as they do | planned |
+| D1-04 | Transcriptomic subtypes | What subtype does and does not predict, and whether it belongs in a covariate model | planned |
+| D1-05 | The stroma — desmoplasia, CAFs, hyaluronan, interstitial pressure | The physical basis for treating tumour exposure as distinct from plasma exposure | planned |
+| D1-06 | Delivery into a hypovascular tumour | When a PBPK or tumour-penetration layer earns its complexity | planned |
+| D1-07 | **The stromal-depletion experiment** — HALO-202 to HALO-301 | What a well-designed negative phase 3 teaches about response rate as an endpoint | planned |
+| D1-08 | Standard of care and its exposure–response | Gemcitabine, nab-paclitaxel/gemcitabine, FOLFIRINOX, liposomal irinotecan: the comparators any model must beat | planned |
+| D1-09 | Gemcitabine cellular pharmacology — hENT1, dCK, intracellular triphosphate | Why plasma PK is a poor exposure metric for this drug specifically | planned |
+| D1-10 | CA19-9 as a longitudinal biomarker | Modelling a biomarker that is prognostic, non-linear, and absent in some patients | planned |
+| D1-11 | Tumour growth inhibition and the TGI→OS link | The central quantitative framework of oncology drug development | planned |
+| D1-12 | What a PDAC model actually has to represent | Assembling the above into a defensible structure, and stating what it omits | planned |
+
+### The source material, verified
+
+Every reference below was retrieved and checked through **PubMed** — title,
+journal, year, authors and DOI. None was written from memory. Full entries are
+on the [Reading](reading.qmd) page under *Strand D*.
+
+**Disease biology.** Ying et al., *Genetics and biology of pancreatic ductal
+adenocarcinoma*, Genes Dev 2025 ([DOI](https://doi.org/10.1101/gad.351863.124),
+free full text) is the current synthesis. Wood et al., Gastroenterology 2022
+([DOI](https://doi.org/10.1053/j.gastro.2022.03.056), free full text) covers
+pathogenesis through treatment. Storz, Nat Rev Gastroenterol Hepatol 2017
+([DOI](https://doi.org/10.1038/nrgastro.2017.12), free full text) on
+acinar-to-ductal metaplasia.
+
+**Subtypes.** Bailey et al., Nature 2016
+([DOI](https://doi.org/10.1038/nature16965)) — 456 tumours, 32 recurrently
+mutated genes across 10 pathways, and four expression subtypes.
+
+**Stroma.** Hosein, Brekken & Maitra, Nat Rev Gastroenterol Hepatol 2020
+([DOI](https://doi.org/10.1038/s41575-020-0300-1), free full text) on the three
+stromal compartments and attempts to target them. Wang et al., Biochim Biophys
+Acta Rev Cancer 2019 ([DOI](https://doi.org/10.1016/j.bbcan.2019.01.007)) argues
+stromal depletion is double-edged, since the stroma also restrains metastasis.
+
+**The negative result, in two papers.** Hingorani et al., J Clin Oncol 2018
+([DOI](https://doi.org/10.1200/JCO.2017.74.9564)) reported HALO-202: PFS hazard
+ratio 0.73 overall and 0.51 in hyaluronan-high tumours. Van Cutsem et al., J
+Clin Oncol 2020 ([DOI](https://doi.org/10.1200/JCO.20.00590), free full text)
+reported HALO-109-301, the confirmatory phase 3 in 492 hyaluronan-high patients:
+**objective response rate 47% versus 36%, and median overall survival 11.2
+versus 11.5 months, hazard ratio 1.00.** Response improved; survival did not
+move at all. `D1-07` is built on the gap between those two sentences.
+
+**Standard of care.** Conroy et al., N Engl J Med 2011
+([DOI](https://doi.org/10.1056/NEJMoa1011923)) — FOLFIRINOX, median OS 11.1
+versus 6.8 months. Goldstein et al., J Natl Cancer Inst 2015
+([DOI](https://doi.org/10.1093/jnci/dju413)) — nab-paclitaxel plus gemcitabine,
+8.7 versus 6.6 months. Wang-Gillam et al., Eur J Cancer 2019
+([DOI](https://doi.org/10.1016/j.ejca.2018.12.007)) — liposomal irinotecan in the
+second line, 6.2 versus 4.2 months.
+
+**CA19-9.** Humphris et al., Ann Oncol 2012
+([DOI](https://doi.org/10.1093/annonc/mdr561), free full text).
+
+**Gemcitabine resistance.** Ohhashi et al., Anticancer Res 2008 (PMID 18751396;
+no DOI is registered for this article) on deoxycytidine kinase downregulation.
+
+**The modelling framework.** The TGI→OS literature is not PDAC-specific and is
+the backbone of `D1-11`: Claret et al., J Clin Oncol 2009
+([DOI](https://doi.org/10.1200/JCO.2008.21.0807)) established the approach in
+colorectal cancer; Bruno, Mercier & Claret, Clin Pharmacol Ther 2014
+([DOI](https://doi.org/10.1038/clpt.2014.4)) review which tumour-size metrics
+actually predict survival; Claret et al. 2015
+([DOI](https://doi.org/10.1007/s00280-015-2820-x)) and 2016
+([DOI](https://doi.org/10.1007/s00280-016-3116-5)) extend it to renal cell
+carcinoma and to progression-free survival.
+
+::: {.callout-warning appearance="simple"}
+## What this outline is not evidence of
+Twenty verified citations are not twelve written lessons. The annotations above
+rest on **abstracts**, not on close reading — the same standing caveat that
+applies to most of the [Reading](reading.qmd) page. Publishing the outline first
+is deliberate: strand `P` was written before its citations were gathered, and
+the result was eighteen lessons resting on three references, which took a
+separate pass to repair.
+:::
+
+## Why a third strand, rather than more lessons in P
+
+Disease biology could have been appended to strand `P`. It is not, for two
+reasons.
+
+`P` promises to assume nothing about pharmacology and to build from first
+principles. A disease deep-dive breaks that promise: it presumes the reader
+already wants to model *this* indication, which most readers arriving at `P` do
+not.
+
+More practically, disease areas are the axis along which this curriculum will
+grow least predictably. Keeping them in their own strand means a second disease
+— immunology, a rare disease, an infectious disease — can be added without
+renumbering anything, and means the inclusion test above can be applied
+consistently rather than negotiated each time.
+
+## What comes next
+
+`D1-11` on tumour growth inhibition is the lesson most transferable to other
+diseases, and `D1-07` on the stromal-depletion failure is the one with the
+sharpest single teaching point. Those two are the likely starting pair.
+
+A simulated case, `CASE-PDAC`, is the natural companion — a synthetic dataset
+with published truth in the [`CASE-SM`](cases.qmd) pattern, carrying a TGI model,
+a CA19-9 biomarker and a survival endpoint. It is not started.

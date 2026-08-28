@@ -55,6 +55,10 @@ then branch deeper — or stop satisfied. Both are wins.
 lessons that assume nothing, written for people arriving from statistics,
 mathematics, engineering or software.
 
+**Working in one disease?** [**Strand D · Disease areas**](diseases.qmd) is where
+biology stops being general and starts changing model structure. First up:
+pancreatic cancer.
+
 ## Two reference pages, both free to use
 
 [**Reading**](reading.qmd) — 53 papers, every one verified against PubMed, with
@@ -80,6 +84,7 @@ free-only filter for exactly that reason.
 | S5 · Statistics, Bayes and ML | planned |
 | S6 · Decisions and MIDD | planned |
 | S7 · Practice and craft | planned |
+| **D · Disease areas** | [D1 pancreatic cancer](diseases.qmd) — outline and 20 verified references, no lessons yet |
 
 Every runnable lesson ships in **both R and Python**, and every lesson names the
 development decision it serves before it teaches anything.
