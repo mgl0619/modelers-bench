@@ -236,7 +236,12 @@ serve:
 	@echo "serving _site on http://localhost:$(PORT)   (ctrl-C to stop)"
 	@$(PY) -m http.server $(PORT) --directory _site
 
-all: check render
+# check runs twice, deliberately. The first pass validates the CSV and the
+# site links; its rendered-page audit skips, because _site predates the edits
+# that prompted the build. render refreshes _site. The second pass then audits
+# the FRESH page -- which is the only moment that audit can catch the bug it
+# exists for: generated card HTML that Pandoc turned into escaped source text.
+all: check render check-resources
 
 clean:
 	rm -rf _site .quarto _freeze

@@ -238,6 +238,18 @@ def audit_rendered_page(n_expected):
         print("\n  rendered page      : not built yet (run `make render`)")
         return 0
 
+    # A build older than the CSV has not had a chance to include the new rows.
+    # Failing here would be a trap rather than a check: `make all` runs `check`
+    # BEFORE `render`, and render is the only thing that can refresh the page.
+    # Blocking on staleness made `make all` impossible to pass on any commit
+    # that touched resources.csv. So: skip while stale, and let the post-render
+    # run of this same target do the real audit against a fresh page.
+    if page.stat().st_mtime < CSV_PATH.stat().st_mtime:
+        print("\n  rendered page      : older than resources.csv - skipping "
+              "audit\n                       (make render rebuilds it; the "
+              "audit runs after)")
+        return 0
+
     html = page.read_text(encoding="utf-8", errors="replace")
     problems = []
 
@@ -261,21 +273,21 @@ def audit_rendered_page(n_expected):
         print("    escaped markup   : none")
         return 0
 
-    # Distinguish a stale build from a broken one. If the markup is clean and
-    # the only complaint is that the page has *fewer* cards than the CSV, the
-    # page was simply built before rows were added. That is still a failure -
-    # the built site does not match the source, and CI should say so - but
-    # pointing at the indentation bug would send the reader after the wrong
-    # thing. This mattered the first time it fired: twelve FDA approval
-    # packages were added and the four-space-indent advice was nonsense.
-    stale = (not any("escaped markup" in pr for pr in problems)
-             and n_cards < n_expected)
+    # Getting here means the page is at least as new as the CSV - a genuinely
+    # stale build returned earlier. So a shortfall with clean markup is not
+    # staleness: cards were lost during the render itself, which is a real and
+    # much less obvious bug than the indentation one. Say so, rather than
+    # repeating advice about four-space indents that does not apply.
+    lost = (not any("escaped markup" in pr for pr in problems)
+            and n_cards < n_expected)
 
-    if stale:
-        print(f"\nFAIL  _site/resources.html is stale:\n")
-        print(f"  - built from {n_cards} rows, the CSV now has {n_expected}")
-        print("\n  The markup itself is fine. Re-render the site:")
-        print("      make render        (or make render-py without R)")
+    if lost:
+        print(f"\nFAIL  cards went missing during render:\n")
+        print(f"  - {n_cards} cards on a freshly built page, "
+              f"{n_expected} rows in the CSV")
+        print("\n  The markup is clean and the page is not stale, so rows were")
+        print("  dropped while generating. Check the loop in resources.qmd for")
+        print("  a filter or an exception swallowing rows.")
         return 1
 
     print(f"\nFAIL  resources.html did not render correctly:\n")
