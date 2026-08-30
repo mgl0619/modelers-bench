@@ -9,11 +9,14 @@ molecules, in the tools a sponsor would actually use, with data whose true
 generating parameters are published. That last part is the point: no course
 built on real data can tell you how far your estimate landed from the answer.
 
+**Live site: <https://mgl0619.github.io/modelers-bench>** — rebuilt from `main`
+on every push.
+
 ## Status
 
 | Strand | Lessons | Status |
 |---|---|---|
-| **P · Pharmacology from the beginning** | 18 | 4 ready |
+| **P · Pharmacology from the beginning** | 18 | 5 ready |
 | **S0 · Foundations** | 7 | complete |
 | S1 · PK/PD core | 8 | planned |
 | S2 · Population PK/PD | 9 | planned |
@@ -22,6 +25,8 @@ built on real data can tell you how far your estimate landed from the answer.
 | S5 · Statistics, Bayes and ML | 8 | planned |
 | S6 · Decisions and MIDD | 8 | planned |
 | S7 · Practice and craft | 7 | planned |
+| **D · Disease areas** | 12 | D1 pancreatic cancer — outline and verified sources, no lessons yet |
+| **C · Approved drugs** | 13 | outline and verified approval packages, no lessons yet |
 
 ## Quick start
 
@@ -33,8 +38,11 @@ make preview      # live-reloading site at localhost:4200
 ```
 
 **The build is local.** `make all` runs everything CI would; the GitHub Actions
-workflow is manual-only, triggered from the Actions tab when you want an
-independent check on a clean machine. See [LOCAL.md](LOCAL.md) for setup,
+workflow `build.yml` is manual-only, triggered from the Actions tab when you want
+an independent check on a clean machine — it renders with `--execute`, ignoring
+the committed freeze, which is how you confirm the freeze still matches its own
+source. `publish.yml` runs on every push to `main` and deploys the site to
+GitHub Pages. See [LOCAL.md](LOCAL.md) for setup,
 every target, and troubleshooting.
 
 Runnable lessons ship in **both R and Python**. Pick one; the other is there
@@ -80,7 +88,7 @@ Seven slots, every time. See `CONTRIBUTING.md` for the template.
 │   ├── verify_case.py     22 checks of the case against truth.yml
 │   └── check_data.py      the S0-03 battery, as a standalone script
 ├── Makefile               the local build
-└── .github/workflows/     manual build, monthly staleness check
+└── .github/workflows/     publish on push, manual build, staleness check
 ```
 
 `meta.yml` carries a `reviewed:` date. A scheduled CI job opens an issue for any
