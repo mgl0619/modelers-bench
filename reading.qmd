@@ -11,14 +11,14 @@ curriculum that costs nothing should send you to papers that cost nothing.
 ::: {.callout-important appearance="simple"}
 ## Why this page links rather than hosts
 
-We checked the licence of all 84 papers through PubMed. The result is worth
+We checked the licence of all 94 papers through PubMed. The result is worth
 knowing before anyone proposes bundling PDFs with the course:
 
 | | Papers |
 |---|---|
 | Open licence (Creative Commons) | **7** |
-| All rights reserved or unstated, but free to *read* on PubMed Central | **33** |
-| No free full text found | **44** |
+| All rights reserved or unstated, but free to *read* on PubMed Central | **38** |
+| No free full text found | **49** |
 | Carrying a plain **CC BY** licence | **1** |
 
 : Counts from PubMed and PubMed Central metadata. Treat the open-licence row as a
@@ -27,7 +27,7 @@ knowing before anyone proposes bundling PDFs with the course:
 terms that the API had not reported. Neither is BY-SA-compatible, so the
 practical conclusion below is unchanged — but the number is a lower bound.
 
-**Free to read is not free to redistribute.** Forty of these are readable
+**Free to read is not free to redistribute.** Forty-five of these are readable
 at no cost on PubMed Central, and that is a permission to read, not a licence to
 copy. Redistributing those PDFs — in this repository, in a course pack, in a
 shared folder — would infringe copyright.
@@ -47,7 +47,7 @@ adapt their figures.
 The seventh is the exception, and it is new. Liu's 2017 review of monoclonal
 antibody pharmacokinetics is **CC BY 4.0**, which *is* compatible with BY-SA.
 Its figures could be adapted into a lesson with attribution. That is one paper
-out of eighty-four, which is itself the argument: the default in this literature
+out of ninety-four, which is itself the argument: the default in this literature
 is that you may read but not reuse.
 
 So: **link, never host.** Read them through the DOI or your institution's
@@ -200,6 +200,25 @@ Not PDAC-specific, and the quantitative backbone of `D1-11`.
 | Bruno R, Mercier F, Claret L. **Evaluation of tumor size response metrics to predict survival in oncology clinical trials.** *Clin Pharmacol Ther* 2014;95:386–393. [DOI](https://doi.org/10.1038/clpt.2014.4) · PMID 24419563 | The review of *which* tumour-size metric predicts survival, and an honest account of why the approach is not yet routine despite being available for a decade. |
 | Claret L, Mercier F, Houk BE, Milligan PA, Bruno R. **Modeling and simulations relating overall survival to tumor growth inhibition in renal cell carcinoma patients.** *Cancer Chemother Pharmacol* 2015;76:567–573. [DOI](https://doi.org/10.1007/s00280-015-2820-x) · PMID 26198314 | 2,552 patients across ten studies. Time to tumour growth was the best predictor of survival, but week-8 early tumour shrinkage performed well enough to be preferred for its clinical usability — a real methodological trade-off, stated. |
 | Claret L, Zheng J, Mercier F, et al. **Model-based prediction of progression-free survival using week 8 tumor size change from baseline.** *Cancer Chemother Pharmacol* 2016;78:605–610. [DOI](https://doi.org/10.1007/s00280-016-3116-5) · PMID 27468922 | Extends the framework to progression-free survival with external validation, and simulates the hazard ratio a new agent would need to achieve. |
+
+### The therapeutic landscape, August 2026
+
+Added 30 August 2026, after the first RAS inhibitor was approved in this disease.
+These ten support the *therapeutic landscape* section of
+[Strand D](diseases.qmd) and rewrite what `D1-08` and `D1-11` have to cover.
+
+| | Why |
+|---|---|
+| O'Reilly EM, Wainberg ZA, Hendifar AE, et al. **Daraxonrasib in previously treated metastatic pancreatic ductal adenocarcinoma.** *N Engl J Med* 2026;395:325–337. [DOI](https://doi.org/10.1056/NEJMoa2605555) · PMID 42223072 | RASolute 302. 500 patients, 91.8% KRAS G12. Median OS **13.2 vs 6.6 months, HR 0.40**; discontinuation for treatment-related events **1.2% vs 11.2%**. The second number is the one to teach: the targeted agent was both more effective and nine times less likely to be stopped. `D1-08`. |
+| Aronchik I, et al. **Molecular determinants of response and resistance to daraxonrasib in pancreatic ductal adenocarcinoma.** *Nat Med* 2026;32:2865–2877. [DOI](https://doi.org/10.1038/s41591-026-04537-w) · PMID 42581230 | Paired ctDNA, 44 patients. Mutant KRAS **amplification** in 36%; **zero** acquired secondary KRAS mutations. Resistance by making more target, not by changing its shape — an occupancy problem, which is why strand `P` transfers directly. |
+| Wainberg ZA, Melisi D, Macarulla T, et al. **NALIRIFOX versus nab-paclitaxel and gemcitabine in treatment-naive metastatic PDAC.** *Lancet* 2023;402:1272–1281. [DOI](https://doi.org/10.1016/S0140-6736(23)01366-1) · PMID 37708904 | NAPOLI 3. The current first-line comparator: 11.1 vs 9.2 months, HR 0.83, with grade ≥3 events of 87% vs 86%. A 1.9-month gain at identical toxicity is the honest baseline any new agent is measured against. |
+| Golan T, Hammel P, Reni M, et al. **Maintenance olaparib for germline BRCA-mutated metastatic pancreatic cancer.** *N Engl J Med* 2019;381:317–327. [DOI](https://doi.org/10.1056/NEJMoa1903387) · PMID 31157963 · **[free]** | POLO. PFS 7.4 vs 3.8 months (HR 0.53) and no OS difference at interim. Read it for the screening ratio — **3,315 screened to randomise 154** — which is the practical ceiling on allele-specific strategies here. |
+| Nicolle R, Bachet JB, Harlé A, et al. **Prediction of adjuvant gemcitabine sensitivity using the GemPred RNA signature.** *J Clin Oncol* 2023;42:1067–1076. [DOI](https://doi.org/10.1200/JCO.22.02668) · PMID 37963313 · **[free]** | Ancillary to PRODIGE 24. 25.5% of resected patients did as well on gemcitabine as on mFOLFIRINOX, with grade ≥3 events of 40% vs 76%. A biomarker that would de-escalate rather than escalate, which is rare and worth a lesson. |
+| Weller C, Burnett GL, Jiang L, et al. **A neomorphic protein interface catalyzes covalent inhibition of RAS aspartic acid in tumors.** *Science* 2025;389:eads0239. [DOI](https://doi.org/10.1126/science.ads0239) · PMID 40705880 | How zoldonrasib (RMC-9805) targets G12D: recruiting cyclophilin A to build a neomorphic interface that catalytically accelerates covalent reaction with a poor nucleophile. Medicinal chemistry worth reading even if you never model it. |
+| Pillozzi S, Giommoni E, Petroni G, et al. **The KRAS targeting revolution in metastatic pancreatic cancer.** *J Hematol Oncol* 2026;19(1). [DOI](https://doi.org/10.1186/s13045-026-01834-2) · PMID 42571010 · **[free]** | Short correspondence surveying the allele-specific pipeline as presented at ASCO 2026. The fastest orientation to what is behind daraxonrasib. |
+| Khan HY, Al Hallak MN, Aboukameel A, et al. **XPO1 inhibition enhances the efficacy and durability of RAS-targeted therapy in KRAS-G12D PDAC.** *Cancer Lett* 2026;218804. [DOI](https://doi.org/10.1016/j.canlet.2026.218804) · PMID 42667948 | **Preclinical only.** Listed because combination strategies against adaptive resistance are where this field goes next, and because the distance between an organoid result and a phase 3 is itself a teaching point. |
+| Parganiha M, Rathored J, Sai Painkra D. **mRNA vaccines in oncology: personalized cancer immunization and neoantigen targeting.** *Mol Cell Oncol* 2026;13(1):2652613. [DOI](https://doi.org/10.1080/23723556.2026.2652613) · PMID 41971684 · **[free]** | Reports autogene cevumeran in resected PDAC: 8 of 16 immune responders, recurrence not reached vs 13.4 months. Useful **as a caution** — the hazard ratio comes from an 8-patient subgroup defined by response to the intervention. |
+| Ye L, Zhao G, Ma J, et al. **Personalized cancer vaccines: bridging immune-oncology and precision medicine.** *Signal Transduct Target Ther* 2026;11(1). [DOI](https://doi.org/10.1038/s41392-026-02769-3) · PMID 42481451 · **[free]** | The broader review around that result, covering platforms, delivery and why clinical translation has been so slow. |
 
 ## Strand C · Approved drugs — clinical pharmacology from the regulatory record
 

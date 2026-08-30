@@ -67,7 +67,7 @@ pharmacology at all.
 
 ## Two reference pages, both free to use
 
-[**Reading**](reading.qmd) — 84 papers, every one verified against PubMed, with
+[**Reading**](reading.qmd) — 94 papers, every one verified against PubMed, with
 a one-line note on what it is actually for and an honest statement of which we
 have read in full.
 
@@ -91,7 +91,7 @@ page has a free-only filter for exactly that reason.
 | S6 · Decisions and MIDD | planned |
 | S7 · Practice and craft | planned |
 | **D · Disease areas** | [D1 pancreatic cancer](diseases.qmd) — outline and 20 verified references, no lessons yet |
-| **C · Approved drugs** | [Twelve FDA products](drugs.qmd) — outline, 12 verified approval packages and 11 verified papers, no lessons yet |
+| **C · Approved drugs** | [Thirteen FDA products](drugs.qmd) — outline, 13 verified approval packages and 21 verified papers, no lessons yet |
 
 Every runnable lesson ships in **both R and Python**, and every lesson names the
 development decision it serves before it teaches anything.

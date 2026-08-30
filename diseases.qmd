@@ -55,10 +55,10 @@ citations exist before the lessons that will rest on them.
 | D1-05 | The stroma — desmoplasia, CAFs, hyaluronan, interstitial pressure | The physical basis for treating tumour exposure as distinct from plasma exposure | planned |
 | D1-06 | Delivery into a hypovascular tumour | When a PBPK or tumour-penetration layer earns its complexity | planned |
 | D1-07 | **The stromal-depletion experiment** — HALO-202 to HALO-301 | What a well-designed negative phase 3 teaches about response rate as an endpoint | planned |
-| D1-08 | Standard of care and its exposure–response | Gemcitabine, nab-paclitaxel/gemcitabine, FOLFIRINOX, liposomal irinotecan: the comparators any model must beat | planned |
+| D1-08 | Standard of care and its exposure–response | Gemcitabine, nab-paclitaxel/gemcitabine, FOLFIRINOX, liposomal irinotecan **and now daraxonrasib**: the comparators any model must beat | planned |
 | D1-09 | Gemcitabine cellular pharmacology — hENT1, dCK, intracellular triphosphate | Why plasma PK is a poor exposure metric for this drug specifically | planned |
 | D1-10 | CA19-9 as a longitudinal biomarker | Modelling a biomarker that is prognostic, non-linear, and absent in some patients | planned |
-| D1-11 | Tumour growth inhibition and the TGI→OS link | The central quantitative framework of oncology drug development | planned |
+| D1-11 | Tumour growth inhibition and the TGI→OS link | The central quantitative framework of oncology drug development — and, since August 2026, a PDAC trial large enough to fit one to | planned |
 | D1-12 | What a PDAC model actually has to represent | Assembling the above into a defensible structure, and stating what it omits | planned |
 
 ### The source material, verified
@@ -117,6 +117,145 @@ actually predict survival; Claret et al. 2015
 ([DOI](https://doi.org/10.1007/s00280-015-2820-x)) and 2016
 ([DOI](https://doi.org/10.1007/s00280-016-3116-5)) extend it to renal cell
 carcinoma and to progression-free survival.
+
+## The therapeutic landscape, as of August 2026
+
+The outline above was written when this disease had one story: chemotherapy with
+thin margins, and a decade of targeted and immunological failures. That is no
+longer the whole story, and `D1-08` and `D1-11` change because of it.
+
+Everything in this section was retrieved and checked through **PubMed** on
+30 August 2026; the regulatory details come from the **FDA** the same day.
+
+### Chemotherapy still opens, and the margins are thin
+
+**NAPOLI 3** (Wainberg et al., Lancet 2023
+([DOI](https://doi.org/10.1016/S0140-6736(23)01366-1))) randomised 770 patients to
+NALIRIFOX — liposomal irinotecan, oxaliplatin, leucovorin, fluorouracil — against
+gemcitabine plus nab-paclitaxel: **median OS 11.1 versus 9.2 months, HR 0.83**.
+The gain is 1.9 months, and grade ≥3 events were 87% against 86% — the toxicity is
+essentially identical. FOLFIRINOX remains widely used and has never been compared
+with NALIRIFOX head to head.
+
+An adjuvant footnote worth a paragraph of `D1-08`: the **GemPred** transcriptomic
+signature identified 25.5% of resected patients in PRODIGE 24 whose disease-free
+and cancer-specific survival on plain adjuvant gemcitabine matched mFOLFIRINOX,
+with grade ≥3 events of **40% versus 76%** (Nicolle et al., J Clin Oncol 2023
+([DOI](https://doi.org/10.1200/JCO.22.02668))). A quarter of patients may be
+taking the harder regimen for no survival benefit.
+
+### The biomarker niches are real and very small
+
+**POLO** (Golan et al., N Engl J Med 2019
+([DOI](https://doi.org/10.1056/NEJMoa1903387), free full text)) established
+maintenance olaparib in germline *BRCA1/2*: PFS 7.4 versus 3.8 months, HR 0.53,
+and **no overall survival difference** at interim — 18.9 versus 18.1 months.
+
+The number to carry into any covariate discussion is not the hazard ratio. POLO
+**screened 3,315 patients to randomise 154** — under 5%. That ratio describes the
+practical ceiling on allele-specific strategies in this disease better than any
+effect estimate, and it is exactly what a pan-RAS agent sidesteps.
+
+### The KRAS turn
+
+On **26 August 2026** the FDA granted accelerated approval to **daraxonrasib**
+(RASONQUE), 300 mg orally once daily, for metastatic pancreatic adenocarcinoma
+after at least one prior systemic therapy or in patients who are not candidates
+for multiagent therapy
+([FDA](https://www.fda.gov/drugs/resources-information-approved-drugs/fda-approves-daraxonrasib-metastatic-pancreatic-adenocarcinoma)).
+It is the first RAS inhibitor approved in this disease.
+
+**RASolute 302** (O'Reilly et al., N Engl J Med 2026
+([DOI](https://doi.org/10.1056/NEJMoa2605555))) randomised 500 previously treated
+patients, 91.8% carrying KRAS G12 mutations:
+
+| | Daraxonrasib | Chemotherapy | HR |
+|---|---|---|---|
+| Median OS | **13.2 mo** | 6.6 mo | **0.40** |
+| Median PFS | 7.3 mo | 3.5 mo | 0.45 |
+| Objective response | 30% | 11% | — |
+| Grade ≥3 adverse events | 61.8% | 69.6% | — |
+| Discontinued for treatment-related events | **1.2%** | 11.2% | — |
+
+Daraxonrasib is a **RAS(ON) multi-selective tri-complex inhibitor**: it binds the
+active GTP-bound state of mutant and wild-type H/N/KRAS rather than trapping an
+inactive one, which is why it reaches G12D — the variant that dominates PDAC and
+that a decade of G12C inhibitors could not touch.
+
+Two things about that table matter more for this curriculum than the survival
+number. First, second-line median OS of 13.2 months **exceeds first-line NALIRIFOX
+at 11.1 months** in a different trial and population — not a formal comparison, but
+the reason the field is reorganising. Second, the targeted agent was **nine times
+less likely to be stopped for toxicity**, which in a disease where patients are
+routinely too frail for second-line treatment is a separate kind of gain and a
+separate modelling problem.
+
+### Resistance by amplifying the target, not mutating it
+
+The result most relevant to strand `P` is not the survival curve. Aronchik et al.
+(Nat Med 2026 ([DOI](https://doi.org/10.1038/s41591-026-04537-w))) sequenced paired
+pre- and post-treatment ctDNA from 44 patients:
+
+| Alteration at progression | Patients (of 44) |
+|---|---|
+| Any RAS-pathway alteration | 26 (59%) |
+| **Mutant KRAS amplification** | **16 (36%)** |
+| MAPK pathway | 11 (25%) |
+| Receptor tyrosine kinase | 4 (9%) |
+| PI3K pathway | 4 (9%) |
+| **Acquired secondary KRAS mutation** | **0 (0%)** |
+
+The last row is the finding, and it is categorically unlike the G12C(OFF)
+inhibitors, where on-target secondary mutations are the classic escape route.
+Resistance here is by *amplifying the target*, not by changing its shape.
+
+::: {.callout-tip appearance="simple"}
+## Why this belongs in a modelling curriculum
+Target amplification is a **dose-and-exposure problem, not a binding problem**. The
+same plasma concentration now faces a larger target pool — which is the receptor
+occupancy arithmetic of `P-04` and the target-mediated disposition of the biologics
+lessons, not a new pharmacology. A curriculum that teaches occupancy and TMDD
+already contains most of what is needed to reason about it, which is an unusually
+direct payoff from strand `P` into a disease strand.
+:::
+
+### The pipeline behind it
+
+| Agent | Status | What it is |
+|---|---|---|
+| Zoldonrasib (RMC-9805) | phase 1–2 | Covalent KRAS G12D(ON) inhibitor. Recruits cyclophilin A to form a *neomorphic* protein–protein interface that catalytically accelerates covalent reaction with the aspartate — solving the problem that carboxylic acids are weak nucleophiles and abundant proteome-wide (Weller et al., Science 2025, [DOI](https://doi.org/10.1126/science.ads0239)) |
+| DN022150 | phase 1–2 | Selective KRAS G12D inhibitor |
+| HRS-4642 + adebrelimab, or + a Nectin-4 ADC | phase 1–2 | G12D inhibitor in horizontal combination |
+| Darlifarnib + adagrasib | phase 1–2 | Farnesyl transferase co-inhibition to bypass adaptive resistance in the small G12C cohort |
+| Eltanexor + RAS inhibitors | **preclinical** | XPO1 inhibition to delay adaptive resistance. Xenograft and organoid data only ([DOI](https://doi.org/10.1016/j.canlet.2026.218804)) |
+
+The four clinical rows are surveyed in Pillozzi et al., J Hematol Oncol 2026
+([DOI](https://doi.org/10.1186/s13045-026-01834-2), free full text).
+
+### Vaccines, and what has not worked
+
+Personalised mRNA neoantigen vaccines are the most credible non-KRAS direction.
+Autogene cevumeran induced neoantigen-specific T-cell responses in **8 of 16**
+patients with resected PDAC, with recurrence delayed in immune responders — median
+not reached versus 13.4 months (reported in Parganiha et al. 2026
+([DOI](https://doi.org/10.1080/23723556.2026.2652613), free full text); see also
+Ye et al., Signal Transduct Target Ther 2026
+([DOI](https://doi.org/10.1038/s41392-026-02769-3), free full text)).
+
+Read that carefully before repeating it: sixteen patients, half responding, and the
+striking hazard ratio comes from an eight-patient subgroup defined **by response to
+the intervention**. It is a hypothesis, not an effect size — and it is a good
+worked example for the self-check in whichever lesson covers immortal-time and
+responder bias.
+
+What has not worked belongs here too, and `D1-07` is built on the first of these.
+**Stromal depletion** improved objective response rate and did not move survival at
+all in a biomarker-selected phase 3
+([DOI](https://doi.org/10.1200/JCO.20.00590)). **Checkpoint blockade as
+monotherapy** is essentially inactive outside microsatellite-instability-high
+disease, roughly 1% of PDAC. A curriculum that reports only successes teaches the
+wrong base rate, and in this disease the base rate of failure is the single most
+important fact about it.
 
 ::: {.callout-warning appearance="simple"}
 ## What this outline is not evidence of

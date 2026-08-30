@@ -64,6 +64,7 @@ was written from memory.
 | C-10 | **Trastuzumab deruxtecan** · [BLA 761139](https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=761139), Daiichi Sankyo, 2019 | One drug, three analytes — conjugate, total antibody, released payload — and the question of which exposure the response is a response to | planned |
 | C-11 | **Liposomal irinotecan** · [NDA 207793](https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=207793), Ipsen, 2015 | What a liposome does to an exposure metric, and a published population model in the disease strand `D` is built on | planned |
 | C-12 | **Tisagenlecleucel** · [BLA 125646](https://www.fda.gov/vaccines-blood-biologics/cellular-gene-therapy-products/kymriah-tisagenlecleucel), Novartis, 2017 | The review that contains no clinical pharmacology at all, and why cell and gene therapy sit outside the framework the other eleven lessons share | planned |
+| C-13 | **Daraxonrasib** · [approval announcement](https://www.fda.gov/drugs/resources-information-approved-drugs/fda-approves-daraxonrasib-metastatic-pancreatic-adenocarcinoma), Revolution Medicines, **2026** | Approved four days before this row was written. A targeted agent that beat chemotherapy on efficacy *and* on tolerability, on accelerated approval — and whose resistance mechanism is target amplification, making it an exposure problem rather than a binding one | planned |
 
 Nab-paclitaxel is deliberately absent. Its pancreatic indication
 ([NDA 021660](https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=021660),
@@ -180,8 +181,8 @@ rare, and useful.
 
 ::: {.callout-warning appearance="simple"}
 ## What this outline is not evidence of
-Twelve verified applications and eleven verified papers are not twelve written
-lessons. The application records were retrieved and confirmed; the **review
+Thirteen verified applications and twenty-one verified papers are not thirteen
+written lessons. The application records were retrieved and confirmed; the **review
 documents themselves have not been read**. Every claim above about what a review
 *shows* is a hypothesis drawn from the published literature and the approval
 history, and each one has to survive contact with the actual document before it
