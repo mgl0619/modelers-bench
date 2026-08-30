@@ -177,6 +177,71 @@ patients, 91.8% carrying KRAS G12 mutations:
 | Grade ≥3 adverse events | 61.8% | 69.6% | — |
 | Discontinued for treatment-related events | **1.2%** | 11.2% | — |
 
+```{python}
+#| label: fig-pdac-os
+#| echo: false
+#| fig-cap: "Median overall survival by regimen and line of therapy. Cross-trial comparison — the populations differ, so this is not a formal test. The dashed rule marks the best first-line chemotherapy result; second-line daraxonrasib sits to the right of it."
+#| fig-width: 8
+#| fig-height: 3.9
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
+
+# Palette checked for colour-vision separation before use: at these two steps
+# the deuteranopia/protanopia separation is comfortable. A green/red pair --
+# the obvious first instinct -- fails badly, at a separation of about 1.8.
+CHEMO, TARGET = "#2A5DB0", "#A32C42"
+INK, MUTED, FAINT = "#12181C", "#66737C", "#98A4AC"
+
+rows = [                              # (label, months, colour)
+    ("Chemotherapy",                  6.6,  CHEMO),
+    ("Daraxonrasib",                 13.2,  TARGET),
+    ("Gemcitabine + nab-paclitaxel",  9.2,  CHEMO),
+    ("NALIRIFOX",                    11.1,  CHEMO),
+]
+ypos = [0, 1, 2.5, 3.5]               # the gap separates second line from first
+
+fig, ax = plt.subplots()
+for y, (lab, v, col) in zip(ypos, rows):
+    ax.barh(y, v, height=0.46, color=col, zorder=3)
+    ax.text(v + 0.25, y, f"{v:.1f}", va="center", ha="left",
+            fontsize=9, fontweight="semibold", color=INK, zorder=4)
+
+# Reference rule. The label is right-aligned so it ends at the line and cannot
+# run off the figure -- the first version was left-aligned and clipped.
+ax.axvline(11.1, color="#3A464E", lw=1.2, ls=(0, (4, 4)), alpha=.65, zorder=2)
+ax.text(10.9, 4.28, "best first-line chemotherapy",
+        fontsize=7.5, color=MUTED, ha="right", va="center")
+
+# Band labels sit above their group at the left, so they read as headings
+# rather than as floating annotations.
+ax.text(0.15, 4.28, "FIRST LINE",  fontsize=7, color=FAINT, va="center", fontweight="bold")
+ax.text(0.15, 1.75, "SECOND LINE", fontsize=7, color=FAINT, va="center", fontweight="bold")
+
+ax.set_yticks(ypos)
+ax.set_yticklabels([r[0] for r in rows], fontsize=9)
+ax.set_ylim(-0.75, 4.6)
+ax.set_xlim(0, 15)
+ax.set_xlabel("Median overall survival (months)", fontsize=8.5, color="#3A464E")
+ax.tick_params(axis="x", labelsize=8, colors=MUTED)
+
+ax.xaxis.grid(True, color="#DFE5E8", lw=0.8, zorder=0)
+ax.set_axisbelow(True)
+for side in ("top", "right", "left"):
+    ax.spines[side].set_visible(False)
+ax.spines["bottom"].set_color("#D3DBDF")
+
+# Legend below the plot: with a gap band in the middle and bars reaching the
+# right edge, every in-axes position collided with something.
+ax.legend(handles=[Patch(facecolor=CHEMO,  label="Cytotoxic chemotherapy"),
+                   Patch(facecolor=TARGET, label="RAS-targeted")],
+          loc="upper center", bbox_to_anchor=(0.5, -0.22), ncol=2,
+          frameon=False, fontsize=8.5, handlelength=1.1, handleheight=1.1)
+
+fig.tight_layout()
+plt.show()
+```
+
 Daraxonrasib is a **RAS(ON) multi-selective tri-complex inhibitor**: it binds the
 active GTP-bound state of mutant and wild-type H/N/KRAS rather than trapping an
 inactive one, which is why it reaches G12D — the variant that dominates PDAC and
@@ -204,6 +269,58 @@ pre- and post-treatment ctDNA from 44 patients:
 | Receptor tyrosine kinase | 4 (9%) |
 | PI3K pathway | 4 (9%) |
 | **Acquired secondary KRAS mutation** | **0 (0%)** |
+
+```{python}
+#| label: fig-pdac-resistance
+#| echo: false
+#| fig-cap: "Treatment-emergent alterations at progression on daraxonrasib, from paired circulating tumour DNA in 44 patients. Categories are not mutually exclusive. The bottom row is the finding: it is zero."
+#| fig-width: 8
+#| fig-height: 3.2
+
+import matplotlib.pyplot as plt
+
+TARGET, ACCENT = "#A32C42", "#A32C42"
+rows = [
+    ("Any RAS-pathway alteration",       26, 59),
+    ("Mutant KRAS amplification",        16, 36),
+    ("MAPK pathway",                     11, 25),
+    ("Receptor tyrosine kinase",          4,  9),
+    ("PI3K pathway",                      4,  9),
+    ("Acquired secondary KRAS mutation",  0,  0),
+]
+
+fig, ax = plt.subplots()
+ypos = list(range(len(rows)))[::-1]
+for y, (lab, n, pct) in zip(ypos, rows):
+    if pct:
+        ax.barh(y, pct, height=0.48, color=TARGET, zorder=3)
+        ax.text(pct + 0.9, y, f"{pct}%", va="center", ha="left",
+                fontsize=9, fontweight="semibold", color="#12181C", zorder=4)
+    else:
+        # Zero is the result, not missing data. Draw it, so the eye does not
+        # read an empty row as an omission.
+        ax.plot([0, 1.4], [y, y], color=ACCENT, lw=2.4,
+                solid_capstyle="round", zorder=4)
+        ax.text(2.4, y, "0 of 44 — none detected", va="center", ha="left",
+                fontsize=8.5, fontweight="semibold", color=ACCENT, zorder=4)
+
+ax.set_yticks(ypos)
+ax.set_yticklabels([r[0] for r in rows], fontsize=9)
+ax.set_xlim(0, 74)
+ax.set_xlabel("Patients with the alteration (of 44)", fontsize=8.5, color="#3A464E")
+ax.set_xticks([0, 15, 30, 45, 60])
+ax.set_xticklabels(["0%", "15%", "30%", "45%", "60%"])
+ax.tick_params(axis="x", labelsize=8, colors="#66737C")
+
+ax.xaxis.grid(True, color="#DFE5E8", lw=0.8, zorder=0)
+ax.set_axisbelow(True)
+for side in ("top", "right", "left"):
+    ax.spines[side].set_visible(False)
+ax.spines["bottom"].set_color("#D3DBDF")
+
+fig.tight_layout()
+plt.show()
+```
 
 The last row is the finding, and it is categorically unlike the G12C(OFF)
 inhibitors, where on-target secondary mutations are the classic escape route.
