@@ -169,42 +169,67 @@ doctor-r:
 # Note this target does NOT depend on guard-python: guard-python now checks
 # that the packages are importable, and this is the target that installs them.
 setup-py: guard-version-only
-	@if command -v uv >/dev/null 2>&1; then \
-	  echo "uv         : $$(uv --version)"; \
-	  if [ -n "$$VIRTUAL_ENV" ] || [ -n "$$CONDA_PREFIX" ]; then \
-	    echo "target     : the environment you have activated"; \
-	    uv pip install -r requirements.txt || exit 1; \
-	  else \
-	    echo "target     : ./.venv"; \
-	    if [ ! -d .venv ]; then \
-	      echo "python     : pinning 3.12 (uv downloads it if you do not have it)"; \
-	      uv venv --python 3.12 .venv || uv venv .venv || exit 1; \
-	    fi; \
-	    VIRTUAL_ENV=$$(pwd)/.venv uv pip install -r requirements.txt || { \
-	      echo ""; \
-	      echo "  ERROR  install failed -- ./.venv is now incomplete."; \
-	      echo "         Leaving it in place would be worse than not having it:"; \
-	      echo "         make prefers ./.venv over any interpreter on PATH, so the"; \
-	      echo "         next build would run against a half-populated environment."; \
-	      echo ""; \
-	      echo "         Remove it and retry:   rm -rf .venv && make setup-py"; \
-	      echo ""; \
-	      exit 1; }; \
-	    echo ""; \
-	    echo "  Done. Activate it before building, so Quarto finds the kernel:"; \
-	    echo "      source .venv/bin/activate"; \
-	    echo "      make all"; \
-	    echo ""; \
-	    echo "  make finds ./.venv on its own if you forget, but quarto render"; \
-	    echo "  will not -- it needs ipykernel on PATH."; \
-	  fi; \
-	else \
+	@if ! command -v uv >/dev/null 2>&1; then \
 	  echo "uv not found. Install it for faster, PEP 668-proof setup:"; \
 	  echo "    brew install uv"; \
 	  echo "    curl -LsSf https://astral.sh/uv/install.sh | sh"; \
 	  echo ""; \
 	  echo "Falling back to pip."; \
 	  $(PY) -m pip install -r requirements.txt || exit 1; \
+	  exit 0; \
+	fi; \
+	echo "uv         : $$(uv --version)"; \
+	usable() { [ -n "$$1" ] && [ -x "$$1" ] && "$$1" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3,10) else 1)' >/dev/null 2>&1; }; \
+	if [ -n "$$VIRTUAL_ENV" ] && usable "$$VIRTUAL_ENV/bin/python"; then \
+	  echo "target     : activated venv $$VIRTUAL_ENV"; \
+	  uv pip install --python "$$VIRTUAL_ENV/bin/python" -r requirements.txt || exit 1; \
+	elif [ -n "$$CONDA_PREFIX" ] && usable "$$CONDA_PREFIX/bin/python"; then \
+	  echo "target     : activated conda env $$CONDA_PREFIX"; \
+	  uv pip install --python "$$CONDA_PREFIX/bin/python" -r requirements.txt || exit 1; \
+	else \
+	  if [ -n "$$CONDA_PREFIX" ]; then \
+	    echo "note       : $$CONDA_PREFIX is active but is $$("$$CONDA_PREFIX/bin/python" -V 2>&1 | cut -d' ' -f2)," ; \
+	    echo "             which is older than this project needs. Building ./.venv instead"; \
+	    echo "             rather than installing into an environment that cannot run it."; \
+	  fi; \
+	  echo "target     : ./.venv"; \
+	  if [ ! -d .venv ]; then \
+	    echo "python     : pinning 3.12 (uv downloads it if you do not have it)"; \
+	    uv venv --python 3.12 .venv || uv venv .venv || exit 1; \
+	  fi; \
+	  if ! usable .venv/bin/python; then \
+	    echo ""; \
+	    echo "  ERROR  ./.venv was built on $$(.venv/bin/python -V 2>&1 | cut -d' ' -f2), which is too old."; \
+	    echo "         The pinned 3.12 could not be fetched, so uv fell back to the"; \
+	    echo "         default interpreter -- and here that is the environment we were"; \
+	    echo "         trying to avoid."; \
+	    echo ""; \
+	    echo "         This matters more than a normal failure: make PREFERS ./.venv"; \
+	    echo "         over every interpreter on PATH, so leaving it would make every"; \
+	    echo "         later build worse than having no venv at all."; \
+	    echo ""; \
+	    echo "         rm -rf .venv"; \
+	    echo "         then retry with a network, or point uv at an interpreter you"; \
+	    echo "         already have:   uv venv --python python3.13 .venv"; \
+	    echo ""; \
+	    exit 1; \
+	  fi; \
+	  uv pip install --python .venv/bin/python -r requirements.txt || { \
+	    echo ""; \
+	    echo "  ERROR  install failed -- ./.venv is now incomplete."; \
+	    echo "         make PREFERS ./.venv over anything on PATH, so the next"; \
+	    echo "         build would run against a half-populated environment."; \
+	    echo ""; \
+	    echo "         Remove it and retry:   rm -rf .venv && make setup-py"; \
+	    echo ""; \
+	    exit 1; }; \
+	  echo ""; \
+	  echo "  Done. Activate it before building, so Quarto finds the kernel:"; \
+	  echo "      source .venv/bin/activate"; \
+	  echo "      make all"; \
+	  echo ""; \
+	  echo "  make finds ./.venv on its own if you forget, but quarto render"; \
+	  echo "  will not -- it needs ipykernel on PATH."; \
 	fi
 
 # The version half of guard-python only. setup-py installs the packages, so
