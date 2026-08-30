@@ -1,0 +1,94 @@
+<!-- ===================================================================
+     Visitor counting — GoatCounter.
+
+     Injected into the <head> of EVERY rendered page by one entry in
+     _quarto.yml (format.html.include-in-header). Nothing needs adding to a
+     lesson, and any page created from now on is counted automatically.
+
+     Two things happen here:
+       1. a pageview is recorded  ->  your private dashboard
+       2. the site total is read back and shown in the page footer
+
+     WHY GOATCOUNTER: no cookies, no personal data stored, no consent banner
+     required, open source, and free for public and personal use. On a site
+     whose argument is open and verifiable materials, loading a commercial
+     tracker onto every page would have been a poor look.
+
+     A push CANNOT reset the count. The number lives on GoatCounter's server,
+     not in this repository. Nothing in a deploy touches it.
+
+     ---------------------------------------------------------------------
+     TO SWITCH IT ON
+       1. create a free site at https://www.goatcounter.com
+       2. put your site code in CODE below (the part before .goatcounter.com)
+       3. in GoatCounter, Settings -> tick
+          "Allow adding visitor counts on your website"
+          It defaults to OFF, and the footer number does not work without it.
+          Step 1 alone gives you the dashboard; step 3 is only for the footer.
+
+     Until step 2 is done this file does nothing at all: no request is made,
+     no script is loaded, and the footer stays empty. The site is not broken
+     while the account does not exist.
+     =================================================================== -->
+<script>
+(function () {
+  "use strict";
+
+  /* ----------------------------------------------------------------
+     CONFIGURATION — the only lines you normally edit.
+     ---------------------------------------------------------------- */
+  var CODE     = "";      /* GoatCounter site code, e.g. "modelers-bench" */
+  var PER_PAGE = false;   /* true: footer shows THIS page's count, not the site total */
+  /* ---------------------------------------------------------------- */
+
+  if (!CODE) return;      /* not configured yet — do nothing, quietly */
+
+  var ORIGIN = "https://" + CODE + ".goatcounter.com";
+
+  /* 1 — record the pageview.
+         Setting window.goatcounter before loading count.js keeps the site
+         code in exactly one place, instead of repeating it in a data-
+         attribute that can drift out of step with the constant above. */
+  window.goatcounter = { endpoint: ORIGIN + "/count" };
+  var s = document.createElement("script");
+  s.async = true;
+  s.src = "//gc.zgo.at/count.js";
+  document.head.appendChild(s);
+
+  /* 2 — read the count back for the footer.
+         GoatCounter caches these responses for up to four hours, so the
+         number lags behind reality. That is the service's behaviour, not a
+         bug here: do not go looking for a caching mistake in this file. */
+  function render() {
+    var slot = document.getElementById("mb-visitors");
+    if (!slot) return;                       /* no footer on this page — fine */
+
+    var path = PER_PAGE
+      ? "/counter/" + location.pathname + ".json"
+      : "/counter/TOTAL.json";
+
+    fetch(ORIGIN + path, { mode: "cors" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d || !d.count) return;          /* nothing recorded yet — stay hidden */
+        slot.textContent = PER_PAGE
+          ? d.count + " views of this page"
+          : d.count + " visits";
+        slot.hidden = false;
+      })
+      .catch(function () {
+        /* Offline, blocked by a content blocker, counter display not enabled
+           in settings, or the service is down. Show nothing. An empty footer
+           slot is strictly better than "NaN visits" or a spinner that never
+           resolves — and a reader running a blocker should not see a broken
+           element as a result of a choice we should respect anyway. */
+      });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", render);
+  } else {
+    render();
+  }
+})();
+</script>

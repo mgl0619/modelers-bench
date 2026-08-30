@@ -182,6 +182,13 @@ def audit_site_links(known_urls):
     ALLOWED = {
         # self-reference to this repository
         "https://github.com/mgl0619/modelers-bench/blob/main/resources.csv",
+
+        # Site infrastructure, not curriculum material. The analytics service
+        # this site uses is named in about.qmd because a reader is entitled to
+        # know what is counting them -- but it is not a pharmacology resource
+        # and does not belong in resources.csv, whose rows are things a modeller
+        # would go and use. Fetched and confirmed 2026-08-30.
+        "https://www.goatcounter.com",
     }
 
     root = CSV_PATH.parent

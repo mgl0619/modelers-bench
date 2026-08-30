@@ -84,3 +84,12 @@ code:not(.sourceCode) { font-size: 0.86em; }
 // wide content never scrolls the page sideways
 .cell-output-display > table,
 div.sourceCode { overflow-x: auto; }
+
+// Visitor count in the page footer. Filled in by assets/analytics.html, which
+// unhides it only once a real number has arrived — so this is invisible when
+// counting is unconfigured, blocked by a reader's content blocker, or down.
+.mb-visitors {
+  font-size: 0.85em;
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+}

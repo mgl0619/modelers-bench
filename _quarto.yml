@@ -130,10 +130,17 @@ website:
 
   page-footer:
     left: "Content CC BY-SA 4.0 · code MIT"
+    center: |
+      <span id="mb-visitors" class="mb-visitors" hidden></span>
     right: "Built with [Quarto](https://quarto.org)"
 
 format:
   html:
+    # Injected into the <head> of EVERY page, including any page added later.
+    # This is the whole mechanism behind site-wide visitor counting: one entry
+    # here, nothing in any lesson. See assets/analytics.html.
+    include-in-header:
+      - assets/analytics.html
     theme:
       - cosmo
       - assets/theme.scss

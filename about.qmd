@@ -46,6 +46,24 @@ Corrections, better explanations and new lessons are all welcome. See
 `CONTRIBUTING.md` in the repository. The most useful contribution is usually the
 least glamorous: telling us exactly where you got stuck.
 
+## What this site collects
+
+Pageviews, counted by [GoatCounter](https://www.goatcounter.com), an open-source
+analytics service.
+
+**No cookies are set. No personal data is stored, and no identifier follows you
+between sites or between visits.** That is why there is no consent banner on this
+site: there is nothing to consent to. What is recorded is which page was
+requested, roughly when, and the referrer and country if the browser supplied
+them.
+
+The visit count in the footer is the same data read back. It lags by up to four
+hours, which is the service's cache, not a stale build. If you block analytics
+the number simply does not appear, and nothing else on the site changes.
+
+A curriculum arguing for open and verifiable materials should be able to say what
+it does with its readers' data in a short paragraph. That is the paragraph.
+
 ## Disclaimer
 
 Educational material. The compounds are fictional, the models are illustrative,

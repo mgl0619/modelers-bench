@@ -120,6 +120,33 @@ successfully, looking entirely normal. `resources.qmd` now sets
 The post-render `check-resources` pass is the backstop that caught it. If you
 add another page generated from a data file, set `freeze: false` on it too.
 
+### Visitor counting
+
+`assets/analytics.html` is injected into the `<head>` of **every** page by one
+entry in `_quarto.yml` (`format.html.include-in-header`). Pages added later are
+counted automatically — there is nothing to add to a lesson, ever.
+
+It ships **switched off**. With no site code set it makes no request and loads no
+script, so the site behaves identically before the account exists. To enable:
+
+1. Create a free site at <https://www.goatcounter.com>.
+2. Put the site code in `CODE` at the top of `assets/analytics.html`.
+3. For the footer number only: in GoatCounter, **Settings → "Allow adding visitor
+   counts on your website"**. It defaults to off, and the footer stays empty
+   without it. The dashboard works from step 1 regardless.
+
+**A push cannot reset the count.** The number lives on GoatCounter's server, not
+in this repository, so deploys never touch it. Any scheme that stores a count in
+a file in the repo has that problem, which is a good reason not to use one.
+
+Set `PER_PAGE = true` in the same file to show the current page's own count
+instead of the site total — more useful for a curriculum, since it tells you
+which lessons people actually read, but a new lesson will honestly show a small
+number for a while.
+
+Responses are cached by GoatCounter for up to four hours. A footer number that
+looks behind is that cache, not a stale build.
+
 ### Repository setup
 
 `publish.yml` calls `actions/configure-pages` with `enablement: true`, so it
