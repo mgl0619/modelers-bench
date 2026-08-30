@@ -12,39 +12,41 @@
 # Pick the interpreter, in this order:
 #
 #   1. PY=... on the command line          explicit always wins
-#   2. an activated venv  ($VIRTUAL_ENV)
-#   3. an activated conda env ($CONDA_PREFIX)
-#   4. ./.venv/bin/python                  what `make setup-py` creates
-#   5. plain `python3` on PATH, if it is 3.10+
+#   2. an activated venv  ($VIRTUAL_ENV)   -- if it is 3.10+
+#   3. an activated conda env ($CONDA_PREFIX) -- if it is 3.10+
+#   4. ./.venv/bin/python                  -- if it is 3.10+
+#   5. plain `python3` on PATH             -- if it is 3.10+
 #   6. the newest python3.N on PATH that is 3.10+   (last resort)
 #
-# The ordering is the whole point, and it took two failures to get right.
+# EVERY candidate is version-checked before it is accepted. That qualifier is
+# the whole lesson of three separate failures:
 #
-# The original rule was step 6 alone: scan python3.13, python3.12, ... and take
-# the first that is new enough. That is backwards. A higher version number is
-# not evidence that an interpreter is the intended one -- it is just a higher
-# number. Twice, it picked a bare system interpreter over the populated one:
+#   - the original rule was step 6 alone, scanning python3.13 downwards. A
+#     Homebrew python3.13 beat an ACTIVATED conda env that held 3.12 and every
+#     package, so activating changed nothing and `make data` died on numpy.
 #
-#   - locally: a Homebrew python3.13 beat an ACTIVATED conda env holding 3.12
-#     and every package, so activating changed nothing and `make data` failed
-#     with ModuleNotFoundError for numpy. Steps 2-4 fix that.
+#   - adding steps 2-4 fixed that and broke CI: actions/setup-python installs
+#     3.11 and exposes it as `python3`, but the scan found Ubuntu's system
+#     /usr/bin/python3.12 first. pip filled one interpreter, make ran another.
+#     Step 5 fixed that.
 #
-#   - in CI: actions/setup-python installs 3.11 and exposes it as `python3`,
-#     but the scan found Ubuntu's system /usr/bin/python3.12 first -- packages
-#     installed by `pip install -r requirements.txt` went to 3.11, and make ran
-#     3.12. Same failure, different machine. Step 5 fixes that.
+#   - steps 2-4 then preferred an active environment UNCONDITIONALLY, which is
+#     worse still on any machine with mambaforge: conda auto-activates `base`,
+#     base is often ancient (3.8), and make stopped dead with "needs 3.10 or
+#     newer" while 3.13 and 3.12 sat unused on PATH. An active environment is
+#     a preference, not an instruction to fail.
 #
-# `python3` on PATH is what an environment uses to express itself: setup-python,
-# venv, conda and pyenv all work by putting their interpreter there. Trust it
-# before guessing from version numbers. Step 6 survives only for the case that
-# motivated it -- an old system `python3` with a newer one installed alongside.
+# So: prefer what the user activated, but only while it can do the job, and
+# fall through quietly to something that can. `make doctor` says which one was
+# chosen and why, including when an active environment was passed over.
 PY ?= $(shell \
-	if [ -n "$$VIRTUAL_ENV" ] && [ -x "$$VIRTUAL_ENV/bin/python" ]; then echo "$$VIRTUAL_ENV/bin/python"; \
-	elif [ -n "$$CONDA_PREFIX" ] && [ -x "$$CONDA_PREFIX/bin/python" ]; then echo "$$CONDA_PREFIX/bin/python"; \
-	elif [ -x .venv/bin/python ]; then echo .venv/bin/python; \
-	elif command -v python3 >/dev/null 2>&1 && python3 -c 'import sys; raise SystemExit(0 if sys.version_info >= (3,10) else 1)' >/dev/null 2>&1; then echo python3; \
+	usable() { [ -n "$$1" ] && [ -x "$$1" ] && "$$1" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3,10) else 1)' >/dev/null 2>&1; }; \
+	if [ -n "$$VIRTUAL_ENV" ] && usable "$$VIRTUAL_ENV/bin/python"; then echo "$$VIRTUAL_ENV/bin/python"; \
+	elif [ -n "$$CONDA_PREFIX" ] && usable "$$CONDA_PREFIX/bin/python"; then echo "$$CONDA_PREFIX/bin/python"; \
+	elif usable .venv/bin/python; then echo .venv/bin/python; \
+	elif command -v python3 >/dev/null 2>&1 && usable "$$(command -v python3)"; then echo python3; \
 	else for c in python3.13 python3.12 python3.11 python3.10; do \
-	       command -v $$c >/dev/null 2>&1 && $$c -c 'import sys; raise SystemExit(0 if sys.version_info >= (3,10) else 1)' >/dev/null 2>&1 && { echo $$c; break; }; \
+	       command -v $$c >/dev/null 2>&1 && usable "$$(command -v $$c)" && { echo $$c; break; }; \
 	     done; fi)
 ifeq ($(strip $(PY)),)
 PY := python3
@@ -83,11 +85,14 @@ doctor:
 	  echo "python  : $$($(PY) --version 2>&1)   [$$(command -v $(PY))]$$($(PY) -c 'import sys; print("" if sys.version_info >= (3,10) else "   TOO OLD — needs 3.10+")')"; \
 	else echo "python  : MISSING"; fi
 	@echo "chosen  : $(PY)   <- $$( \
-	  if [ -n "$$VIRTUAL_ENV" ] && [ -x "$$VIRTUAL_ENV/bin/python" ]; then echo "activated venv ($$VIRTUAL_ENV)"; \
-	  elif [ -n "$$CONDA_PREFIX" ] && [ -x "$$CONDA_PREFIX/bin/python" ]; then echo "activated conda env ($$CONDA_PREFIX)"; \
+	  usable() { [ -n "$$1" ] && [ -x "$$1" ] && "$$1" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3,10) else 1)' >/dev/null 2>&1; }; \
+	  if [ -n "$$VIRTUAL_ENV" ] && usable "$$VIRTUAL_ENV/bin/python"; then echo "activated venv ($$VIRTUAL_ENV)"; \
+	  elif [ -n "$$CONDA_PREFIX" ] && usable "$$CONDA_PREFIX/bin/python"; then echo "activated conda env ($$CONDA_PREFIX)"; \
+	  elif [ -n "$$VIRTUAL_ENV" ]; then echo "a venv is ACTIVE but is older than 3.10 — passed over"; \
+	  elif [ -n "$$CONDA_PREFIX" ]; then echo "conda env $$CONDA_PREFIX is ACTIVE but is $$("$$CONDA_PREFIX/bin/python" -V 2>&1 | cut -d\  -f2) — too old, passed over"; \
 	  elif [ -x .venv/bin/python ]; then echo "./.venv in this directory"; \
-	  elif command -v python3 >/dev/null 2>&1 && python3 -c 'import sys; raise SystemExit(0 if sys.version_info >= (3,10) else 1)' >/dev/null 2>&1; then echo "plain python3 on PATH — no environment is activated"; \
-	  else echo "version scan — python3 on PATH is missing or older than 3.10"; fi)"
+	  elif command -v python3 >/dev/null 2>&1; then echo "plain python3 on PATH — no environment is activated"; \
+	  else echo "version scan — no usable python3 on PATH"; fi)"
 	@if command -v uv >/dev/null 2>&1; then echo "uv      : $$(uv --version)"; \
 	else echo "uv      : MISSING  -> brew install uv        (preferred installer; make setup-py falls back to pip)"; fi
 	@if command -v quarto >/dev/null 2>&1; then \
@@ -117,9 +122,11 @@ guard-python:
 	  echo "          pip offered you nothing past numpy 1.24.4.)"; \
 	  echo ""; \
 	  echo "  Fixes, best first:"; \
-	  echo "    conda activate <an env with 3.10+>   then re-run make"; \
-	  echo "    make setup PY=python3.11             point make at a specific interpreter"; \
-	  echo "    brew install python@3.12             if you have none"; \
+	  echo "    make setup-py                        uv builds ./.venv on a pinned 3.12,"; \
+	  echo "                                         whatever else is installed. Then:"; \
+	  echo "                                             source .venv/bin/activate"; \
+	  echo "    conda activate <an env with 3.10+>   if you would rather use conda"; \
+	  echo "    make check PY=python3.12             point make at one interpreter, once"; \
 	  echo ""; \
 	  echo "  Interpreters on your PATH:"; \
 	  for c in python3.13 python3.12 python3.11 python3.10 python3 python; do \
@@ -169,7 +176,10 @@ setup-py: guard-version-only
 	    uv pip install -r requirements.txt || exit 1; \
 	  else \
 	    echo "target     : ./.venv"; \
-	    test -d .venv || uv venv .venv || exit 1; \
+	    if [ ! -d .venv ]; then \
+	      echo "python     : pinning 3.12 (uv downloads it if you do not have it)"; \
+	      uv venv --python 3.12 .venv || uv venv .venv || exit 1; \
+	    fi; \
 	    VIRTUAL_ENV=$$(pwd)/.venv uv pip install -r requirements.txt || { \
 	      echo ""; \
 	      echo "  ERROR  install failed -- ./.venv is now incomplete."; \

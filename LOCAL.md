@@ -22,6 +22,24 @@ make doctor       # what is installed, what is missing, and which python make ch
 make setup        # install Python and R packages
 ```
 
+### Start here: uv
+
+`uv` is the recommended way to get a working environment, and the one that does
+not depend on what else is on your machine:
+
+```bash
+brew install uv          # once
+make setup-py            # builds ./.venv on a pinned Python 3.12
+source .venv/bin/activate
+make all
+```
+
+`uv venv --python 3.12` will **download** a 3.12 if you do not have one, so this
+works even on a machine whose every interpreter is too old. That is why it is
+listed before conda: the conda route needs you to already have a suitable
+environment, and if `base` is old — mambaforge ships 3.8 and auto-activates it —
+the conda route is the thing that just failed.
+
 ### Python packages, via uv
 
 `make setup-py` uses **uv** when it is on your PATH, and falls back to `pip`
