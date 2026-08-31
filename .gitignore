@@ -10,6 +10,7 @@ __pycache__/
 .Rhistory
 .RData
 .venv/
+# generated data, incl. the RAG corpus — rebuild with `make rag-build`
 data/derived/
 .DS_Store
 

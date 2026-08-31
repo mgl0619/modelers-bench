@@ -54,7 +54,7 @@ endif
 
 .DEFAULT_GOAL := help
 
-.PHONY: help setup setup-py setup-r doctor-r serve data verify battery check check-resources check-rendered fda fda-test render render-py render-ci preview clean distclean doctor guard-python guard-version-only guard-r
+.PHONY: help setup setup-py setup-r doctor-r serve data verify battery check check-resources check-rendered fda fda-test rag rag-build rag-test render render-py render-ci preview clean distclean doctor guard-python guard-version-only guard-r
 
 help:
 	@echo ""
@@ -271,7 +271,21 @@ fda: guard-version-only
 fda-test: guard-version-only
 	@$(PY) scripts/fetch_fda.py --selftest
 
-check: data verify battery check-resources fda-test
+# Build the searchable corpus of FDA regulatory text. Needs network.
+rag-build: guard-version-only
+	@$(PY) scripts/rag.py --build
+
+# Search it.   make rag Q="dose selection not justified"
+Q ?=
+rag: guard-version-only
+	@test -n '$(Q)' || { echo 'usage: make rag Q="your search terms"'; exit 1; }
+	@$(PY) scripts/rag.py --top 8 $(Q)
+
+# Ranking assertions against a fixture corpus. No network, no model.
+rag-test: guard-version-only
+	@$(PY) scripts/rag.py --selftest
+
+check: data verify battery check-resources fda-test rag-test
 
 guard-r:
 	@command -v Rscript >/dev/null 2>&1 || { \

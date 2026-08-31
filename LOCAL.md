@@ -173,6 +173,40 @@ itself at one request every 0.4s, inside openFDA's 240/minute.
 rough — expect `"pute\n\nMie\n\nOAL\n\n DEPARTMENT OF HEALTH..."` rather than clean
 prose. Treat it as searchable, not quotable.
 
+### Searching FDA regulatory text
+
+```bash
+make rag-build                              # build the corpus (needs network)
+make rag Q="dose selection not justified"   # search it
+make rag-test                               # ranking assertions, offline
+```
+
+The corpus is **Complete Response Letters and drug labels** — the letters
+recording applications FDA refused, plus the labels of the ones it did not. It
+builds entirely from openFDA JSON responses; no PDF is downloaded, because
+`transparency/crl.json` returns the letter text in the response.
+
+Everything in it is a work of the United States Government and therefore public
+domain. That is why this index can exist. **An index over the papers on the
+Reading page could not**: retrieval stores verbatim chunks of its sources, so an
+index built from copyrighted articles is a copy of them, and rule 3 forbids
+carrying copies. Such an index could live on one machine and would never be
+committable. This distinction is the whole reason the corpus is what it is.
+
+Retrieval is **BM25** — no model, no torch, no API key, no network at query
+time. It runs in CI and offline, and the same query always returns the same
+ranking, which a repository that verifies its own outputs should want. The
+honest cost is that it matches words, not meanings: it will not connect "heart
+attack" to "myocardial infarction".
+
+The corpus lands in `data/derived/`, which is gitignored — the builder is
+committed and the data is regenerated, the same pattern the simulated case data
+uses.
+
+**The text is OCR** of scanned letters and is rough. Distinctive terms survive it
+well enough that search works; prose does not survive it at all. Treat every hit
+as a pointer to the source document, never as a transcript.
+
 ### Visitor counting
 
 `assets/analytics.html` is injected into the `<head>` of **every** page by one
