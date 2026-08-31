@@ -1,0 +1,22 @@
+# Drugs relevant to pancreatic ductal adenocarcinoma, for scripts/fetch_fda.py.
+#
+# generic      the name openFDA indexes under openfda.generic_name
+# brand        expected brand name; the fetcher ASSERTS on it, because an
+#              unfiltered generic-name query returns whichever label ranks
+#              first -- for the PD-1 antibodies that is now the subcutaneous
+#              coformulation, a different product entirely.
+# role         why it is on this list
+# strand       where it is used in the curriculum
+generic,brand,role,strand
+gemcitabine,GEMZAR,backbone of every first-line regimen,D1-08
+paclitaxel protein-bound,ABRAXANE,with gemcitabine; MPACT,D1-08
+fluorouracil,ADRUCIL,FOLFIRINOX and NALIRIFOX component,D1-08
+oxaliplatin,ELOXATIN,FOLFIRINOX and NALIRIFOX component,D1-08
+irinotecan,CAMPTOSAR,FOLFIRINOX component; the unencapsulated comparator,D1-08
+irinotecan liposome,ONIVYDE,NAPOLI-1 and NAPOLI-3; liposomal exposure,C-11
+olaparib,LYNPARZA,maintenance in germline BRCA; POLO,D1-08
+erlotinib,TARCEVA,approved with gemcitabine in pancreatic cancer,D1-08
+daraxonrasib,RASONQUE,first RAS inhibitor approved in PDAC; RASolute 302,C-13
+sotorasib,LUMAKRAS,KRAS G12C; the Project Optimus dose case,C-04
+adagrasib,KRAZATI,KRAS G12C,C-04
+pembrolizumab,KEYTRUDA,MSI-high only; roughly 1 percent of PDAC,C-02

@@ -1,0 +1,45 @@
+{
+ "meta": {"results": {"total": 2}},
+ "results": [
+  {
+   "application_number": "NDA214665",
+   "sponsor_name": "AMGEN INC",
+   "openfda": {"brand_name": ["LUMAKRAS"], "generic_name": ["SOTORASIB"]},
+   "products": [{"brand_name": "LUMAKRAS"}],
+   "submissions": [
+    {
+     "submission_type": "ORIG", "submission_number": "1",
+     "submission_status": "AP", "submission_status_date": "20210528",
+     "application_docs": [
+      {"type": "Letter",
+       "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/214665Orig1s000ltr.pdf"},
+      {"type": "Label",
+       "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2021/214665s000lbl.pdf"},
+      {"type": "Review",
+       "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2021/214665Orig1s000TOC.cfm"}
+     ]
+    },
+    {
+     "submission_type": "SUPPL", "submission_number": "2",
+     "submission_status": "AP", "submission_status_date": "20221121",
+     "application_docs": [
+      {"type": "Letter",
+       "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/214665Orig1s002ltr.pdf"}
+     ]
+    }
+   ]
+  },
+  {
+   "application_number": "BLA761416",
+   "sponsor_name": "SOME OTHER SPONSOR",
+   "openfda": {"brand_name": ["KEYTRUDA QLEX"], "generic_name": ["SOTORASIB"]},
+   "products": [{"brand_name": "KEYTRUDA QLEX"}],
+   "submissions": [
+    {"submission_type": "ORIG", "submission_number": "1",
+     "application_docs": [
+      {"type": "Label", "url": "https://example.invalid/should-not-be-indexed.pdf"}
+     ]}
+   ]
+  }
+ ]
+}

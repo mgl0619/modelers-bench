@@ -23,3 +23,6 @@ data/derived/
 reading/papers/*
 !reading/papers/README.md
 _to_delete/
+
+# raw openFDA responses — regenerate with `make fda`, never committed
+fda-cache/

@@ -138,6 +138,41 @@ successfully, looking entirely normal. `resources.qmd` now sets
 The post-render `check-resources` pass is the backstop that caught it. If you
 add another page generated from a data file, set `freeze: false` on it too.
 
+### Fetching openFDA material
+
+```bash
+make fda          # index documents for every drug in data/pdac-drugs.csv
+make fda-test     # same parser, fixtures, assertions, no network
+```
+
+`scripts/fetch_fda.py` queries three free, unauthenticated openFDA endpoints:
+
+| Endpoint | What it gives |
+|---|---|
+| `drug/drugsfda.json` | applications and submissions — and `application_docs`, the **type and URL of every published document**, letters, labels and reviews |
+| `drug/label.json` | structured label text including pharmacokinetics |
+| `transparency/crl.json` | Complete Response Letters, including for drugs that were **never approved** |
+
+Output is an **index**, not a pile of PDFs: `data/fda-documents.csv`, one row per
+document with its URL and the date it was seen. Raw JSON is cached in
+`fda-cache/`, which is gitignored. The CSV is committable — it is small, every
+row carries provenance, and the underlying documents are public domain.
+
+**The brand guard.** An unfiltered `openfda.generic_name` query returns whichever
+label ranks first, and for the PD-1 antibodies that is now the subcutaneous
+coformulation — a different product. `data/pdac-drugs.csv` therefore carries an
+expected brand name per drug, and the fetcher checks it, reporting a mismatch
+instead of writing the row. `make fda-test` asserts this specifically: the
+fixture contains a deliberate impostor application, and three of the eight
+checks fail if the guard stops guarding.
+
+Set `OPENFDA_API_KEY` to raise the rate limit; without one the script paces
+itself at one request every 0.4s, inside openFDA's 240/minute.
+
+**Caveat on the CRLs.** Their `text` field is OCR of scanned letters and is
+rough — expect `"pute\n\nMie\n\nOAL\n\n DEPARTMENT OF HEALTH..."` rather than clean
+prose. Treat it as searchable, not quotable.
+
 ### Visitor counting
 
 `assets/analytics.html` is injected into the `<head>` of **every** page by one

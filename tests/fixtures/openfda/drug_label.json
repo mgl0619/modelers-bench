@@ -1,0 +1,10 @@
+{
+ "meta": {"results": {"total": 1}},
+ "results": [
+  {
+   "openfda": {"brand_name": ["LUMAKRAS"], "generic_name": ["SOTORASIB"]},
+   "pharmacokinetics": ["The sotorasib Cmax and AUC increased ..."],
+   "clinical_pharmacology": ["Sotorasib is an inhibitor of KRAS G12C ..."]
+  }
+ ]
+}

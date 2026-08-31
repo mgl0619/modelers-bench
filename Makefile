@@ -54,7 +54,7 @@ endif
 
 .DEFAULT_GOAL := help
 
-.PHONY: help setup setup-py setup-r doctor-r serve data verify battery check check-resources check-rendered render render-py render-ci preview clean distclean doctor guard-python guard-version-only guard-r
+.PHONY: help setup setup-py setup-r doctor-r serve data verify battery check check-resources check-rendered fda fda-test render render-py render-ci preview clean distclean doctor guard-python guard-version-only guard-r
 
 help:
 	@echo ""
@@ -261,7 +261,17 @@ battery: guard-python
 check-resources: guard-version-only
 	@$(PY) scripts/check_resources.py
 
-check: data verify battery check-resources
+# Index openFDA material for the drugs in data/pdac-drugs.csv. Hits the network;
+# writes data/fda-documents.csv and caches raw JSON in fda-cache/ (gitignored).
+fda: guard-version-only
+	@$(PY) scripts/fetch_fda.py
+
+# Same parser, fixtures instead of the network, with assertions. Runs in CI and
+# on a plane. Guards the brand check in particular -- see the docstring.
+fda-test: guard-version-only
+	@$(PY) scripts/fetch_fda.py --selftest
+
+check: data verify battery check-resources fda-test
 
 guard-r:
 	@command -v Rscript >/dev/null 2>&1 || { \
