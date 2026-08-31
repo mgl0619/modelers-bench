@@ -71,6 +71,34 @@ Nab-paclitaxel is deliberately absent. Its pancreatic indication
 supplement 37, September 2013) belongs to `D1-08` alongside the other standard-of-care
 comparators, and repeating it here would split one discussion across two strands.
 
+::: {.callout-important appearance="simple"}
+## C-13 cannot be written yet, and that is worth recording
+
+Checked on 31 August 2026, five days after daraxonrasib was approved. The
+approval material is **not published anywhere machine-readable**:
+
+| Source | Result |
+|---|---|
+| openFDA `drug/drugsfda.json` | no match |
+| openFDA `drug/label.json` | no match |
+| Drugs@FDA search | no product found |
+| DailyMed | 0 results, "No Drug Package Labels found" |
+
+The FDA announcement itself says the prescribing information *"will be posted on
+Drugs@FDA"* — future tense. The openFDA Drugs@FDA export is dated 28 August, two
+days **after** the approval, and still does not contain it, so this is a genuine
+pipeline lag rather than a stale download.
+
+This is useful rather than annoying. It puts a number on something `C-01` has to
+teach: the public record of a regulatory decision arrives well after the decision
+does, and a curriculum built on that record is always reading history. It also
+means `C-13` waits — the lesson rests on documents that do not exist yet.
+
+`make fda` reports this state explicitly instead of returning nothing, and
+distinguishes a recent approval that has not propagated from an older drug whose
+name is simply wrong in our list.
+:::
+
 ## Two findings from building this outline
 
 Both came out of checking sources rather than reading about them, and both change

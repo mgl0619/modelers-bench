@@ -128,6 +128,31 @@ def brand_ok(result, expected):
     return any(expected.upper() in b for b in brands), brands
 
 
+def explain_absence(drug):
+    """Absence means different things and the difference is actionable.
+
+    openFDA is downstream of approval by a noticeable margin. A drug approved
+    days ago being missing is a pipeline lag and the answer is to run this
+    again later. A drug approved years ago being missing means the generic name
+    in data/pdac-drugs.csv does not match what openFDA indexes, and no amount
+    of waiting will fix it.
+    """
+    when = (drug.get("approved") or "").strip()
+    if not when:
+        return ("approval date not recorded, so this cannot be interpreted; "
+                "check the generic name against openFDA")
+    try:
+        approved = date.fromisoformat(when)
+    except ValueError:
+        return f"approval date {when!r} is not ISO format"
+    days = (date.today() - approved).days
+    if days < 90:
+        return (f"approved {when}, {days} day(s) ago — openFDA lags approval, "
+                f"so this is expected. Re-run in a few weeks")
+    return (f"approved {when}, {days} days ago — too long for a lag. The "
+            f"generic name is probably wrong for openFDA's index")
+
+
 def collect(drug, offline=False):
     """Return (rows, notes) for one drug."""
     generic, brand = drug["generic"], drug["brand"]
@@ -145,7 +170,10 @@ def collect(drug, offline=False):
     q = f'openfda.generic_name:"{generic}"'
     data = get("drug/drugsfda.json", {"search": q, "limit": 5}, offline)
     if not data:
-        notes.append(f"{generic}: no Drugs@FDA record")
+        notes.append(f"{generic}: no Drugs@FDA record — {explain_absence(drug)}")
+        rows.append(row(source="drugsfda", doc_type="NOT YET IN openFDA",
+                        url=f"{API}/drug/drugsfda.json?search="
+                            f"{urllib.parse.quote(q)}"))
     else:
         cache_write(f"drugsfda_{generic.replace(' ', '_')}", data)
         matched = False

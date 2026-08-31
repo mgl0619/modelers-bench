@@ -7,16 +7,21 @@
 #              coformulation, a different product entirely.
 # role         why it is on this list
 # strand       where it is used in the curriculum
-generic,brand,role,strand
-gemcitabine,GEMZAR,backbone of every first-line regimen,D1-08
-paclitaxel protein-bound,ABRAXANE,with gemcitabine; MPACT,D1-08
-fluorouracil,ADRUCIL,FOLFIRINOX and NALIRIFOX component,D1-08
-oxaliplatin,ELOXATIN,FOLFIRINOX and NALIRIFOX component,D1-08
-irinotecan,CAMPTOSAR,FOLFIRINOX component; the unencapsulated comparator,D1-08
-irinotecan liposome,ONIVYDE,NAPOLI-1 and NAPOLI-3; liposomal exposure,C-11
-olaparib,LYNPARZA,maintenance in germline BRCA; POLO,D1-08
-erlotinib,TARCEVA,approved with gemcitabine in pancreatic cancer,D1-08
-daraxonrasib,RASONQUE,first RAS inhibitor approved in PDAC; RASolute 302,C-13
-sotorasib,LUMAKRAS,KRAS G12C; the Project Optimus dose case,C-04
-adagrasib,KRAZATI,KRAS G12C,C-04
-pembrolizumab,KEYTRUDA,MSI-high only; roughly 1 percent of PDAC,C-02
+# approved     US approval date, ONLY where verified this session against FDA.
+#              Blank means not checked, not "unapproved". The fetcher uses it to
+#              read an absence: a drug approved last week that openFDA has not
+#              indexed yet is a lag; one approved in 2005 and still missing is a
+#              wrong generic name.
+generic,brand,role,strand,approved
+gemcitabine,GEMZAR,backbone of every first-line regimen,D1-08,
+paclitaxel protein-bound,ABRAXANE,with gemcitabine; MPACT,D1-08,2005-01-07
+fluorouracil,ADRUCIL,FOLFIRINOX and NALIRIFOX component,D1-08,
+oxaliplatin,ELOXATIN,FOLFIRINOX and NALIRIFOX component,D1-08,
+irinotecan,CAMPTOSAR,FOLFIRINOX component; the unencapsulated comparator,D1-08,
+irinotecan liposome,ONIVYDE,NAPOLI-1 and NAPOLI-3; liposomal exposure,C-11,2015-10-22
+olaparib,LYNPARZA,maintenance in germline BRCA; POLO,D1-08,2017-08-17
+erlotinib,TARCEVA,approved with gemcitabine in pancreatic cancer,D1-08,
+daraxonrasib,RASONQUE,first RAS inhibitor approved in PDAC; RASolute 302,C-13,2026-08-26
+sotorasib,LUMAKRAS,KRAS G12C; the Project Optimus dose case,C-04,2021-05-28
+adagrasib,KRAZATI,KRAS G12C,C-04,
+pembrolizumab,KEYTRUDA,MSI-high only; roughly 1 percent of PDAC,C-02,2014-09-04
