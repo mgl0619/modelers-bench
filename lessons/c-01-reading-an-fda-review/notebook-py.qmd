@@ -1,0 +1,154 @@
+---
+title: "C-01 notebook — Python"
+subtitle: "How to read an FDA review"
+jupyter: python3
+execute:
+  freeze: auto
+---
+
+Enumerate an application's document set, sort it into a reading order, and
+reproduce the retrieval trap that returns the wrong product.
+
+Nothing here needs the network. The notebook reads `data/fda-documents.csv` if
+you have run `make fda`, and falls back to the committed test fixture otherwise
+— and says which, because a lesson that quietly teaches on synthetic data would
+be exactly the failure this strand is about.
+
+```{python}
+import csv, json
+from pathlib import Path
+
+ROOT = Path.cwd()
+while not (ROOT / "resources.csv").exists() and ROOT != ROOT.parent:
+    ROOT = ROOT.parent
+
+live = ROOT / "data" / "fda-documents.csv"
+if live.exists():
+    with live.open(encoding="utf-8") as f:
+        docs = list(csv.DictReader(f))
+    SOURCE = "data/fda-documents.csv — real, from `make fda`"
+else:
+    fx = json.loads((ROOT / "tests" / "fixtures" / "openfda"
+                     / "drug_drugsfda.json").read_text(encoding="utf-8"))
+    docs = []
+    for res in fx["results"]:
+        brand = (res.get("openfda", {}).get("brand_name") or ["?"])[0]
+        for sub in res.get("submissions", []):
+            for d in sub.get("application_docs", []) or []:
+                docs.append({"brand": brand,
+                             "application_number": res["application_number"],
+                             "submission": f"{sub['submission_type']}-"
+                                           f"{sub['submission_number']}",
+                             "doc_type": d["type"], "url": d["url"]})
+    SOURCE = "tests/fixtures — SYNTHETIC (run `make fda` for real data)"
+
+print(f"source: {SOURCE}")
+print(f"{len(docs)} document rows")
+```
+
+## The document set
+
+One application accumulates documents across submissions. Group them and the
+shape of the package becomes visible.
+
+```{python}
+from collections import Counter, defaultdict
+
+by_app = defaultdict(list)
+for d in docs:
+    if d.get("application_number"):
+        by_app[d["application_number"]].append(d)
+
+for app, rows in sorted(by_app.items()):
+    brands = {r.get("brand", "?") for r in rows}
+    print(f"\n{app}   {' / '.join(sorted(brands))}   {len(rows)} documents")
+    subs = defaultdict(list)
+    for r in rows:
+        subs[r.get("submission", "?")].append(r["doc_type"])
+    for sub, types in sorted(subs.items()):
+        print(f"   {sub:12s} {', '.join(sorted(types))}")
+```
+
+## Reading order
+
+The lesson's order, applied. `rank` is the priority from C-01 §5: the letter
+tells you the conclusion, the label tells you the agreed wording, the review
+carries the argument.
+
+```{python}
+ORDER = {"letter": 1, "label": 2, "review": 3}
+
+def rank(doc_type):
+    t = (doc_type or "").lower()
+    for key, r in ORDER.items():
+        if key in t:
+            return r
+    return 9                      # unknown types sort last, not first
+
+ordered = sorted(docs, key=lambda d: (rank(d["doc_type"]),
+                                      d.get("submission", "")))
+for d in ordered[:8]:
+    print(f"  {rank(d['doc_type'])}  {d['doc_type']:34s} "
+          f"{d.get('submission',''):10s} {d['url'][:58]}")
+```
+
+An unrecognised document type sorts **last**, never first. A reading order that
+silently promotes something it does not understand is worse than no order.
+
+```{python}
+assert rank("Letter") == 1 and rank("Label") == 2 and rank("Review") == 3
+assert rank("REMS") == 9 and rank("") == 9 and rank(None) == 9
+print("reading order: unknown types sort last — OK")
+```
+
+## The trap
+
+The retrieval failure from the lesson, made concrete. Two applications share an
+active moiety; only one is the product you meant.
+
+```{python}
+fx = json.loads((ROOT / "tests" / "fixtures" / "openfda"
+                 / "drug_drugsfda.json").read_text(encoding="utf-8"))
+
+WANTED = "LUMAKRAS"
+print(f'querying by generic name alone returns {len(fx["results"])} applications:\n')
+for res in fx["results"]:
+    brand = (res.get("openfda", {}).get("brand_name") or ["?"])[0]
+    ndocs = sum(len(s.get("application_docs", []) or [])
+                for s in res.get("submissions", []))
+    verdict = "the product we meant" if WANTED in brand.upper() \
+              else "DIFFERENT PRODUCT — same moiety, different formulation"
+    print(f"  {res['application_number']:12s} {brand:16s} "
+          f"{ndocs} docs   {verdict}")
+
+naive = (fx["results"][0].get("openfda", {}).get("brand_name") or ["?"])[0]
+print(f"\ntaking results[0] blindly here gives: {naive}")
+print("which happens to be right. That is the danger, not the reassurance:")
+print("relevance ranking is not stable across drugs or over time, and nothing")
+print("in the response tells you which product you were handed. It errors on")
+print("neither the right answer nor the wrong one.")
+```
+
+The guard is one line, and it belongs in every query you write.
+
+```{python}
+def assert_brand(result, expected):
+    brands = [b.upper() for b in
+              (result.get("openfda", {}) or {}).get("brand_name", [])]
+    if not any(expected.upper() in b for b in brands):
+        raise ValueError(f"expected {expected!r}, got {brands}")
+    return result
+
+assert_brand(fx["results"][0], "LUMAKRAS")
+print("matching application: passes")
+
+try:
+    assert_brand(fx["results"][1], "LUMAKRAS")
+except ValueError as e:
+    print(f"impostor application: raises -> {e}")
+```
+
+## What you should take away
+
+The package is a set, the disciplines own different claims, and the retrieval
+step is where the errors enter. Assert on identity before you read a parameter.

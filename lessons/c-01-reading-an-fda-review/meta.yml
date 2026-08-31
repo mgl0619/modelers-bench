@@ -1,0 +1,9 @@
+id: c-01
+strand: C
+title: How to read an FDA review
+paths: [PATH-B, PATH-C]
+prereqs: []
+next: c-02
+runnable: true
+notebooks: [notebook-r.qmd, notebook-py.qmd]
+reviewed: 2026-08-31

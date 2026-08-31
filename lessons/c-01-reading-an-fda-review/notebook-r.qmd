@@ -1,0 +1,128 @@
+---
+title: "C-01 notebook — R"
+subtitle: "How to read an FDA review"
+execute:
+  freeze: auto
+---
+
+The same three steps as the Python notebook: enumerate an application's document
+set, sort it into a reading order, and reproduce the retrieval trap.
+
+No network and no packages beyond base R plus `jsonlite`.
+
+```{r}
+#| message: false
+library(jsonlite)
+
+root <- normalizePath(".")
+while (!file.exists(file.path(root, "resources.csv")) &&
+       dirname(root) != root) root <- dirname(root)
+
+live <- file.path(root, "data", "fda-documents.csv")
+if (file.exists(live)) {
+  docs   <- read.csv(live, stringsAsFactors = FALSE)
+  SOURCE <- "data/fda-documents.csv — real, from `make fda`"
+} else {
+  fx <- fromJSON(file.path(root, "tests", "fixtures", "openfda",
+                           "drug_drugsfda.json"), simplifyVector = FALSE)
+  rows <- list()
+  for (res in fx$results) {
+    brand <- if (length(res$openfda$brand_name)) res$openfda$brand_name[[1]] else "?"
+    for (sub in res$submissions) {
+      for (d in sub$application_docs) {
+        rows[[length(rows) + 1]] <- data.frame(
+          brand = brand,
+          application_number = res$application_number,
+          submission = paste0(sub$submission_type, "-", sub$submission_number),
+          doc_type = d$type, url = d$url, stringsAsFactors = FALSE)
+      }
+    }
+  }
+  docs   <- do.call(rbind, rows)
+  SOURCE <- "tests/fixtures — SYNTHETIC (run `make fda` for real data)"
+}
+cat("source:", SOURCE, "\n")
+cat(nrow(docs), "document rows\n")
+```
+
+## The document set
+
+```{r}
+for (app in sort(unique(docs$application_number))) {
+  rows <- docs[docs$application_number == app, ]
+  cat("\n", app, "  ", paste(unique(rows$brand), collapse = " / "),
+      "  ", nrow(rows), "documents\n")
+  for (sub in sort(unique(rows$submission))) {
+    types <- sort(rows$doc_type[rows$submission == sub])
+    cat("   ", formatC(sub, width = -12), paste(types, collapse = ", "), "\n")
+  }
+}
+```
+
+## Reading order
+
+```{r}
+rank_doc <- function(doc_type) {
+  t <- tolower(ifelse(is.na(doc_type), "", doc_type))
+  if (grepl("letter", t)) return(1L)
+  if (grepl("label",  t)) return(2L)
+  if (grepl("review", t)) return(3L)
+  9L                                  # unknown sorts last, never first
+}
+
+docs$rank <- vapply(docs$doc_type, rank_doc, integer(1))
+ordered   <- docs[order(docs$rank, docs$submission), ]
+for (i in seq_len(min(8, nrow(ordered)))) {
+  r <- ordered[i, ]
+  cat(" ", r$rank, " ", formatC(r$doc_type, width = -34), " ",
+      formatC(r$submission, width = -10), " ", substr(r$url, 1, 58), "\n")
+}
+
+stopifnot(rank_doc("Letter") == 1, rank_doc("Label") == 2,
+          rank_doc("Review") == 3, rank_doc("REMS") == 9,
+          rank_doc("") == 9, rank_doc(NA) == 9)
+cat("\nreading order: unknown types sort last — OK\n")
+```
+
+## The trap
+
+```{r}
+fx <- fromJSON(file.path(root, "tests", "fixtures", "openfda",
+                         "drug_drugsfda.json"), simplifyVector = FALSE)
+WANTED <- "LUMAKRAS"
+
+cat("querying by generic name alone returns", length(fx$results),
+    "applications:\n\n")
+for (res in fx$results) {
+  brand <- if (length(res$openfda$brand_name)) res$openfda$brand_name[[1]] else "?"
+  ndocs <- sum(vapply(res$submissions,
+                      function(s) length(s$application_docs), integer(1)))
+  verdict <- if (grepl(WANTED, toupper(brand), fixed = TRUE))
+    "the product we meant" else
+    "DIFFERENT PRODUCT — same moiety, different formulation"
+  cat(" ", formatC(res$application_number, width = -12),
+      formatC(brand, width = -16), ndocs, "docs  ", verdict, "\n")
+}
+```
+
+```{r}
+assert_brand <- function(result, expected) {
+  brands <- toupper(unlist(result$openfda$brand_name))
+  if (!any(grepl(expected, brands, fixed = TRUE)))
+    stop(sprintf("expected '%s', got %s", expected,
+                 paste(brands, collapse = ", ")))
+  invisible(result)
+}
+
+assert_brand(fx$results[[1]], "LUMAKRAS")
+cat("matching application: passes\n")
+
+res <- try(assert_brand(fx$results[[2]], "LUMAKRAS"), silent = TRUE)
+cat("impostor application: raises ->",
+    sub("^Error[^:]*: ", "", conditionMessage(attr(res, "condition"))), "\n")
+```
+
+## What you should take away
+
+The package is a set, the disciplines own different claims, and the retrieval
+step is where the errors enter. Assert on identity before you read a parameter.

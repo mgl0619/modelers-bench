@@ -91,7 +91,7 @@ page has a free-only filter for exactly that reason.
 | S6 · Decisions and MIDD | planned |
 | S7 · Practice and craft | planned |
 | **D · Disease areas** | [D1 pancreatic cancer](diseases.qmd) — outline and 20 verified references, no lessons yet |
-| **C · Approved drugs** | [Thirteen FDA products](drugs.qmd) — outline, 13 verified approval packages and 21 verified papers, no lessons yet |
+| **C · Approved drugs** | [Thirteen FDA products](drugs.qmd) — 1 ready, outline and 13 verified approval packages for the rest |
 
 Every runnable lesson ships in **both R and Python**, and every lesson names the
 development decision it serves before it teaches anything.

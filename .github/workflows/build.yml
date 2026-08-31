@@ -76,6 +76,7 @@ jobs:
             any::MASS
             any::knitr
             any::rmarkdown
+            any::jsonlite
 
       # --execute overrides `freeze: auto` and re-runs every cell, which is the
       # entire point of this workflow.

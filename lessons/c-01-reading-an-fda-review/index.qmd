@@ -1,0 +1,188 @@
+---
+title: "How to read an FDA review"
+subtitle: "Lesson C-01"
+description: >
+  An approval package is not one document but a set, written by different
+  disciplines who disagree in public. Knowing which reviewer owns which claim
+  is the difference between twenty minutes and two days.
+categories: [regulatory, orientation, approved drugs]
+---
+
+::: {.callout-tip appearance="simple"}
+## The decision this serves
+A competitor's drug was approved last quarter at 300 mg once daily. Your
+programme is choosing between 200 and 400 mg. Someone hands you the approval
+package and asks what the agency thought about their dose.
+
+Which document, and whose section of it, actually answers that?
+:::
+
+## 1. The package is a set, not a document
+
+"The FDA review" is a phrase people use for something that does not exist. What
+exists is an **approval package**: a bundle of separately authored documents
+published per application, and per *submission* within that application.
+
+Retrieved programmatically, the document types look like this — `Letter`,
+`Label`, `Review` — attached to a submission such as `ORIG-1` (the original
+application) or `SUPPL-2` (its second supplement). One application accumulates
+these over years. Sotorasib's original approval in May 2021 and its labelling
+supplement in November 2022 are separate submissions with separate documents,
+and the second says nothing about the first.
+
+The three you will actually open:
+
+**The approval letter** is short and states the decision, the indication as
+approved, and any postmarketing requirements. Read it first, always. It is one
+or two pages and it tells you what the agency *concluded*, which frames
+everything else.
+
+**The label** is the negotiated output. Section 12.3 carries pharmacokinetics;
+section 2 carries the dose and the adjustments. The label is what the sponsor
+and the agency agreed could be said — not what either believes.
+
+**The review** is where the argument lives, and it is the one worth your time.
+
+## 2. Who owns which claim
+
+Since roughly 2016 most new approvals carry an **integrated multi-discipline
+review** rather than a stack of separate ones. The disciplines are still
+distinct inside it, and they still sign their own sections:
+
+| Discipline | Owns | Where your dose question goes |
+|---|---|---|
+| Clinical pharmacology | exposure, PK, exposure–response, dose rationale, DDI, organ impairment | **here** |
+| Clinical | efficacy and safety in the trials as conducted | supporting |
+| Biostatistics | whether the trial result is real | supporting |
+| Pharmacology/toxicology | nonclinical safety, starting dose | rarely |
+| Product quality | manufacturing, formulation | no |
+| Office/division director | the decision, and where the disciplines disagreed | **read this too** |
+
+The dose question is a **clinical pharmacology** question. Going straight to
+that section is the single highest-value habit in this lesson.
+
+The director's memo is the second. It is short, and it is the only place where
+disagreement between disciplines is stated plainly. When a reviewer recommended
+against something and was overruled, that is where you find out.
+
+## 3. A review is an argument, not a report
+
+The most common misreading is treating a review as a neutral description of
+facts. It is not. It is an **adjudication**: the sponsor submitted an analysis,
+a reviewer interrogated it, and the review records what survived.
+
+This matters concretely. When a review reports a population PK model, that model
+is usually the *sponsor's*. The reviewer's contribution is the part that says
+whether it was believed — the sensitivity analyses demanded, the covariate the
+reviewer refused to accept, the alternative dose the reviewer simulated. Read
+past the model description to find the reviewer's own analysis, because that is
+the part you cannot get anywhere else.
+
+Two questions to carry:
+
+1. What did the sponsor propose, and what did they get?
+2. Where those differ, which discipline forced the change?
+
+## 4. What is not in the package
+
+Three absences, each of which has caught people out.
+
+**Cell and gene therapy products have no clinical pharmacology review at all.**
+Tisagenlecleucel's public document set is the package insert, approval letters, a
+Summary Basis for Regulatory Action, a statistical review, a clinical memo and a
+REMS. CBER's review pathway does not produce the document the rest of this strand
+is built on. This is not withholding; it does not exist. It is also the
+structural reason the [Resources](../../resources.qmd) database finds gene
+therapy carrying regulatory guidances and no runnable open models.
+
+**Rejections were invisible until recently.** Until September 2025 an
+application that failed left no public trace — FDA treated even its existence as
+confidential. Complete Response Letters are now released, including for
+applications never approved. They are redacted, and their published text is OCR
+of scanned letters, so they are searchable but not quotable.
+
+**The record lags the decision.** Daraxonrasib was approved on 26 August 2026.
+Checked five days later, it appeared in neither openFDA's Drugs@FDA data, nor
+DailyMed, nor a Drugs@FDA search — and openFDA's export was dated *after* the
+approval. Anything you read about a recent approval is reconstructed from press
+material, not from the record.
+
+## 5. Twenty minutes, in order
+
+1. **Approval letter.** Indication, and any postmarketing requirement. Two minutes.
+2. **Label section 2 and 12.3.** The dose, and the exposure that justifies it.
+3. **Clinical pharmacology review, dose selection section.** The argument.
+4. **Director's memo.** Where the disciplines disagreed.
+5. Everything else, only if 1–4 raised a question.
+
+## Work through it
+
+The notebook enumerates a real application's document set, sorts it into the
+reading order above, and demonstrates the retrieval trap that makes naive
+querying return the wrong product entirely.
+
+## Failure mode — the same molecule, a different product
+
+Query openFDA for a drug by generic name and you get whichever label ranks
+first. For the PD-1 antibodies that is now the **subcutaneous coformulation** —
+`KEYTRUDA QLEX`, `OPDIVO QVANTIG` — not the intravenous product every population
+PK paper in the literature describes.
+
+Nothing errors. You get a real label for a real approved product with the right
+active moiety, and its pharmacokinetics are not the ones you meant. An analysis
+built on it will be internally consistent and wrong.
+
+::: {.callout-note appearance="simple"}
+## The habit
+Never accept a query result on the generic name alone. Assert on the brand name
+and the application number before you read a single parameter out of it. This
+project's fetcher does exactly that, and reports a mismatch rather than
+returning the row.
+:::
+
+## Check yourself
+
+::: {.callout-note collapse="true"}
+## 1. You want to know why a drug is dosed 300 mg rather than 150 mg. You have the full package. Where do you go, and in what order?
+
+Approval letter first, for any postmarketing requirement about dose — a required
+dose-comparison study tells you the agency was not satisfied, which is the
+answer before you read anything else. Then the clinical pharmacology review's
+dose selection section for the argument, then the director's memo for whether
+anyone disagreed. The label tells you the conclusion but never the reasoning.
+:::
+
+::: {.callout-note collapse="true"}
+## 2. A review describes a population PK model with a covariate on clearance. Whose model is it, and what should you look for?
+
+Almost certainly the sponsor's. The reviewer's contribution is the interrogation
+of it — sensitivity analyses requested, covariates rejected, alternative regimens
+simulated independently. Read for what the reviewer did *to* the model, not the
+model description, which you could have got from the sponsor's publication.
+:::
+
+::: {.callout-note collapse="true"}
+## 3. You cannot find a clinical pharmacology review for an approved cell therapy. What went wrong?
+
+Nothing. CBER's pathway does not produce one. Look for the Summary Basis for
+Regulatory Action instead, and expect cellular kinetics — expansion and
+persistence — rather than pharmacokinetics. The absence is a property of the
+product class, not of your search.
+:::
+
+## Going further
+
+The mechanics of retrieval are in `scripts/fetch_fda.py`, and the searchable
+corpus of Complete Response Letters in `scripts/rag.py`. Both are documented in
+`LOCAL.md`.
+
+On why modelling has been slower to reach cell and gene therapy, written by FDA
+CBER staff: Belov et al., *CPT Pharmacometrics Syst Pharmacol* 2021
+([DOI](https://doi.org/10.1002/psp4.12597), free full text).
+
+On a modelling argument that FDA found credible and still insufficient — a useful
+corrective to reading approvals as a series of wins: Desborough et al.,
+*Ann Biomed Eng* 2023 ([DOI](https://doi.org/10.1007/s10439-022-03062-4)).
+
+`C-02` takes the first real case: a pembrolizumab regimen that entered the label
+with no new efficacy trial.

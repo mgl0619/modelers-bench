@@ -26,7 +26,7 @@ on every push.
 | S6 · Decisions and MIDD | 8 | planned |
 | S7 · Practice and craft | 7 | planned |
 | **D · Disease areas** | 12 | D1 pancreatic cancer — outline and verified sources, no lessons yet |
-| **C · Approved drugs** | 13 | outline and verified approval packages, no lessons yet |
+| **C · Approved drugs** | 13 | 1 ready |
 
 ## Quick start
 
@@ -54,7 +54,7 @@ when you need it. No R? `make render-py` builds the site without it.
 - **Python** ≥ 3.10 with the packages in `requirements.txt`. If your system
   `python3` is older, `mamba env create -f environment.yml` gives you a working
   one; `make` will tell you plainly if the interpreter it finds is too old.
-- **R** ≥ 4.2 with `deSolve`, `dplyr`, `ggplot2`, `MASS` — only for the R notebooks
+- **R** ≥ 4.2 with `deSolve`, `dplyr`, `ggplot2`, `MASS`, `knitr`, `rmarkdown`, `jsonlite` — only for the R notebooks
 
 ## How a lesson is built
 

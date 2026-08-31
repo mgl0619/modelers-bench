@@ -104,7 +104,7 @@ doctor:
 	@echo ""
 	@$(PY) -c "import importlib.util as u; miss=[m for m in ['numpy','pandas','scipy','matplotlib','yaml','nbclient','jupyter_client','ipykernel'] if not u.find_spec(m)]; print('python packages : OK' if not miss else 'python packages : MISSING '+', '.join(miss)+'   -> make setup')" 2>/dev/null || echo "python packages : cannot check"
 	@if command -v Rscript >/dev/null 2>&1; then \
-	  Rscript -e 'p <- c("deSolve","dplyr","ggplot2","MASS","knitr","rmarkdown"); m <- p[!p %in% rownames(installed.packages())]; cat(if (length(m)) paste0("R packages      : MISSING ", paste(m, collapse=", "), "   -> make setup\n") else "R packages      : OK\n")'; \
+	  Rscript -e 'p <- c("deSolve","dplyr","ggplot2","MASS","knitr","rmarkdown","jsonlite"); m <- p[!p %in% rownames(installed.packages())]; cat(if (length(m)) paste0("R packages      : MISSING ", paste(m, collapse=", "), "   -> make setup\n") else "R packages      : OK\n")'; \
 	else echo "R packages      : skipped (no R)"; fi
 	@echo ""
 	@$(PY) -c "import importlib.util as u; ok = u.find_spec('scipy') and u.find_spec('pandas'); print('can run: make battery' + ('  make data  make verify' if ok else '   (data/verify need scipy)'))"
@@ -154,7 +154,7 @@ setup: setup-py setup-r
 doctor-r:
 	@if command -v Rscript >/dev/null 2>&1; then \
 	  echo "Rscript : $$(command -v Rscript)"; \
-	  Rscript -e 'lib <- Sys.getenv("R_LIBS_USER"); if (!nzchar(lib)) lib <- file.path(path.expand("~"), "R", "modelers-bench-library"); dir.create(lib, recursive=TRUE, showWarnings=FALSE); .libPaths(c(lib, .libPaths())); p <- c("deSolve","dplyr","ggplot2","MASS","knitr","rmarkdown"); cat("version :", R.version.string, "\n\nlibrary paths R will search:\n"); for (l in .libPaths()) cat("  ", l, if (file.access(l, 2) == 0) "  (writable)" else "  (NOT writable)", "\n"); cat("\npackages:\n"); for (q in p) { f <- find.package(q, quiet=TRUE); cat("  ", formatC(q, width=-10), if (length(f)) paste("found at", f[1]) else "MISSING", "\n") }'; \
+	  Rscript -e 'lib <- Sys.getenv("R_LIBS_USER"); if (!nzchar(lib)) lib <- file.path(path.expand("~"), "R", "modelers-bench-library"); dir.create(lib, recursive=TRUE, showWarnings=FALSE); .libPaths(c(lib, .libPaths())); p <- c("deSolve","dplyr","ggplot2","MASS","knitr","rmarkdown","jsonlite"); cat("version :", R.version.string, "\n\nlibrary paths R will search:\n"); for (l in .libPaths()) cat("  ", l, if (file.access(l, 2) == 0) "  (writable)" else "  (NOT writable)", "\n"); cat("\npackages:\n"); for (q in p) { f <- find.package(q, quiet=TRUE); cat("  ", formatC(q, width=-10), if (length(f)) paste("found at", f[1]) else "MISSING", "\n") }'; \
 	else echo "Rscript : MISSING — no R found — install it with: brew install --cask r     (or skip the R notebooks: make render-py)"; fi
 
 
@@ -240,7 +240,7 @@ guard-version-only:
 
 setup-r:
 	@if command -v Rscript >/dev/null 2>&1; then \
-	  Rscript -e 'lib <- Sys.getenv("R_LIBS_USER"); if (!nzchar(lib)) lib <- file.path(path.expand("~"), "R", "modelers-bench-library"); dir.create(lib, recursive=TRUE, showWarnings=FALSE); .libPaths(c(lib, .libPaths())); p <- c("deSolve","dplyr","ggplot2","MASS","knitr","rmarkdown"); cat("R          :", R.version.string, "\n"); cat("library    :", lib, "\n"); m <- p[!p %in% rownames(installed.packages())]; if (length(m)) { cat("installing :", paste(m, collapse=", "), "\n"); install.packages(m, lib=lib, repos="https://cloud.r-project.org") } else cat("status     : all six already present\n"); still <- p[!p %in% rownames(installed.packages())]; if (length(still)) { cat("\n  STILL MISSING after install:", paste(still, collapse=", "), "\n  scroll up for the download or compiler error.\n\n"); quit(status=1) } else cat("status     : OK, all six installed and visible\n")'; \
+	  Rscript -e 'lib <- Sys.getenv("R_LIBS_USER"); if (!nzchar(lib)) lib <- file.path(path.expand("~"), "R", "modelers-bench-library"); dir.create(lib, recursive=TRUE, showWarnings=FALSE); .libPaths(c(lib, .libPaths())); p <- c("deSolve","dplyr","ggplot2","MASS","knitr","rmarkdown","jsonlite"); cat("R          :", R.version.string, "\n"); cat("library    :", lib, "\n"); m <- p[!p %in% rownames(installed.packages())]; if (length(m)) { cat("installing :", paste(m, collapse=", "), "\n"); install.packages(m, lib=lib, repos="https://cloud.r-project.org") } else cat("status     : all seven already present\n"); still <- p[!p %in% rownames(installed.packages())]; if (length(still)) { cat("\n  STILL MISSING after install:", paste(still, collapse=", "), "\n  scroll up for the download or compiler error.\n\n"); quit(status=1) } else cat("status     : OK, all seven installed and visible\n")'; \
 	else echo "no R found — install it with: brew install --cask r     (or skip the R notebooks: make render-py)"; fi
 
 data: guard-python
@@ -292,7 +292,7 @@ guard-r:
 	  echo ""; echo "  ERROR  R is not installed, and the R notebooks need it."; \
 	  echo "         brew install --cask r    then    make setup-r"; \
 	  echo "         or skip them entirely:   make render-py"; echo ""; exit 1; }
-	@Rscript -e 'lib <- Sys.getenv("R_LIBS_USER"); if (!nzchar(lib)) lib <- file.path(path.expand("~"), "R", "modelers-bench-library"); dir.create(lib, recursive=TRUE, showWarnings=FALSE); .libPaths(c(lib, .libPaths())); p <- c("deSolve","dplyr","ggplot2","MASS","knitr","rmarkdown"); m <- p[!p %in% rownames(installed.packages())]; if (length(m)) { cat("\n  ERROR  missing R packages:", paste(m, collapse=", "), "\n         searched:", paste(.libPaths(), collapse=" , "), "\n         run:  make setup-r      or skip them:  make render-py\n\n"); quit(status=1) }; cat("guard-r    : all six R packages found\n")'
+	@Rscript -e 'lib <- Sys.getenv("R_LIBS_USER"); if (!nzchar(lib)) lib <- file.path(path.expand("~"), "R", "modelers-bench-library"); dir.create(lib, recursive=TRUE, showWarnings=FALSE); .libPaths(c(lib, .libPaths())); p <- c("deSolve","dplyr","ggplot2","MASS","knitr","rmarkdown","jsonlite"); m <- p[!p %in% rownames(installed.packages())]; if (length(m)) { cat("\n  ERROR  missing R packages:", paste(m, collapse=", "), "\n         searched:", paste(.libPaths(), collapse=" , "), "\n         run:  make setup-r      or skip them:  make render-py\n\n"); quit(status=1) }; cat("guard-r    : all seven R packages found\n")'
 
 render: guard-r
 	quarto render
