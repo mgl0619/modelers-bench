@@ -39,24 +39,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Fail early and legibly. Without a committed freeze, quarto would try to
-      # execute the notebooks here — and there is no R and no kernel — so it
-      # would die somewhere inside a lesson render with an opaque message.
-      - name: Require a committed freeze
-        run: |
-          if [ ! -d _freeze ] || [ -z "$(ls -A _freeze 2>/dev/null)" ]; then
-            echo "::error::_freeze/ is missing or empty."
-            echo ""
-            echo "This workflow renders from frozen notebook output and installs"
-            echo "neither R nor a Jupyter kernel. Populate the freeze locally and"
-            echo "commit it:"
-            echo ""
-            echo "    make all"
-            echo "    git add _freeze && git commit -m 'Refresh notebook freeze'"
-            echo ""
-            exit 1
-          fi
-          echo "_freeze/ present: $(du -sh _freeze | cut -f1), $(find _freeze -name '*.json' | wc -l) frozen documents"
+      # Fail early and legibly. This workflow renders from frozen notebook
+      # output and installs neither R nor a Jupyter kernel, so a notebook
+      # missing from _freeze/ cannot be built here.
+      #
+      # The previous version of this step only checked that _freeze/ was
+      # non-empty. That is not the failure that happens. Run #7 failed with a
+      # full _freeze/ directory that simply did not include the lesson being
+      # added -- generated locally, never git-added. The check now compares
+      # every notebook against what git actually tracks.
+      #
+      # Uses python3 directly rather than make, so it fails in seconds rather
+      # than after the dependency install.
+      - name: Require committed frozen output for every notebook
+        run: python3 scripts/check_freeze.py
 
       # Turns Pages on if it is not already, and fails fast and legibly if it
       # cannot. Without this step the workflow does all the work first and then

@@ -54,7 +54,7 @@ endif
 
 .DEFAULT_GOAL := help
 
-.PHONY: help setup setup-py setup-r doctor-r serve data verify battery check check-resources check-rendered fda fda-test rag rag-build rag-test render render-py render-ci preview clean distclean doctor guard-python guard-version-only guard-r
+.PHONY: help setup setup-py setup-r doctor-r serve data verify battery check check-resources check-rendered check-freeze fda fda-test rag rag-build rag-test render render-py render-ci preview clean distclean doctor guard-python guard-version-only guard-r
 
 help:
 	@echo ""
@@ -285,7 +285,13 @@ rag: guard-version-only
 rag-test: guard-version-only
 	@$(PY) scripts/rag.py --selftest
 
-check: data verify battery check-resources fda-test rag-test
+# Every notebook must have COMMITTED frozen output, because publish.yml
+# renders from the freeze and installs no R. Catches the "frozen locally but
+# never git-added" case, which looks clean here and breaks CI.
+check-freeze: guard-version-only
+	@$(PY) scripts/check_freeze.py
+
+check: data verify battery check-resources fda-test rag-test check-freeze
 
 guard-r:
 	@command -v Rscript >/dev/null 2>&1 || { \
