@@ -15,9 +15,13 @@ full of every other lesson's output.
 
 Two distinct failures, and the second is the one that bit:
 
-  missing    no frozen output at all -> run `make all`
+  missing    no frozen output at all -> render, then add
   untracked  frozen output exists on this machine but is not in git, so it does
              not exist for anyone else -> `git add _freeze`
+
+This target runs AFTER render in `make all`, never before. It was briefly wired
+into `make check`, which runs before render -- so it failed on every new lesson
+while advising `make all`, the command it was blocking. Do not move it back.
 
 Being untracked is the more dangerous of the two, because everything works
 locally and the repository looks clean.
@@ -70,7 +74,8 @@ def main():
         print("  NO FROZEN OUTPUT — these have never been executed here:")
         for m in missing:
             print(f"    - {m}")
-        print("\n    Fix:  make all\n")
+        print("\n    Fix:  quarto render      (or `make render`)")
+        print("          then: git add _freeze\n")
     if untracked:
         print("  NOT COMMITTED — frozen locally, invisible to everyone else:")
         for u in untracked:

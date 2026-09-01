@@ -291,7 +291,12 @@ rag-test: guard-version-only
 check-freeze: guard-version-only
 	@$(PY) scripts/check_freeze.py
 
-check: data verify battery check-resources fda-test rag-test check-freeze
+# check-freeze is deliberately NOT here. `render` is what CREATES the freeze,
+# and check runs before render -- so putting the freeze guard in check makes
+# `make all` fail on any new lesson while telling you to run `make all`. That
+# exact loop happened, twice: first with the stale-_site guard, then with this
+# one. A guard that blocks the command that would satisfy it is not a guard.
+check: data verify battery check-resources fda-test rag-test
 
 guard-r:
 	@command -v Rscript >/dev/null 2>&1 || { \
@@ -335,7 +340,12 @@ serve:
 check-rendered: guard-version-only
 	@$(PY) scripts/check_resources.py --post-render
 
-all: check render check-rendered
+# Order matters and is the whole lesson of three separate loops:
+#   check          cheap things that need no build
+#   render         executes notebooks; CREATES the freeze
+#   check-rendered audits the freshly built page
+#   check-freeze   now, when the freeze exists, reports what needs committing
+all: check render check-rendered check-freeze
 
 clean:
 	rm -rf _site .quarto _freeze
