@@ -163,6 +163,25 @@ format:
     toc-title: "On this page"
     number-sections: false
     code-copy: true
+
+    # A notebook page is read for its RESULT, not its source. Folding every
+    # chunk by default makes the page read as output -- figures, tables, the
+    # numbers the lesson argues about -- with the code one click away for the
+    # person who is actually going to run it.
+    #
+    # Folded, NOT hidden. `echo: false` would make the site's own claim
+    # ("the code runs, and every notebook is re-executed on every change")
+    # something the reader has to take on trust, on a site whose whole
+    # argument is that they should not have to. code-tools adds a
+    # "Show All Code" control so the escape hatch is one click, site-wide.
+    #
+    # Per-chunk override: some code IS the lesson (C-01's `return 9`, the
+    # brand-guard assertion). Those chunks get `#| code-fold: false`.
+    # Do that deliberately, chunk by chunk -- it changes the .qmd source and
+    # therefore invalidates that notebook's freeze.
+    code-fold: true
+    code-summary: "code"
+    code-tools: true
     code-overflow: scroll
     fig-align: center
     df-print: kable
