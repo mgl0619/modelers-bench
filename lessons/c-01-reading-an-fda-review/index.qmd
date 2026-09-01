@@ -121,6 +121,10 @@ The notebook enumerates a real application's document set, sorts it into the
 reading order above, and demonstrates the retrieval trap that makes naive
 querying return the wrong product entirely.
 
+::: {.callout-note appearance="simple"}
+[Notebook — Python](notebook-py.qmd) · [Notebook — R](notebook-r.qmd)
+:::
+
 ## Failure mode — the same molecule, a different product
 
 Query openFDA for a drug by generic name and you get whichever label ranks

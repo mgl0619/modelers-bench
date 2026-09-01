@@ -48,6 +48,18 @@ website:
         href: "https://github.com/mgl0619/modelers-bench"
 
   sidebar:
+    # ONE ENTRY PER LESSON. The notebooks are deliberately NOT listed here.
+    #
+    # They are still rendered (project.render globs lessons/**/*.qmd), still
+    # executed in CI, and still frozen -- they are simply not navigation. A
+    # reader choosing what to study next is choosing a lesson, not a language,
+    # and two extra rows per lesson turned the sidebar into a build manifest.
+    #
+    # Every lesson page links its own notebooks from the "Work through it"
+    # slot, which is the moment a reader actually wants them. If you add a
+    # lesson with notebooks, put that link in the lesson page -- NOT here --
+    # or the notebooks become unreachable. `make check-resources` audits site
+    # links and will catch an orphan.
     style: floating
     collapse-level: 2
     contents:
@@ -63,20 +75,10 @@ website:
             href: lessons/p-02-cells-and-binding/index.qmd
           - text: "P-03 · Drug targets"
             href: lessons/p-03-drug-targets/index.qmd
-          - section: "P-04 · Binding, quantified"
+          - text: "P-04 · Binding, quantified"
             href: lessons/p-04-binding-quantified/index.qmd
-            contents:
-              - text: "Notebook — R"
-                href: lessons/p-04-binding-quantified/notebook-r.qmd
-              - text: "Notebook — Python"
-                href: lessons/p-04-binding-quantified/notebook-py.qmd
-          - section: "P-05 · Agonists and antagonists"
+          - text: "P-05 · Agonists and antagonists"
             href: lessons/p-05-agonists-and-antagonists/index.qmd
-            contents:
-              - text: "Notebook — R"
-                href: lessons/p-05-agonists-and-antagonists/notebook-r.qmd
-              - text: "Notebook — Python"
-                href: lessons/p-05-agonists-and-antagonists/notebook-py.qmd
       - section: "D · Disease areas"
         contents:
           - text: "D1 · Pancreatic cancer — outline"
@@ -85,45 +87,20 @@ website:
         contents:
           - text: "C · Clinical pharmacology from FDA reviews — outline"
             href: drugs.qmd
-          - section: "C-01 · How to read an FDA review"
+          - text: "C-01 · How to read an FDA review"
             href: lessons/c-01-reading-an-fda-review/index.qmd
-            contents:
-              - text: "Notebook — R"
-                href: lessons/c-01-reading-an-fda-review/notebook-r.qmd
-              - text: "Notebook — Python"
-                href: lessons/c-01-reading-an-fda-review/notebook-py.qmd
-          - section: "C-02 · A regimen approved without a trial"
+          - text: "C-02 · A regimen approved without a trial"
             href: lessons/c-02-a-regimen-without-a-trial/index.qmd
-            contents:
-              - text: "Notebook — R"
-                href: lessons/c-02-a-regimen-without-a-trial/notebook-r.qmd
-              - text: "Notebook — Python"
-                href: lessons/c-02-a-regimen-without-a-trial/notebook-py.qmd
       - section: "S0 · Foundations"
         contents:
           - text: "S0-00 · What quantitative pharmacology is"
             href: lessons/s0-00-what-is-qp/index.qmd
-          - section: "S0-01 · Compartments and ODEs"
+          - text: "S0-01 · Compartments and ODEs"
             href: lessons/s0-01-compartments-and-odes/index.qmd
-            contents:
-              - text: "Notebook — R"
-                href: lessons/s0-01-compartments-and-odes/notebook-r.qmd
-              - text: "Notebook — Python"
-                href: lessons/s0-01-compartments-and-odes/notebook-py.qmd
-          - section: "S0-02 · Units, scaling, allometry"
+          - text: "S0-02 · Units, scaling, allometry"
             href: lessons/s0-02-units-scaling-and-allometry/index.qmd
-            contents:
-              - text: "Notebook — R"
-                href: lessons/s0-02-units-scaling-and-allometry/notebook-r.qmd
-              - text: "Notebook — Python"
-                href: lessons/s0-02-units-scaling-and-allometry/notebook-py.qmd
-          - section: "S0-03 · Data assembly"
+          - text: "S0-03 · Data assembly"
             href: lessons/s0-03-data-assembly/index.qmd
-            contents:
-              - text: "Notebook — R"
-                href: lessons/s0-03-data-assembly/notebook-r.qmd
-              - text: "Notebook — Python"
-                href: lessons/s0-03-data-assembly/notebook-py.qmd
           - text: "S0-04 · Choosing a stack"
             href: lessons/s0-04-choosing-a-stack/index.qmd
           - text: "S0-05 · Git for modelers"

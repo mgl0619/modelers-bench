@@ -166,7 +166,57 @@ def main() -> int:
     print(f"  usable at no cost: {free} of {len(rows)} "
           f"({100 * free / len(rows):.0f}%)")
 
-    return audit_site_links({r["url"] for r in rows})
+    rc = audit_orphan_notebooks()
+    return max(rc, audit_site_links({r["url"] for r in rows}))
+
+
+def audit_orphan_notebooks():
+    """Every rendered notebook must be reachable by a reader.
+
+    The notebooks are deliberately absent from the sidebar (see the comment on
+    website.sidebar in _quarto.yml): a reader choosing what to study next is
+    choosing a lesson, not a language. That decision removed the ONLY automatic
+    route to a notebook page, so reachability is now something a lesson author
+    has to supply by hand -- and forgetting is silent. The page still renders,
+    still executes in CI, still occupies a freeze, and nobody can ever open it.
+
+    So: a notebook must be linked from its own lesson's index.qmd, and that
+    index must itself appear in the site navigation.
+    """
+    root = CSV_PATH.parent
+    nav = (root / "_quarto.yml").read_text(encoding="utf-8")
+    notebooks = sorted((root / "lessons").glob("*/notebook-*.qmd"))
+
+    orphans = []
+    for nb in notebooks:
+        rel = nb.relative_to(root)
+        page = nb.parent / "index.qmd"
+        if not page.exists():
+            orphans.append((rel, "no index.qmd beside it"))
+        elif nb.name not in page.read_text(encoding="utf-8"):
+            orphans.append((rel, f"not linked from {page.relative_to(root)}"))
+        elif str(page.relative_to(root)) not in nav:
+            orphans.append((rel, f"{page.relative_to(root)} is not in the "
+                                 f"site navigation, so nothing reaches it "
+                                 f"either"))
+
+    print(f"\n  notebooks checked: {len(notebooks)}")
+    if orphans:
+        print(f"\nFAIL  {len(orphans)} notebook(s) render but cannot be "
+              f"reached from any page:\n")
+        for rel, why in orphans:
+            print(f"  - {rel}")
+            print(f"      {why}")
+        print("\n  Fix by linking it from the lesson's \"Work through it\" "
+              "slot:\n"
+              "    ::: {.callout-note appearance=\"simple\"}\n"
+              "    [Notebook \u2014 Python](notebook-py.qmd) \u00b7 "
+              "[Notebook \u2014 R](notebook-r.qmd)\n"
+              "    :::")
+        return 1
+
+    print("    orphans          : 0")
+    return 0
 
 
 def audit_site_links(known_urls):

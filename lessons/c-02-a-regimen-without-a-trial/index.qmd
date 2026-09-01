@@ -126,6 +126,10 @@ simulated to steady state, and the three metrics computed and compared — the
 C~avg~ match, the trough dip, and the peak checked against the highest dose ever
 given.
 
+::: {.callout-note appearance="simple"}
+[Notebook — Python](notebook-py.qmd) · [Notebook — R](notebook-r.qmd)
+:::
+
 ## Failure mode — matching the wrong metric on a steep curve
 
 Two ways this goes wrong, and neither errors.
