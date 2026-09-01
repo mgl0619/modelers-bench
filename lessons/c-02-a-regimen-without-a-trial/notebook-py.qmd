@@ -1,0 +1,217 @@
+---
+title: "C-02 notebook — Python"
+subtitle: "A regimen approved without a trial"
+jupyter: python3
+execute:
+  freeze: auto
+---
+
+Reproduce the exposure-matching argument: simulate both regimens to steady
+state, compute the three metrics, and check each leg of the case.
+
+::: {.callout-warning appearance="simple"}
+## About these parameters
+These are **not Merck's estimates**. They are values chosen from inside the
+published range for anti-PD-1 antibodies — clearance 0.179–0.290 L/day, central
+volume 2.98–4.46 L, two-compartment with time-varying clearance (Shang et al.,
+[DOI](https://doi.org/10.3389/fimmu.2022.871372)) — so the arithmetic here is
+reproducible and honest about its provenance.
+
+The point is the **structure of the argument**, which is parameter-independent.
+The numbers you get will resemble the published ones without being them.
+:::
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Two-compartment, parameters inside the published anti-PD-1 range.
+CL, V1, Q, V2 = 0.22, 3.5, 0.40, 3.0        # L/day, L, L/day, L
+k10, k12, k21 = CL / V1, Q / V1, Q / V2
+WT = 75.0                                    # kg, reference subject
+
+# Exact steady-state solution for repeated IV bolus in a linear two-compartment
+# model. Analytic rather than numerically integrated, for three reasons: it is
+# exact, it needs nothing but numpy, and it makes the central point of the
+# lesson visible in algebra rather than hidden in an integration.
+#
+# Dosing is treated as a bolus. The real infusion is 30 minutes against a
+# half-life of weeks, so the difference is invisible here -- said out loud
+# rather than left for a reader to assume the model is richer than it is.
+_s = k10 + k12 + k21
+alpha = 0.5 * (_s + np.sqrt(_s**2 - 4 * k10 * k21))
+beta  = 0.5 * (_s - np.sqrt(_s**2 - 4 * k10 * k21))
+
+def conc_ss(t, dose, tau):
+    """Concentration at time t within a steady-state dosing interval."""
+    A = (dose / V1) * (alpha - k21) / (alpha - beta)
+    B = (dose / V1) * (k21 - beta) / (alpha - beta)
+    return (A * np.exp(-alpha * t) / (1 - np.exp(-alpha * tau))
+            + B * np.exp(-beta * t) / (1 - np.exp(-beta * tau)))
+
+def metrics_ss(dose, tau, n=4001):
+    t = np.linspace(0, tau, n)
+    c = conc_ss(t, dose, tau)
+    return {"Cavg": dose / (CL * tau),   # exact: AUC over an interval = Dose/CL
+            "Cmin": c[-1], "Cmax": c[0], "dose_per_day": dose / tau}, t, c
+
+print(f"alpha = {alpha:.4f} /day   ->  distribution half-life "
+      f"{np.log(2)/alpha:.2f} days")
+print(f"beta  = {beta:.4f} /day   ->  terminal half-life "
+      f"{np.log(2)/beta:.1f} days")
+```
+
+## Simulate the two regimens
+
+Twelve months of dosing, so both reach steady state before we measure anything.
+
+```{python}
+REGIMENS = {
+    "200 mg Q3W":   (200.0, 21.0),
+    "400 mg Q6W":   (400.0, 42.0),
+    "10 mg/kg Q2W": (10.0 * WT, 14.0),      # the highest dose given clinically
+}
+
+sims, metrics = {}, {}
+for name, (dose, tau) in REGIMENS.items():
+    m, t, c = metrics_ss(dose, tau)
+    metrics[name] = m
+    sims[name] = (t, c, tau)
+
+hdr = f"{'regimen':>14}  {'mg/day':>7}  {'Cavg':>7}  {'Cmin':>7}  {'Cmax':>7}"
+print(hdr); print("-" * len(hdr))
+for k, m in metrics.items():
+    print(f"{k:>14}  {m['dose_per_day']:7.1f}  {m['Cavg']:7.2f}  "
+          f"{m['Cmin']:7.2f}  {m['Cmax']:7.2f}")
+print("\nconcentrations in mg/L, at steady state")
+```
+
+## Leg 1 — C~avg~ matches, and that is arithmetic
+
+```{python}
+q3w, q6w = metrics["200 mg Q3W"], metrics["400 mg Q6W"]
+
+ratio = q6w["Cavg"] / q3w["Cavg"]
+print(f"Cavg ratio Q6W / Q3W = {ratio:.6f}   ({100*(ratio-1):+.4f}%)")
+print(f"mg/day  Q3W {q3w['dose_per_day']:.2f}   Q6W {q6w['dose_per_day']:.2f}")
+
+# In a linear model Cavg = Dose / (CL * tau), exactly. 400/42 == 200/21, so the
+# ratio is 1 by algebra. This assertion CANNOT fail -- which is the point.
+assert abs(ratio - 1) < 1e-12, "Cavg is identical by construction"
+print("\nCavg = Dose / (CL x tau), so 400/42 == 200/21 makes the ratio")
+print("exactly 1. Not approximately: exactly. This leg of the argument is")
+print("algebra, and carries no information about the drug at all.")
+```
+
+## Leg 2 — the trough falls, and must be defended
+
+```{python}
+drop = 1 - q6w["Cmin"] / q3w["Cmin"]
+print(f"Cmin  Q3W {q3w['Cmin']:.2f}   Q6W {q6w['Cmin']:.2f}   "
+      f"({100*drop:.1f}% lower)")
+print("\nThe trough is genuinely lower. The published argument does not deny")
+print("this -- it argues the trough still saturates the target. That is a")
+print("PHARMACOLOGY claim about receptor occupancy, not a PK claim, and it")
+print("needs its own evidence.")
+assert q6w["Cmin"] < q3w["Cmin"], "Q6W trough must be lower"
+```
+
+## Leg 3 — the peak rises, and is bracketed
+
+```{python}
+ceiling = metrics["10 mg/kg Q2W"]["Cmax"]
+rel = q6w["Cmax"] / ceiling
+print(f"Cmax  Q6W {q6w['Cmax']:.2f}   10 mg/kg Q2W {ceiling:.2f}")
+print(f"      Q6W peak is {100*(1-rel):.0f}% below the highest dose given")
+
+assert q6w["Cmax"] > q3w["Cmax"], "Q6W peak must exceed Q3W"
+assert q6w["Cmax"] < ceiling, "Q6W peak must sit below the studied maximum"
+print("\nThis is the leg that does the work: the new peak is not merely")
+print("'acceptable', it is BELOW a peak patients have already tolerated.")
+```
+
+## The picture
+
+```{python}
+COL = {"200 mg Q3W": "#2A5DB0", "400 mg Q6W": "#A32C42",
+       "10 mg/kg Q2W": "#98A4AC"}
+
+def curve(name, horizon=84):
+    t, c, tau = sims[name]
+    reps = int(np.ceil(horizon / tau))
+    tt = np.concatenate([t + i * tau for i in range(reps)])
+    cc = np.tile(c, reps)
+    k = tt <= horizon
+    return tt[k], cc[k]
+
+# Two panels. The ceiling is five times the regimens being compared, so one
+# axis either hides the trough difference or hides the bracketing. Each panel
+# answers one leg of the argument.
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(9, 6.2), sharex=True,
+                               gridspec_kw={"height_ratios": [1, 1]})
+
+for name in ["200 mg Q3W", "400 mg Q6W"]:
+    tt, cc = curve(name)
+    ax1.plot(tt, cc, lw=1.9, color=COL[name], label=name, zorder=3)
+ax1.axhline(q3w["Cmin"], color="#66737C", lw=0.9, ls=":", zorder=2)
+ax1.text(0.5, q3w["Cmin"], " Q3W trough", va="bottom", fontsize=8,
+         color="#66737C")
+ax1.set_title("Leg 2 — the trough falls, and must be defended",
+              fontsize=9.5, loc="left", color="#3A464E", pad=6)
+ax1.legend(frameon=False, fontsize=8.5, loc="upper right")
+
+for name in ["10 mg/kg Q2W", "200 mg Q3W", "400 mg Q6W"]:
+    tt, cc = curve(name)
+    ax2.plot(tt, cc, lw=1.2 if "10 mg" in name else 1.9, color=COL[name],
+             label=name, ls="--" if "10 mg" in name else "-", zorder=3)
+ax2.axhline(metrics["10 mg/kg Q2W"]["Cmax"], color="#66737C", lw=0.9,
+            ls=":", zorder=2)
+ax2.text(0.5, metrics["10 mg/kg Q2W"]["Cmax"], " highest peak given clinically",
+         va="bottom", fontsize=8, color="#66737C")
+ax2.set_title("Leg 3 — the new peak sits below one already tolerated",
+              fontsize=9.5, loc="left", color="#3A464E", pad=6)
+ax2.legend(frameon=False, fontsize=8.5, loc="upper right")
+ax2.set_xlabel("days at steady state", fontsize=9)
+
+for a in (ax1, ax2):
+    a.set_ylabel("conc. (mg/L)", fontsize=9)
+    a.set_xlim(0, 84)
+    a.grid(axis="y", color="#DFE5E8", lw=0.8)
+    a.set_axisbelow(True)
+    for sp in ("top", "right"):
+        a.spines[sp].set_visible(False)
+
+fig.tight_layout()
+plt.show()
+```
+
+Same area under the curve per unit time; different shape. The whole regulatory
+question is whether the shape matters.
+
+## The failure mode, made concrete
+
+Push to Q12W. `C~avg~` still matches perfectly — and everything else leaves the
+range anyone has studied.
+
+```{python}
+q12, _, _ = metrics_ss(800.0, 84.0)
+
+print(f"800 mg Q12W:  Cavg {q12['Cavg']:.2f}  "
+      f"(ratio to Q3W {q12['Cavg']/q3w['Cavg']:.6f})")
+print(f"              Cmin {q12['Cmin']:.2f}   vs Q3W {q3w['Cmin']:.2f}")
+print(f"              Cmax {q12['Cmax']:.2f}   vs studied ceiling {ceiling:.2f}")
+
+print(f"\nCavg matches EXACTLY -- 800/84 == 200/21.")
+print(f"And the trough is {100*(1-q12['Cmin']/q3w['Cmin']):.0f}% below the "
+      f"approved regimen's,")
+print("while the peak climbs toward the ceiling. Every number is computable;")
+print("none of them is supported by the exposure-response data.")
+print("\nA comparison table reporting only Cavg would call this a success.")
+```
+
+## What you should take away
+
+C~avg~ matching is guaranteed by arithmetic and proves nothing. The argument
+lives in whether the trough still covers the target and whether the peak has
+already been tolerated — and both are only answerable inside the exposure range
+the programme actually studied.

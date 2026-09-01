@@ -92,6 +92,13 @@ website:
                 href: lessons/c-01-reading-an-fda-review/notebook-r.qmd
               - text: "Notebook — Python"
                 href: lessons/c-01-reading-an-fda-review/notebook-py.qmd
+          - section: "C-02 · A regimen approved without a trial"
+            href: lessons/c-02-a-regimen-without-a-trial/index.qmd
+            contents:
+              - text: "Notebook — R"
+                href: lessons/c-02-a-regimen-without-a-trial/notebook-r.qmd
+              - text: "Notebook — Python"
+                href: lessons/c-02-a-regimen-without-a-trial/notebook-py.qmd
       - section: "S0 · Foundations"
         contents:
           - text: "S0-00 · What quantitative pharmacology is"

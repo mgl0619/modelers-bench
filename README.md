@@ -26,7 +26,7 @@ on every push.
 | S6 · Decisions and MIDD | 8 | planned |
 | S7 · Practice and craft | 7 | planned |
 | **D · Disease areas** | 12 | D1 pancreatic cancer — outline and verified sources, no lessons yet |
-| **C · Approved drugs** | 13 | 1 ready |
+| **C · Approved drugs** | 13 | 2 ready |
 
 ## Quick start
 

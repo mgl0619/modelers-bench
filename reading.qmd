@@ -11,13 +11,13 @@ curriculum that costs nothing should send you to papers that cost nothing.
 ::: {.callout-important appearance="simple"}
 ## Why this page links rather than hosts
 
-We checked the licence of all 94 papers through PubMed. The result is worth
+We checked the licence of all 96 papers through PubMed. The result is worth
 knowing before anyone proposes bundling PDFs with the course:
 
 | | Papers |
 |---|---|
 | Open licence (Creative Commons) | **7** |
-| All rights reserved or unstated, but free to *read* on PubMed Central | **38** |
+| All rights reserved or unstated, but free to *read* on PubMed Central | **40** |
 | No free full text found | **49** |
 | Carrying a plain **CC BY** licence | **1** |
 
@@ -27,7 +27,7 @@ knowing before anyone proposes bundling PDFs with the course:
 terms that the API had not reported. Neither is BY-SA-compatible, so the
 practical conclusion below is unchanged — but the number is a lower bound.
 
-**Free to read is not free to redistribute.** Forty-five of these are readable
+**Free to read is not free to redistribute.** Forty-seven of these are readable
 at no cost on PubMed Central, and that is a permission to read, not a licence to
 copy. Redistributing those PDFs — in this repository, in a course pack, in a
 shared folder — would infringe copyright.
@@ -47,7 +47,7 @@ adapt their figures.
 The seventh is the exception, and it is new. Liu's 2017 review of monoclonal
 antibody pharmacokinetics is **CC BY 4.0**, which *is* compatible with BY-SA.
 Its figures could be adapted into a lesson with attribution. That is one paper
-out of ninety-four, which is itself the argument: the default in this literature
+out of ninety-six, which is itself the argument: the default in this literature
 is that you may read but not reuse.
 
 So: **link, never host.** Read them through the DOI or your institution's
@@ -235,6 +235,13 @@ approval packages — public-domain documents, cited from
 | Lala M, Li TR, de Alwis DP, et al. **A six-weekly dosing schedule for pembrolizumab in patients with cancer based on evaluation using modelling and simulation.** *Eur J Cancer* 2020;131:68–75. [DOI](https://doi.org/10.1016/j.ejca.2020.02.016) · PMID 32305010 | The central document of `C-02`. A population model on 2,993 subjects from five trials, used to bridge 400 mg Q6W to the established 200 mg Q3W on exposure alone: average concentration about 1% higher, peak concentration roughly 65% below the highest dose ever given clinically. Read it for the structure of the argument, not the result. |
 | Lala M, Li TR, de Alwis DP, et al. **Corrigendum.** *Eur J Cancer* 2021;144:400. [DOI](https://doi.org/10.1016/j.ejca.2020.12.006) · PMID 33414065 | Listed separately and deliberately. `C-02` teaches close reading of a regulatory argument; citing the paper without its correction would undercut the lesson. |
 | Zhao Y, Tsujimoto A, Ide T, et al. **Model-based population pharmacokinetic and exposure response analyses for safety and efficacy of nivolumab as adjuvant treatment in subjects with resected oesophageal or gastroesophageal junction cancer.** *Br J Clin Pharmacol* 2024;90:2920–2930. [DOI](https://doi.org/10.1111/bcp.16188) · PMID 39054780 | PopPK on 1,493 subjects; exposure–response on 756 from CheckMate 577. Hazard ratios at the 5th and 95th exposure percentiles were similar for both disease-free survival and grade ≥2 immune-mediated events. `C-03` is about what a flat relationship licenses — and what it quietly does not. |
+
+### The population models the arguments rest on
+
+| | Why |
+|---|---|
+| Ahamadi M, Freshwater T, Prohn M, et al. **Model-based characterization of the pharmacokinetics of pembrolizumab.** *CPT Pharmacometrics Syst Pharmacol* 2016;6:49–57. [DOI](https://doi.org/10.1002/psp4.12139) · PMID 27863186 · **[free]** | The model underneath `C-02`. Built on KEYNOTE-001, -002 and -006. Its most consequential finding is a **negative** one: sex, performance status, renal and hepatic measures, tumour type and burden all had modest, clinically insignificant effects on exposure. That is what licensed flat dosing, and it is the kind of result that rarely gets a headline. |
+| Shang J, Huang L, Huang J, et al. **Population pharmacokinetic models of anti-PD-1 mAbs in patients with multiple tumor types: a systematic review.** *Front Immunol* 2022;13:871372. [DOI](https://doi.org/10.3389/fimmu.2022.871372) · PMID 35983041 · **[free]** | Fourteen models across five antibodies, with the parameter ranges tabulated — clearance 0.179–0.290 L/day, central volume 2.98–4.46 L, two-compartment with time-varying clearance. `C-02`'s notebooks take their parameters from inside these ranges rather than inventing them, and say so. |
 
 ### Doses that were argued over
 

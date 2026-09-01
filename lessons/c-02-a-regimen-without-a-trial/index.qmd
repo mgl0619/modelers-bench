@@ -1,0 +1,208 @@
+---
+title: "A regimen approved without a trial"
+subtitle: "Lesson C-02"
+description: >
+  Pembrolizumab's every-six-weeks regimen entered the label with no new efficacy
+  study. The argument was exposure matching, and it is worth understanding both
+  because it worked and because it is easy to misuse.
+categories: [regulatory, exposure-response, biologics, approved drugs]
+---
+
+::: {.callout-tip appearance="simple"}
+## The decision this serves
+Your antibody is approved every three weeks. Clinicians want every six — fewer
+infusion visits, less travel, less chair time. A new phase 3 would take years,
+cost a fortune, and randomise patients to a question that is about convenience
+rather than survival.
+
+Can you change the regimen on modelling alone? Sometimes. This lesson is about
+when, and about the four conditions that have to hold first.
+:::
+
+## 1. What was actually approved
+
+Pembrolizumab was approved in 2014 at 2 mg/kg every three weeks
+([BLA 125514](https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=125514)),
+later 200 mg flat Q3W. In 2020 a **400 mg every six weeks** regimen was added
+to the label. No new efficacy trial was run for it.
+
+The supporting analysis is Lala et al.
+([DOI](https://doi.org/10.1016/j.ejca.2020.02.016)): a population PK model built
+on **2,993 subjects across five trials**, used to simulate the new regimen and
+compare its exposure with the approved one.
+
+That is the whole argument. A model, an exposure comparison, and a label change.
+
+## 2. What exposure matching claims
+
+The claim is a syllogism, and it is worth writing out because each line can fail
+independently:
+
+1. Clinical effect is driven by **exposure**, not by dose.
+2. The relationship between exposure and effect is **known** over some range.
+3. The new regimen produces exposure **inside that range**, matching the
+   approved regimen on the metric that drives effect.
+4. Therefore the new regimen produces the same effect.
+
+Nothing here is about pharmacology being kind. It is about having already
+purchased the expensive information — the exposure–response relationship — and
+reusing it rather than buying it twice.
+
+## 3. Three metrics, three jobs
+
+"Matching exposure" is meaningless until you say *which* exposure. Three
+summaries of the same concentration–time curve do different work.
+
+| Metric | What it is | What it argues |
+|---|---|---|
+| **C~avg~** | average concentration over the interval | efficacy: total drug delivered |
+| **C~min~** | trough, just before the next dose | target coverage: does receptor occupancy lapse? |
+| **C~max~** | peak, just after dosing | safety: is this a concentration anyone has tolerated? |
+
+Doubling the dose and doubling the interval holds **C~avg~ constant by
+construction** — same amount of drug per unit time. That part is arithmetic, not
+pharmacology, and on its own it proves nothing. The work is in the other two.
+
+Q6W necessarily has a **higher peak** and a **lower trough** than Q3W. Both have
+to be defended, and they are defended differently.
+
+## 4. The bracketing argument
+
+Here is the move that makes this legitimate rather than hopeful.
+
+For the trough, Lala et al. report that fewer than 1% of subjects had a
+transiently lower C~min~ than under the approved regimens — and that even with
+those reductions, similar target saturation is expected. The claim is not that
+the trough is identical. It is that the trough stays above the concentration
+where occupancy would fall off.
+
+For the peak, the projected C~max~ for 400 mg Q6W was roughly **65% lower** than
+that of 10 mg/kg Q2W — a regimen already given to patients as the maximum
+clinical dose. The new peak is not merely acceptable in the abstract; it is
+**below a peak that has already been tolerated in trials**.
+
+That is the shape of the argument. The exposure–response relationship had been
+characterised over a **five-fold dose range**, from 2 mg/kg Q3W up to 10 mg/kg
+Q2W. The new regimen sits *inside* that. Nobody is extrapolating beyond the
+data; they are interpolating within it.
+
+::: {.callout-important appearance="simple"}
+## The distinction that carries the whole lesson
+**Interpolation inside a studied exposure range is a modelling claim.
+Extrapolation beyond it is a hypothesis.** Regulators treat these very
+differently, and so should you. The five-fold dose range in the pembrolizumab
+programme was not a lucky accident — the wide dose-ranging done early is
+precisely what made the later regimen change cheap.
+:::
+
+## 5. The four conditions
+
+Exposure matching is admissible when all four hold. Check them explicitly.
+
+1. **The exposure metric is the right one.** Efficacy is driven by C~avg~ for
+   this class; for a time-above-threshold antibiotic it would not be.
+2. **A population PK model exists that is credible for extrapolation** — built
+   on enough subjects, with covariates characterised, and validated.
+3. **The exposure–response relationship is established over a range that
+   brackets the new regimen** on every metric that matters.
+4. **The E–R relationship is flat, or at least shallow, across that range.** If
+   effect changes steeply with exposure, a small mismatch matters and matching
+   "closely enough" stops being good enough.
+
+Fail any one and this becomes a hypothesis requiring a trial.
+
+## 6. Read the correction too
+
+The 2020 paper carries a corrigendum
+([DOI](https://doi.org/10.1016/j.ejca.2020.12.006)). It is short, and this
+curriculum cites it alongside the paper deliberately: a lesson about reading
+regulatory arguments carefully has no business quoting a source without its
+published correction.
+
+## Work through it
+
+The notebook reproduces the argument. A two-compartment model, both regimens
+simulated to steady state, and the three metrics computed and compared — the
+C~avg~ match, the trough dip, and the peak checked against the highest dose ever
+given.
+
+## Failure mode — matching the wrong metric on a steep curve
+
+Two ways this goes wrong, and neither errors.
+
+**A steep exposure–response.** Suppose effect rises sharply with C~min~ rather
+than plateauing. Now a trough 20% lower is not a rounding difference — it is a
+different drug. The C~avg~ match still looks perfect, because C~avg~ was held
+constant by arithmetic. Your table of exposure metrics will show a beautiful
+result for a regimen that loses efficacy.
+
+**Matching outside the studied range.** Push to Q12W. C~avg~ still matches
+exactly — it is arithmetic. But the peak now exceeds anything given to a patient,
+and the trough falls below anything observed. Every number in the comparison
+table is computable, and none of them is supported.
+
+::: {.callout-note appearance="simple"}
+## The habit
+Before presenting an exposure-matching argument, plot the **exposure–response
+curve with the new regimen's exposures marked on it**. If the markers fall
+outside the range of the data the curve was fitted to, you do not have an
+argument; you have an extrapolation wearing one.
+:::
+
+## Check yourself
+
+::: {.callout-note collapse="true"}
+## 1. Doubling dose and interval keeps C~avg~ identical. Why is that not, by itself, evidence of anything?
+
+Because it is arithmetic, not pharmacology. The same milligrams per unit time
+give the same average concentration whatever the drug does. The evidence lives
+entirely in the peak and trough: whether the trough still saturates the target,
+and whether the peak has already been tolerated. A comparison table showing only
+C~avg~ has shown you nothing.
+:::
+
+::: {.callout-note collapse="true"}
+## 2. Your compound's exposure–response is steep over the studied range. What does that do to an exposure-matching argument?
+
+It destroys it. Matching "closely" is only acceptable when the effect is
+insensitive to the residual mismatch. On a steep curve, the between-subject
+variability in exposure alone spans a meaningful difference in effect, and a
+regimen change that shifts the distribution shifts outcomes. You need a trial, or
+a different regimen that matches more tightly on the driving metric.
+:::
+
+::: {.callout-note collapse="true"}
+## 3. A colleague proposes Q12W dosing at 800 mg on the grounds that C~avg~ matches exactly. What do you say?
+
+That C~avg~ matching is guaranteed and therefore uninformative, and ask where the
+peak and trough fall relative to the studied range. At Q12W the peak is likely
+above any dose given in the programme and the trough below any observed, so the
+exposure–response relationship has nothing to say about either. That is
+extrapolation, and it needs data rather than simulation.
+:::
+
+## Going further
+
+Lala M, Li TR, de Alwis DP, et al. *A six-weekly dosing schedule for
+pembrolizumab in patients with cancer based on evaluation using modelling and
+simulation.* Eur J Cancer 2020;131:68–75
+([DOI](https://doi.org/10.1016/j.ejca.2020.02.016)), with its corrigendum
+([DOI](https://doi.org/10.1016/j.ejca.2020.12.006)).
+
+The underlying population PK model: Ahamadi M, Freshwater T, Prohn M, et al.
+*Model-based characterization of the pharmacokinetics of pembrolizumab.* CPT
+Pharmacometrics Syst Pharmacol 2016;6:49–57
+([DOI](https://doi.org/10.1002/psp4.12139), free full text) — built on
+KEYNOTE-001, -002 and -006, and notable for finding that sex, performance
+status, renal and hepatic measures, tumour type and burden all had **modest and
+clinically insignificant** effects on exposure. That negative covariate result is
+what licensed flat dosing.
+
+For the class in general: Shang J, Huang L, Huang J, et al. *Population
+pharmacokinetic models of anti-PD-1 mAbs in patients with multiple tumor types:
+a systematic review.* Front Immunol 2022;13:871372
+([DOI](https://doi.org/10.3389/fimmu.2022.871372), free full text).
+
+`C-03` takes the companion case: nivolumab, where the exposure–response turned
+out to be *flat* — which both licensed the regimen change and made the analysis
+nearly uninformative about dose.

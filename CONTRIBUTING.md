@@ -12,7 +12,7 @@ expected to happen.
 2. **No proprietary software, licence keys, or vendor model files.** Reference
    them and link to their documentation; never redistribute.
 3. **No papers.** Never commit a PDF, a scanned chapter, or a copied figure.
-   Of the 94 works cited on the Reading page, 87 are all-rights-reserved and 6
+   Of the 96 works cited on the Reading page, 89 are all-rights-reserved and 6
    of the remaining 7 are Creative Commons **NC**/**ND**, which this project's
    CC BY-SA licence cannot absorb. Free to read on PubMed Central is a
    permission to read, not a licence to copy. Cite by DOI, add the entry to
@@ -22,7 +22,7 @@ expected to happen.
    The one exception is instructive: Liu 2017 in *Protein Cell*
    ([DOI](https://doi.org/10.1007/s13238-017-0408-4)) is plain **CC BY 4.0**, so
    its figures *could* be adapted here with attribution. One paper in
-   ninety-four. Check the licence before assuming you are in that case — and
+   ninety-six. Check the licence before assuming you are in that case — and
    note that the PubMed API reports licences incompletely, so a paper showing no
    licence may still carry one.
 4. **Nothing traceable to a real programme.** No compound names, no internal

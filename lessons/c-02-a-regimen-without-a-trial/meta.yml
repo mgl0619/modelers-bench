@@ -1,0 +1,9 @@
+id: c-02
+strand: C
+title: A regimen approved without a trial
+paths: [PATH-B, PATH-C]
+prereqs: [c-01]
+next: c-03
+runnable: true
+notebooks: [notebook-r.qmd, notebook-py.qmd]
+reviewed: 2026-08-31
