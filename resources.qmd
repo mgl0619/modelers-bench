@@ -16,6 +16,23 @@ subtitle: "Software, courses, guidances, repositories and reference databases"
 # no solver -- so there is nothing to gain from freezing it.
 execute:
   freeze: false
+
+# No View Source on this page.
+#
+# code-tools embeds a full copy of the .qmd source in the rendered HTML. Here
+# that is ~14% of a 550 KB page, duplicating code that is `echo: false` anyway
+# -- this page's Python is generation machinery, not something a reader came to
+# study. The source of truth is resources.csv, linked in the first paragraph.
+#
+# It was also actively harmful: the embedded, HTML-escaped copy of the f-strings
+# that build each card is indistinguishable from the Pandoc mangling that
+# `make check-rendered` exists to detect, and it turned CI red on a page that
+# had rendered perfectly. That audit is now scoped to <main>, so this line is
+# no longer load-bearing for correctness -- it is just weight this page does
+# not need to carry.
+format:
+  html:
+    code-tools: false
 ---
 
 The [Reading](reading.qmd) page indexes papers. This page indexes everything

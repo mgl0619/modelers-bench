@@ -326,6 +326,31 @@ def audit_rendered_page(n_expected):
         return 1
 
     html = page.read_text(encoding="utf-8", errors="replace")
+
+    # Audit the ARTICLE BODY, not the whole file.
+    #
+    # Quarto appends things after </main> that are not the rendered page: with
+    # code-tools on, it embeds a full copy of the .qmd SOURCE in a View Source
+    # modal. resources.qmd builds its cards from Python f-strings, so its source
+    # contains the literals `<a class=`, `<span class=` and `<div class=` -- and
+    # in the embedded copy those are HTML-escaped, which is character for
+    # character what this audit looks for as evidence of Pandoc mangling.
+    #
+    # That fired for real: CI reported 1 + 13 + 9 escaped needles and "253 cards
+    # rendered but 252 rows", numbers that match resources.qmd's own source
+    # exactly. The page was perfect; the audit was reading the source view.
+    #
+    # Scoping to <main> is not just a patch for code-tools -- it is what this
+    # check always meant. The claim is about what a reader sees.
+    body = re.search(r"<main\b[^>]*>(.*)</main>", html, re.S)
+    if not body:
+        print("\nFAIL  _site/resources.html has no <main> element.\n\n"
+              "  The page did not render as an article at all. Re-render, and "
+              "if\n  that does not fix it, check resources.qmd's front "
+              "matter.\n")
+        return 1
+    html = body.group(1)
+
     problems = []
 
     # 1. No escaped markup. If Pandoc turned generated HTML into a code block,
