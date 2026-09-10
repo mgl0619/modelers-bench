@@ -106,7 +106,7 @@ Seven slots, every time:
 4. **Rosetta panel** — the same thing in a second language or engine.
 5. **Failure mode** — broken on purpose, with the diagnostic that catches it.
 6. **Self-check** — three questions, folded answers.
-7. **Discussion and citations** — a thread per lesson, and where this shows up in practice.
+7. **Going further** — where to read next, and what the lesson deliberately omitted.
 
 ## The cases
 

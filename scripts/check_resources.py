@@ -166,8 +166,60 @@ def main() -> int:
     print(f"  usable at no cost: {free} of {len(rows)} "
           f"({100 * free / len(rows):.0f}%)")
 
-    rc = audit_orphan_notebooks()
+    rc = max(audit_orphan_notebooks(), audit_readme_status())
     return max(rc, audit_site_links({r["url"] for r in rows}))
+
+
+def audit_readme_status():
+    """README's status table must match the lessons that actually exist.
+
+    Hand-maintained counts drift on every commit that adds content, silently,
+    and the README is the first thing anyone reads. This repository has been
+    bitten by exactly this before -- index.qmd claimed 249 resources against a
+    252-row CSV, and 96 papers against 101 bib entries.
+
+    So the table is not documentation, it is an assertion. Each strand row
+    carries "<written> of <planned>"; <written> is checked against the meta.yml
+    files on disk. <planned> is a genuine editorial decision and is not checked.
+    """
+    root = CSV_PATH.parent
+    readme = (root / "README.md").read_text(encoding="utf-8")
+
+    on_disk = Counter()
+    for meta in sorted((root / "lessons").glob("*/meta.yml")):
+        m = re.search(r"^strand:\s*(\S+)", meta.read_text(encoding="utf-8"), re.M)
+        if not m:
+            print(f"\nFAIL  {meta.relative_to(root)} has no 'strand:' field")
+            return 1
+        on_disk[m.group(1)] += 1
+
+    # | **C - Approved drugs** | ... | **3 of 13** |
+    claimed = {}
+    for line in readme.splitlines():
+        m = re.match(r"\|\s*\*{0,2}(P|C|D|S[0-7])\s*\u00b7[^|]*\|[^|]*\|"
+                     r"[^|]*?(\d+)\s+of\s+(\d+)", line)
+        if m:
+            claimed[m.group(1)] = (int(m.group(2)), int(m.group(3)))
+
+    strands = sorted(set(claimed) | set(on_disk))
+    wrong = [(s, claimed.get(s, (None, None))[0], on_disk.get(s, 0))
+             for s in strands
+             if claimed.get(s, (None, None))[0] != on_disk.get(s, 0)]
+
+    print(f"\n  README status table: {len(claimed)} strand rows, "
+          f"{sum(on_disk.values())} lessons on disk")
+    if wrong:
+        print(f"\nFAIL  README.md's status table does not match lessons/:\n")
+        for s, says, real in wrong:
+            says = "no row at all" if says is None else f"{says} written"
+            print(f"  - strand {s}: README says {says}, disk has {real}")
+        print("\n  Update the 'Written' column in README.md. The count is part")
+        print("  of the change that added or removed the lesson, not a chore")
+        print("  for later.")
+        return 1
+
+    print("    drift            : none")
+    return 0
 
 
 def audit_orphan_notebooks():
