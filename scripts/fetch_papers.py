@@ -54,6 +54,7 @@ READING = ROOT / "reading.qmd"
 PAPERS = ROOT / "reading" / "papers"
 WORKLIST = PAPERS / "download-list.html"
 
+ELINK = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi"
 IDCONV = "https://www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/"
 OA = "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi"
 TOOL = "modelers-bench-reading-list"
@@ -145,19 +146,88 @@ def get(url, binary=False, timeout=60):
         return r.read() if binary else r.read().decode("utf-8", "replace")
 
 
-def to_pmcid(pmids, email):
-    """PMID -> PMCID, in batches, through the ID Converter."""
-    found = {}
-    for i in range(0, len(pmids), 100):
-        batch = pmids[i:i + 100]
+def parse_elink(payload):
+    """PMID -> PMCID out of one E-utilities elink response.
+
+    Shape: {"linksets":[{"ids":["28019091"],
+                         "linksetdbs":[{"linkname":"pubmed_pmc",
+                                        "links":["5270302"]}]}]}
+
+    One PMID per call, deliberately. Passing several comma-separated ids
+    collapses them into a SINGLE linkset and the per-article mapping is lost --
+    you get a bag of PMCIDs with no way to say which belongs to which. At 43
+    papers the extra round trips cost about fifteen seconds, and a correct
+    mapping is worth more than that.
+    """
+    out = {}
+    for ls in json.loads(payload).get("linksets", []):
+        ids = ls.get("ids") or []
+        if not ids:
+            continue
+        pmid = str(ids[0])
+        for db in ls.get("linksetdbs", []):
+            if db.get("linkname") == "pubmed_pmc" and db.get("links"):
+                out[pmid] = "PMC" + str(db["links"][0])
+    return out
+
+
+def parse_idconv(payload):
+    """Same thing from the older PMC ID Converter, kept as a fallback."""
+    out = {}
+    for rec in json.loads(payload).get("records", []):
+        if rec.get("pmcid") and rec.get("pmid"):
+            out[str(rec["pmid"])] = rec["pmcid"]
+    return out
+
+
+def to_pmcid(pmids, email, debug=False):
+    """PMID -> PMCID.
+
+    Primary route is elink, a core E-utility that has been stable for years.
+    The PMC ID Converter is tried only for whatever elink could not resolve;
+    it was the primary route in the first version of this script and returned
+    nothing at all for 43 of 43 papers, which is how this function learned to
+    distrust a silent empty answer.
+    """
+    found, raw = {}, None
+    for n, pmid in enumerate(pmids):
         q = urllib.parse.urlencode(
-            {"ids": ",".join(batch), "format": "json", "tool": TOOL,
-             "email": email})
-        data = json.loads(get(f"{IDCONV}?{q}"))
-        for rec in data.get("records", []):
-            if rec.get("pmcid"):
-                found[rec.get("pmid")] = rec["pmcid"]
+            {"dbfrom": "pubmed", "db": "pmc", "id": pmid, "retmode": "json",
+             "tool": TOOL, "email": email})
+        try:
+            payload = get(f"{ELINK}?{q}")
+            if raw is None:
+                raw = payload
+            found.update(parse_elink(payload))
+        except Exception as e:                                # noqa: BLE001
+            if debug:
+                print(f"    elink failed for {pmid}: {type(e).__name__}: {e}")
         time.sleep(PAUSE)
+
+    missing = [x for x in pmids if x not in found]
+    if missing:
+        try:
+            q = urllib.parse.urlencode(
+                {"ids": ",".join(missing[:200]), "format": "json",
+                 "tool": TOOL, "email": email})
+            found.update(parse_idconv(get(f"{IDCONV}?{q}")))
+        except Exception as e:                                # noqa: BLE001
+            if debug:
+                print(f"    ID Converter fallback failed: "
+                      f"{type(e).__name__}: {e}")
+
+    # Zero out of everything is not a finding about the literature. Roughly
+    # half of any pharmacometrics reading list is in PMC; none of it is a
+    # broken request. Say so loudly rather than reporting 43 quiet absences.
+    if pmids and not found:
+        print("\nSTOP  Not one of "
+              f"{len(pmids)} PMIDs resolved to a PMC record.\n")
+        print("  That is a failing lookup, not a property of these papers.")
+        print("  First response received:\n")
+        print("    " + (raw or "(no response at all)")[:600].replace("\n", "\n    "))
+        print("\n  Re-run with --debug for the per-request errors.")
+    if debug:
+        print(f"    resolved {len(found)}/{len(pmids)} PMIDs to PMC records")
     return found
 
 
@@ -203,7 +273,7 @@ def https(href):
 # Commands
 # --------------------------------------------------------------------------
 
-def cmd_fetch(papers, email, everything):
+def cmd_fetch(papers, email, everything, debug=False):
     PAPERS.mkdir(parents=True, exist_ok=True)
     have = {p.name for p in PAPERS.glob("*.pdf")}
     wanted = papers if everything else [p for p in papers if p["free"]]
@@ -212,7 +282,7 @@ def cmd_fetch(papers, email, everything):
           f"{len(have)} PDF(s) already in reading/papers/\n")
 
     try:
-        pmcids = to_pmcid([p["pmid"] for p in wanted], email)
+        pmcids = to_pmcid([p["pmid"] for p in wanted], email, debug)
     except Exception as e:                                    # noqa: BLE001
         print(f"Cannot reach PubMed Central: {type(e).__name__}: {e}\n")
         print("  This needs ordinary outbound HTTPS to ncbi.nlm.nih.gov. Some")
@@ -359,7 +429,39 @@ def cmd_self_test(papers):
             return "tgz", links["tgz"]
         return None, "no link"
 
+    # Recorded response SHAPES, not live calls. The first version of this
+    # script had no test here at all and shipped a lookup that returned nothing
+    # for all 43 papers -- reported as "no PMC record 43", which reads like a
+    # fact about the literature instead of a broken request.
+    elink_ok = json.dumps({"linksets": [{
+        "dbfrom": "pubmed", "ids": ["28019091"],
+        "linksetdbs": [{"dbto": "pmc", "linkname": "pubmed_pmc",
+                        "links": ["5270302"]}]}]})
+    elink_none = json.dumps({"linksets": [{"dbfrom": "pubmed",
+                                           "ids": ["11768292"]}]})
+    elink_collapsed = json.dumps({"linksets": [{
+        "dbfrom": "pubmed", "ids": ["28019091", "30215677"],
+        "linksetdbs": [{"dbto": "pmc", "linkname": "pubmed_pmc",
+                        "links": ["5270302", "6290887"]}]}]})
+    idconv_ok = json.dumps({"records": [{"pmid": "28019091",
+                                         "pmcid": "PMC5270302"}]})
+    idconv_err = json.dumps({"status": "error",
+                             "message": "unrecognised parameter"})
+
     checks = [
+        ("elink maps a PMID to its PMC record",
+         parse_elink(elink_ok) == {"28019091": "PMC5270302"}),
+        ("a paper with no PMC record yields nothing, not a wrong answer",
+         parse_elink(elink_none) == {}),
+        ("a collapsed multi-id linkset is NOT trusted for a mapping",
+         # This is why the requests go one PMID at a time. Batched, elink
+         # returns both PMCIDs under both PMIDs and there is no way to tell
+         # which belongs to which; the parser must not invent a pairing.
+         len(parse_elink(elink_collapsed)) == 1),
+        ("the ID Converter fallback parses its own shape",
+         parse_idconv(idconv_ok) == {"28019091": "PMC5270302"}),
+        ("an error payload resolves nothing rather than raising",
+         parse_idconv(idconv_err) == {}),
         ("every parsed row has a PMID",
          all(p["pmid"].isdigit() for p in papers)),
         ("licence-table rows are excluded, paper rows are not",
@@ -411,6 +513,8 @@ def main():
     g.add_argument("--self-test", action="store_true", help="offline checks")
     ap.add_argument("--all", action="store_true",
                     help="with --fetch, try every paper rather than only [free] ones")
+    ap.add_argument("--debug", action="store_true",
+                    help="show per-request failures and the raw first response")
     ap.add_argument("--email", default="mgl0619@users.noreply.github.com",
                     help="contact address NCBI asks tools to send")
     a = ap.parse_args()
@@ -427,7 +531,7 @@ def main():
         return cmd_list(papers)
     if a.self_test:
         return cmd_self_test(raw)
-    return cmd_fetch(papers, a.email, a.all)
+    return cmd_fetch(papers, a.email, a.all, a.debug)
 
 
 if __name__ == "__main__":
