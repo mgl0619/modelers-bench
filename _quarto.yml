@@ -91,6 +91,8 @@ website:
             href: lessons/c-01-reading-an-fda-review/index.qmd
           - text: "C-02 · A regimen approved without a trial"
             href: lessons/c-02-a-regimen-without-a-trial/index.qmd
+          - text: "C-03 · A flat exposure–response"
+            href: lessons/c-03-a-flat-exposure-response/index.qmd
       - section: "S0 · Foundations"
         contents:
           - text: "S0-00 · What quantitative pharmacology is"

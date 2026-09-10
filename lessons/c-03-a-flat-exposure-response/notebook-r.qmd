@@ -1,0 +1,300 @@
+---
+title: "C-03 notebook — R"
+subtitle: "A flat exposure–response"
+execute:
+  freeze: auto
+---
+
+The same experiment as the Python notebook: a trial in which exposure has
+exactly no effect on outcome, an exposure–response analysis that reports a large
+one anyway, and the diagnostic that catches it.
+
+Base R only — no packages. The random number generator differs from NumPy's, so
+the numbers here will not match the Python notebook digit for digit. Every
+conclusion does, and that is the part worth checking.
+
+```{r}
+INK <- "#3A464E"; MUTED <- "#66737C"; GRID <- "#DFE5E8"
+DRUG <- "#2A5DB0"; PROGNOSIS <- "#A32C42"
+```
+
+## The generative model
+
+Antibody clearance rises with catabolic burden — the sicker the patient, the
+faster the drug goes away. Sicker patients also die sooner, for reasons that
+have nothing to do with the drug. Those two facts alone are enough.
+
+```{r}
+simulate <- function(seed = 20260910, n = 1200, theta_cl = 0.40, beta_s = 0.55,
+                     true_te = 0.70, beta_exp = 0.00, proxy_sd = 0.50) {
+  ## theta_cl  severity -> clearance   (catabolism)
+  ## beta_s    severity -> hazard      (prognosis)
+  ## true_te   the drug's real effect  (hazard ratio vs no drug)
+  ## beta_exp  exposure -> hazard      (THE ANSWER; 0.00 means none)
+  ## proxy_sd  how badly the recorded covariate measures true severity
+  set.seed(seed)
+  CL0 <- 0.25; TAU <- 14; DOSE <- 240; H0 <- 0.020; TMAX <- 36
+
+  arm <- function(treated) {
+    S    <- rnorm(n)                                  # true severity, never observed
+    X    <- S + rnorm(n, 0, proxy_sd)                 # what the case report form records
+    CL   <- CL0 * exp(theta_cl * S + rnorm(n, 0, 0.25))
+    cavg <- DOSE / (CL * TAU)                         # exposure falls as clearance rises
+    h    <- H0 *
+            exp(beta_s * S) *                         # prognosis drives the hazard
+            (if (treated) true_te else 1) *           # the drug works, by a fixed amount
+            exp(beta_exp * log(cavg / median(cavg)))
+    t <- rexp(n, rate = h)
+    list(S = S, X = X, CL = CL, cavg = cavg,
+         time = pmin(t, TMAX), event = t <= TMAX)
+  }
+  list(treated = arm(TRUE), control = arm(FALSE))
+}
+
+sim <- simulate()
+treated <- sim$treated; control <- sim$control
+cat(sprintf("treated %d, control %d\n", length(treated$time), length(control$time)))
+cat(sprintf("events:  %d vs %d\n", sum(treated$event), sum(control$event)))
+```
+
+Exposure enters the hazard through `beta_exp` and nothing else. At `0.00` the
+term is `exp(0 * log(...)) = 1` for every patient, so exposure is arithmetically
+absent from every survival time in the dataset.
+
+```{r}
+## The parameter has to be live, or "we set it to zero" proves nothing.
+same    <- simulate(beta_exp =  0.00)$treated
+with_er <- simulate(beta_exp = -0.50)$treated
+stopifnot(identical(same$cavg, with_er$cavg))            # same patients, same exposures
+stopifnot(!identical(same$time, with_er$time))           # but different outcomes
+cat("beta_exp = 0.00  ->  exposure multiplier is exactly 1 for all",
+    length(same$time), "patients\n")
+cat("true exposure effect per e-fold of Cavg: HR = 1.000000 (by construction)\n")
+```
+
+## The hazard ratio, without an optimiser
+
+For exponential survival the hazard rate is events divided by person-time, and a
+hazard ratio is one such rate divided by another. No `coxph`, no solver — and
+the arithmetic *is* the definition.
+
+```{r}
+hazard_ratio <- function(dA, mA, dB, mB) {
+  eA <- sum(dA$event[mA]); tA <- sum(dA$time[mA])
+  eB <- sum(dB$event[mB]); tB <- sum(dB$time[mB])
+  hr <- (eA / tA) / (eB / tB)
+  se <- sqrt(1 / eA + 1 / eB)                            # standard error of log HR
+  c(hr = hr, lo = hr * exp(-1.96 * se), hi = hr * exp(1.96 * se))
+}
+
+quartiles <- function(d, key = "cavg") {
+  v <- d[[key]]; q <- unname(quantile(v, c(.25, .50, .75)))
+  list(v <= q[1], v > q[1] & v <= q[2], v > q[2] & v <= q[3], v > q[3])
+}
+
+Q <- quartiles(treated)
+cat(sprintf("%4s%11s%15s%8s%9s\n", "", "mean Cavg", "mean severity",
+            "events", "hazard"))
+for (i in 1:4) {
+  m <- Q[[i]]; e <- sum(treated$event[m]); pt <- sum(treated$time[m])
+  cat(sprintf("  Q%d%11.1f%+15.2f%8d%9.4f\n", i, mean(treated$cavg[m]),
+              mean(treated$S[m]), e, e / pt))
+}
+```
+
+The exposure quartiles differ in exposure. They also differ, by more than a
+standard deviation end to end, in how sick the patients were before anyone gave
+them anything.
+
+## The same picture, twice
+
+```{r}
+#| fig-width: 9
+#| fig-height: 3.9
+haz <- sapply(Q, function(m) sum(treated$event[m]) / sum(treated$time[m]))
+sev <- sapply(Q, function(m) mean(treated$S[m]))
+lab <- c("Q1", "Q2", "Q3", "Q4")
+
+op <- par(mfrow = c(1, 2), mar = c(4.2, 4.4, 3.4, 1), col.axis = INK,
+          col.lab = INK, fg = MUTED, las = 1, cex.axis = 0.85)
+
+## No grid on these two panels. Drawing one behind base-R bars means calling
+## barplot twice with matching `space`, and a silent mismatch there shifts the
+## bars off their own axis. The value labels carry the numbers instead.
+b <- barplot(haz, names.arg = lab, col = DRUG, border = NA, space = 0.6,
+             ylim = c(0, max(haz) * 1.22), ylab = "events per patient-month")
+text(b, haz, sprintf("%.4f", haz), pos = 3, cex = 0.8, col = INK)
+title("What the analysis reports\nhazard rate by exposure quartile",
+      adj = 0, cex.main = 0.95, font.main = 1, col.main = INK)
+
+b2 <- barplot(sev, names.arg = lab, col = PROGNOSIS, border = NA, space = 0.6,
+              ylim = c(min(sev) * 1.35, max(sev) * 1.35),
+              ylab = "severity score (0 = average)")
+abline(h = 0, col = MUTED)
+text(b2, sev, sprintf("%+.2f", sev), pos = ifelse(sev > 0, 3, 1),
+     cex = 0.8, col = INK)
+title("What the quartiles actually differ in\nmean baseline severity",
+      adj = 0, cex.main = 0.95, font.main = 1, col.main = INK)
+par(op)
+```
+
+Two gradients, one cause. Sorting patients by exposure sorted them by prognosis,
+because clearance is a symptom of the disease.
+
+## 1. The analysis anyone would run
+
+```{r}
+naive <- hazard_ratio(treated, Q[[4]], treated, Q[[1]])
+cat("highest vs lowest exposure quartile\n")
+cat(sprintf("  HR = %.2f   95%% CI %.2f to %.2f\n", naive[1], naive[2], naive[3]))
+cat("  truth       1.00\n")
+```
+
+A large reduction in hazard, with a confidence interval nowhere near 1, from a
+drug whose exposure does nothing. This is not noise and it will not go away with
+a larger trial — more patients would tighten that interval around the wrong
+number.
+
+## 2. Adjusting for prognosis does not fix it
+
+```{r}
+xq <- unname(quantile(treated$X, c(.2, .4, .6, .8)))
+strata <- list(treated$X <= xq[1],
+               treated$X > xq[1] & treated$X <= xq[2],
+               treated$X > xq[2] & treated$X <= xq[3],
+               treated$X > xq[3] & treated$X <= xq[4],
+               treated$X > xq[4])
+num <- 0; den <- 0
+for (s in strata) {
+  eA <- sum(treated$event[s & Q[[4]]]); tA <- sum(treated$time[s & Q[[4]]])
+  eB <- sum(treated$event[s & Q[[1]]]); tB <- sum(treated$time[s & Q[[1]]])
+  if (eA > 0 && eB > 0) { num <- num + eA / tA; den <- den + eB / tB }
+}
+cat(sprintf("  HR stratified on the recorded covariate = %.2f\n", num / den))
+cat(sprintf("  unadjusted                              = %.2f\n", naive[1]))
+cat        ("  truth                                   = 1.00\n")
+```
+
+Part of the bias, and part is not enough. The covariate you recorded is a noisy
+reading of the thing that actually drives both clearance and death, and
+adjusting for a noisy proxy removes only the part of the confounding the proxy
+managed to capture.
+
+## 3. The diagnostic that works
+
+Stop asking whether high exposure beats low exposure inside the treated arm. Ask
+instead whether the **lowest**-exposure patients still beat comparable patients
+who never got the drug.
+
+```{r}
+match_controls <- function(treated, control, mask, on = "X") {
+  pool <- seq_along(control[[on]]); chosen <- integer(0)
+  for (i in which(mask)) {
+    k <- which.min(abs(control[[on]][pool] - treated[[on]][i]))
+    chosen <- c(chosen, pool[k]); pool <- pool[-k]
+  }
+  m <- rep(FALSE, length(control[[on]])); m[chosen] <- TRUE; m
+}
+
+mX <- match_controls(treated, control, Q[[1]], "X")
+matched <- hazard_ratio(treated, Q[[1]], control, mX)
+cat(sprintf("matched on the recorded covariate:  treated Q1 mean %+.2f vs controls %+.2f\n",
+            mean(treated$X[Q[[1]]]), mean(control$X[mX])))
+cat(sprintf("  HR (lowest-exposure treated vs matched controls) = %.2f   95%% CI %.2f to %.2f\n",
+            matched[1], matched[2], matched[3]))
+cat        ("  the drug's true effect                           = 0.70\n")
+
+mS <- match_controls(treated, control, Q[[1]], "S")
+oracle <- hazard_ratio(treated, Q[[1]], control, mS)
+cat(sprintf("  matched on TRUE severity (not available in life) = %.2f   95%% CI %.2f to %.2f\n",
+            oracle[1], oracle[2], oracle[3]))
+```
+
+The patients with the least drug exposure still got most of the drug's benefit.
+That is incompatible with a real exposure–response and compatible with the
+truth: the drug works, and the dose is on a plateau.
+
+Matching on the truth recovers something close to 0.70. Matching on what was
+written down lands short of it. The gap is the price of measuring prognosis
+imperfectly, and in a real study nobody can show you that gap.
+
+```{r}
+#| fig-width: 9
+#| fig-height: 2.9
+rows    <- list(naive, matched, oracle)
+names_  <- c("naive: Q4 vs Q1 exposure", "matched on recorded covariate",
+             "matched on true severity")
+targets <- c(1.00, 0.70, 0.70)
+tnames  <- c("no exposure effect", "the drug's effect", "the drug's effect")
+
+op <- par(mar = c(4.2, 12, 1, 12), col.axis = INK, col.lab = INK, fg = MUTED,
+          las = 1, cex.axis = 0.85)
+plot(NA, xlim = c(0.2, 2), ylim = c(0.4, 3.6), log = "x", xaxt = "n",
+     yaxt = "n", xlab = "", ylab = "", bty = "n")
+abline(v = c(0.25, 0.5, 1, 2), col = GRID)
+abline(v = 1, col = MUTED, lty = 3)
+axis(1, at = c(0.25, 0.5, 1, 2), labels = c("0.25", "0.5", "1.0", "2.0"))
+mtext("hazard ratio (log scale) — filled circle: estimate, open diamond: truth",
+      side = 1, line = 2.6, cex = 0.85, col = INK)
+for (i in seq_along(rows)) {
+  y <- length(rows) + 1 - i
+  segments(rows[[i]][2], y, rows[[i]][3], y, col = DRUG, lwd = 3)
+  points(rows[[i]][1], y, pch = 21, bg = DRUG, col = "white", cex = 1.5, lwd = 1.5)
+  points(targets[i], y, pch = 5, col = PROGNOSIS, cex = 1.5, lwd = 2)
+  text(rows[[i]][1], y + 0.26, sprintf("%.2f", rows[[i]][1]), cex = 0.8, col = INK)
+  mtext(names_[i], side = 2, at = y, line = 0.5, cex = 0.85, col = INK)
+  mtext(sprintf("target %.2f — %s", targets[i], tnames[i]), side = 4, at = y,
+        line = 0.5, cex = 0.85, col = MUTED, adj = 0)
+}
+par(op)
+```
+
+## The tests, and the sabotage that makes them tests
+
+An assertion that passes whether or not the thing it guards is broken is
+decoration. Each check below is paired with a deliberately broken run that must
+make it fail.
+
+```{r}
+flat      <- simulate(theta_cl = 0.0)
+flatQ     <- quartiles(flat$treated)
+flat_naive <- hazard_ratio(flat$treated, flatQ[[4]], flat$treated, flatQ[[1]])
+
+perf   <- simulate(proxy_sd = 0.01)
+perfQ  <- quartiles(perf$treated)
+perf_matched <- hazard_ratio(perf$treated, perfQ[[1]], perf$control,
+                             match_controls(perf$treated, perf$control,
+                                            perfQ[[1]], "X"))
+
+checks <- list(
+  c("a zero exposure effect is reported as a large one",
+    naive[3] < 0.75),
+  c("and it is not a confidence problem — the interval excludes 1",
+    naive[3] < 1.0),
+  c("removing the clearance-prognosis link removes the whole signal",
+    flat_naive[2] < 1.0 && flat_naive[3] > 1.0),
+  c("case-matching moves the estimate most of the way back",
+    matched[1] > 2 * naive[1]),
+  c("recording prognosis better closes the residual gap",
+    abs(perf_matched[1] - oracle[1]) < abs(matched[1] - oracle[1]))
+)
+for (ch in checks) cat(sprintf("  %s  %s\n",
+                               if (as.logical(ch[2])) "PASS" else "FAIL", ch[1]))
+stopifnot(all(sapply(checks, function(ch) as.logical(ch[2]))))
+
+cat(sprintf("\n  sabotage 1 (theta_cl = 0):  HR %.2f (%.2f-%.2f)  <- the bias is gone\n",
+            flat_naive[1], flat_naive[2], flat_naive[3]))
+cat(sprintf("  sabotage 2 (perfect covariate): matched HR %.2f vs %.2f with a noisy one\n",
+            perf_matched[1], matched[1]))
+```
+
+Sabotage 1 is the important one. Set the clearance–prognosis link to zero and the
+spurious effect vanishes — which is the proof that the link, and nothing else in
+this simulation, produced it.
+
+## What you should take away
+
+An exposure–response analysis inside a single treatment arm is an observational
+study wearing a pharmacokinetic costume. Randomisation assigned the dose; it did
+not assign the exposure, and whatever determines the exposure is free to
+determine the outcome too.

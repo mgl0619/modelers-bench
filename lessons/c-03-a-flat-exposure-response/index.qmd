@@ -1,0 +1,279 @@
+---
+title: "A flat exposure–response"
+subtitle: "Lesson C-03"
+description: >
+  Nivolumab's exposure–response is flat, and that flatness carried three
+  regimen changes into the label. It is also the single easiest result in
+  clinical pharmacology to over-read — and the analysis that produces it is
+  observational, whatever the trial around it was.
+categories: [regulatory, exposure-response, biologics, causal inference, approved drugs]
+---
+
+::: {.callout-tip appearance="simple"}
+## The decision this serves
+Your exposure–response analysis comes back flat. The clinical pharmacology lead
+reads it as permission to double the interval. The medical director, in the same
+meeting, reads it as permission to halve the **dose** — same drug, half the cost,
+and the curve says exposure does not matter.
+
+One of them is right, and the analysis on the slide cannot tell you which. This
+lesson is about what a flat line permits, and about the more uncomfortable
+question of whether the line you fitted was measuring exposure at all.
+:::
+
+## 1. What was actually approved
+
+Nivolumab was licensed in December 2014 at **3 mg/kg every two weeks**
+([BLA 125554](https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=125554),
+Bristol Myers Squibb). Since then the regimen has moved twice: to a flat
+**240 mg Q2W**, and then to **480 mg every four weeks**.
+
+Check the label today and the arc is complete. On the version effective
+31 August 2026, adult monotherapy dosing is *240 mg every 2 weeks or 480 mg
+every 4 weeks*; the weight-based 3 mg/kg regimen the drug was approved on
+survives only for paediatric patients under 40 kg. The dose that carried the
+original evidence is no longer the dose adults receive.
+
+None of those changes was supported by a new efficacy trial. All of them rested
+on the same finding: over the exposure range the programme produced, outcome did
+not vary with exposure.
+
+## 2. What "flat" meant, exactly
+
+It is worth quoting the shape of the claim rather than the slogan, because the
+slogan is wrong.
+
+The adjuvant analysis is Zhao et al.
+([DOI](https://doi.org/10.1111/bcp.16188)): a population PK model on **1,493
+subjects** across seven monotherapy studies, and an exposure–response analysis on
+**756 patients** from CheckMate 577. Nivolumab exposure *was* associated with
+disease-free survival, and *was* associated with grade ≥2 immune-mediated adverse
+events. What the authors report as flat is that the hazard ratios at the 5th and
+95th percentiles of exposure were **similar to each other** — the association
+exists, but across the whole span of exposures the regimen actually produced, it
+does not move the outcome enough to matter.
+
+"Flat" is therefore not "exposure is irrelevant". It is "over *this* range, the
+slope is small enough to ignore". Those are different sentences and only the
+second one is licensed.
+
+The regimen comparison is Long et al.
+([DOI](https://doi.org/10.1093/annonc/mdy408)): 480 mg Q4W against 3 mg/kg Q2W
+gives a similar time-averaged concentration, an approximately **16% lower
+trough**, and an approximately **45% higher peak** — with that peak still well
+below 10 mg/kg Q2W, a dose already tolerated. The same three-legged argument as
+[C-02](../c-02-a-regimen-without-a-trial/index.qmd), with flatness doing the work
+that pembrolizumab's exposure–response curve did there.
+
+## 3. Flatness is the expected answer, not a discovery
+
+Here is the part that rarely gets said in the slide deck. A phase 3 programme
+studies **one dose**. The exposure range in an exposure–response analysis
+therefore comes not from design but from between-subject variability in
+pharmacokinetics — a spread of maybe three- to fourfold, sitting wherever the
+chosen dose put it.
+
+If that dose was selected, as these were, at or above the top of the
+dose–response curve, then every patient in the analysis is on the plateau, and a
+flat line is what a plateau looks like when you sample it. The analysis has
+confirmed that the dose is not *too low*. It has said nothing whatsoever about
+whether it is too high, because no one in the dataset received less.
+
+That asymmetry is the whole answer to the meeting in the callout above. Flatness
+licenses **redistributing** the same exposure over a different schedule. It does
+not license **reducing** it, because the region below the studied range is not in
+the data. Answering the medical director's question requires a randomised
+lower-dose arm, which is exactly what Project Optimus now asks for and what [`C-04`](../../drugs.qmd)
+will be about.
+
+## 4. The confound
+
+Now the harder problem, and the reason this lesson exists rather than being a
+paragraph in C-02.
+
+Nivolumab's clearance is **time-varying** — Bajaj et al.
+([DOI](https://doi.org/10.1002/psp4.12143)), a population model on 1,895 patients
+across eleven trials, describes linear pharmacokinetics with a clearance that
+falls over the course of treatment. Clearance of a monoclonal antibody reflects
+catabolic activity, and catabolic activity is elevated in advanced cancer. When a
+patient responds, their clearance drops.
+
+So exposure is not an exogenous variable. It is partly a **measurement of how
+sick the patient is**, taken with a pharmacokinetic instrument.
+
+Turner et al. ([DOI](https://doi.org/10.1158/1078-0432.CCR-18-0415)) put numbers
+on this for pembrolizumab across 1,453 subjects. Overall survival was
+dose-independent from 2 to 10 mg/kg — hazard ratio 0.98 (95% CI 0.94–1.02) in
+melanoma and 0.98 (0.95–1.01) in NSCLC. But baseline clearance predicted survival
+powerfully: unadjusted hazard ratios of **2.56 (1.72–3.80)** and **2.64
+(1.94–3.57)**. High clearance tracked the markers of cancer anorexia–cachexia
+syndrome. The paper's own conclusion is that this pattern is probably general to
+antineoplastic monoclonal antibodies, not specific to one drug.
+
+The cleanest evidence is a natural experiment. Hamuro et al.
+([DOI](https://doi.org/10.1002/cpt.1502)) looked at nivolumab in patients whose
+melanoma had been **surgically removed**. In that population clearance was 40%
+lower at baseline and **did not vary with time at all**. Remove the tumour and
+the time-varying clearance disappears with it — which is about as direct a
+demonstration as observational pharmacokinetics ever gets that the clearance was
+a property of the disease rather than of the drug.
+
+## 5. Adjusting for prognosis does not rescue it
+
+The instinctive fix is to put the prognostic covariates in the model. Turner et
+al. did. The clearance–survival association was attenuated and **did not go
+away**: multivariate-adjusted hazard ratios of 1.64 (1.06–2.52) in melanoma and
+1.88 (1.22–2.89) in NSCLC.
+
+This is not a failure of diligence. The covariates recorded on a case report form
+are noisy readings of the underlying disease burden, and adjusting for a noisy
+proxy removes only the fraction of the confounding the proxy managed to capture.
+The residual is invisible and points in a known direction: it makes low exposure
+look worse than it is.
+
+## 6. The diagnostic that works
+
+Stop comparing high exposure against low exposure inside the treated arm. That
+comparison is observational no matter how randomised the trial was — the protocol
+assigned the **dose**; the patient's physiology assigned the **exposure**.
+
+Ask a different question instead: do the patients in the *lowest* exposure
+quartile still beat comparable patients who never received the drug? If they do,
+the exposure gradient was never a gradient in drug effect.
+
+He et al. ([DOI](https://doi.org/10.1002/cpt.3063)) ran exactly this on
+tremelimumab in the phase 3 POSEIDON study. Higher exposure looked associated
+with better progression-free and overall survival. Case-matching the lowest
+exposure quartile against comparable chemotherapy-treated patients returned
+hazard ratios of **1.04 (0.76–1.44)** for overall survival and **0.99
+(0.72–1.36)** for progression-free survival — and the authors concluded the
+apparent exposure–response "might be confounded".
+
+## Work through it
+
+The notebook builds a trial in which exposure has *exactly* no effect on outcome,
+runs the analysis anyone would run, and watches it report a 67% hazard reduction
+with a confidence interval nowhere near 1. It then applies covariate adjustment
+(which removes about half the bias) and case-matching (which removes most of it),
+and finishes with the sabotage run that proves where the bias came from.
+
+::: {.callout-note appearance="simple"}
+[Notebook — Python](notebook-py.qmd) · [Notebook — R](notebook-r.qmd)
+:::
+
+## Failure mode — the flat line that was never tested
+
+Two ways this goes wrong, and neither of them errors.
+
+**Flatness assumed rather than shown.** A team reports a flat exposure–response
+and moves to a longer interval. Nobody asks what fraction of the exposure range
+the analysis actually covered, and it turns out the interquartile range spans
+1.4-fold. A relationship can be arbitrarily steep and still look flat across
+1.4-fold of anything. The analysis had no power to detect the slope it is being
+used to rule out — and a confidence interval on the slope would have said so,
+which is why the slope interval, not the p-value, is the number to demand.
+
+**The confounded slope read backwards.** The opposite failure, and the more
+expensive one. A team finds a *positive* exposure–response — more drug, better
+survival — and proposes raising the dose. What they have found is that patients
+who were going to do well cleared the antibody slowly. Raising the dose treats a
+symptom of good prognosis as its cause. Everyone gets more drug, more toxicity,
+and no benefit, and the trial that discovers this costs years.
+
+The diagnostic for both is the same and it is not a diagnostic plot: it is
+asking what would have to be true of the world for this coefficient to be causal,
+and then checking that thing directly.
+
+::: {.callout-note appearance="simple"}
+## The habit
+Before you present an exposure–response result from a single-arm-of-a-trial
+analysis, write down the mechanism by which a patient came to have high exposure.
+If any part of that mechanism is "they were doing well", the coefficient is not
+a dose effect and no amount of covariate adjustment will make it one.
+:::
+
+## Check yourself
+
+::: {.callout-note collapse="true"}
+## 1. Your exposure–response is flat, and someone proposes cutting the dose in half. What is wrong with the argument, and what would fix it?
+
+The flat line was fitted over the exposure range one dose produced. Half that
+dose lands outside it, where the analysis has no data and therefore no opinion —
+flatness there is an extrapolation, not a finding. Nothing about the existing
+analysis can be re-run to fix this; it needs exposure at the lower level, which
+in practice means a randomised lower-dose arm. Note that the same flat line
+*does* support redistributing the same total exposure over a longer interval,
+because that stays inside the observed range. Same result, two proposals, only
+one of them supported.
+:::
+
+::: {.callout-note collapse="true"}
+## 2. A colleague shows that patients in the top exposure quartile survive far longer than those in the bottom quartile, and concludes the dose should go up. What is the first thing you ask for?
+
+The baseline characteristics of the two quartiles. If the drug is a monoclonal
+antibody, expect the low-exposure group to have higher tumour burden, lower
+albumin, worse performance status and higher LDH — because clearance rises with
+catabolic burden, so sorting by exposure sorts by prognosis. The second thing to
+ask for is the case-matched comparison against a control arm: whether the
+*lowest*-exposure patients still beat comparable untreated patients. If they do,
+the gradient is confounding. Adjusting for the baseline covariates is worth
+doing but will not settle it, since it removes only the part of the confounding
+those covariates measured.
+:::
+
+::: {.callout-note collapse="true"}
+## 3. Nivolumab clearance falls over time in metastatic melanoma but is constant in resected melanoma. Why does that observation matter more than a covariate analysis?
+
+Because it is a difference in the *system*, not a coefficient inside one model.
+A covariate analysis can always be argued about — was the right covariate
+included, was it measured well, was the functional form right. Removing the
+tumour and watching the time dependence vanish with it identifies what the
+clearance was tracking, without needing a model to be correctly specified. It is
+the closest thing to an intervention available here, and it converts "clearance
+correlates with disease" into "clearance is a reading of disease".
+:::
+
+## Going further
+
+Zhao Y, Tsujimoto A, Ide T, et al. *Model-based population pharmacokinetic and
+exposure response analyses for safety and efficacy of nivolumab as adjuvant
+treatment in subjects with resected oesophageal or gastroesophageal junction
+cancer.* Br J Clin Pharmacol 2024;90:2920–2930
+([DOI](https://doi.org/10.1111/bcp.16188)) — the flat-E-R analysis behind the
+adjuvant Q4W regimen.
+
+Turner DC, Kondic AG, Anderson KM, et al. *Pembrolizumab exposure-response
+assessments challenged by association of cancer cachexia and catabolic
+clearance.* Clin Cancer Res 2018;24:5841–5849
+([DOI](https://doi.org/10.1158/1078-0432.CCR-18-0415)) — the paper to read if you
+read only one. Note the title: the authors are not claiming the confounding is
+hypothetical.
+
+Hamuro L, Statkevich P, Bello A, Roy A, Bajaj G. *Nivolumab clearance is
+stationary in patients with resected melanoma on adjuvant therapy: implications
+of disease status on time-varying clearance.* Clin Pharmacol Ther
+2019;106:1018–1027 ([DOI](https://doi.org/10.1002/cpt.1502)).
+
+He JZ, Duval V, Jauslin P, et al. *Population pharmacokinetics and
+exposure-response analysis for the CTLA-4 inhibitor tremelimumab in metastatic
+NSCLC patients in the phase III POSEIDON study.* Clin Pharmacol Ther
+2023;114:1375–1386 ([DOI](https://doi.org/10.1002/cpt.3063)) — the case-matching
+diagnostic, done in public on a registrational dataset.
+
+Bajaj G, Wang X, Agrawal S, Gupta M, Roy A, Feng Y. *Model-based population
+pharmacokinetic analysis of nivolumab in patients with solid tumors.* CPT
+Pharmacometrics Syst Pharmacol 2017;6:58–66
+([DOI](https://doi.org/10.1002/psp4.12143), free full text).
+
+Long GV, Tykodi SS, Schneider JG, et al. *Assessment of nivolumab exposure and
+clinical safety of 480 mg every 4 weeks flat-dosing schedule in patients with
+cancer.* Ann Oncol 2018;29:2208–2213
+([DOI](https://doi.org/10.1093/annonc/mdy408), free full text).
+
+**What this lesson deliberately omits.** The formal causal machinery — marginal
+structural models, g-estimation, instrumental variables — that the pharmacometric
+literature is beginning to import for exactly this problem. The point here is to
+make the confounding visible and to show one diagnostic that works on data you
+already have. Doing it properly is a course of its own.
+
+All citations verified against **PubMed**; DOIs link to the publisher record.

@@ -1,0 +1,9 @@
+id: c-03
+strand: C
+title: A flat exposure–response
+paths: [PATH-B, PATH-C]
+prereqs: [c-02]
+next: c-04
+runnable: true
+notebooks: [notebook-r.qmd, notebook-py.qmd]
+reviewed: 2026-09-10

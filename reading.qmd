@@ -11,7 +11,7 @@ curriculum that costs nothing should send you to papers that cost nothing.
 ::: {.callout-important appearance="simple"}
 ## Why this page links rather than hosts
 
-We checked the licence of all 96 papers through PubMed. The result is worth
+We checked the licence of all 101 papers through PubMed. The result is worth
 knowing before anyone proposes bundling PDFs with the course:
 
 | | Papers |
@@ -236,11 +236,25 @@ approval packages — public-domain documents, cited from
 | Lala M, Li TR, de Alwis DP, et al. **Corrigendum.** *Eur J Cancer* 2021;144:400. [DOI](https://doi.org/10.1016/j.ejca.2020.12.006) · PMID 33414065 | Listed separately and deliberately. `C-02` teaches close reading of a regulatory argument; citing the paper without its correction would undercut the lesson. |
 | Zhao Y, Tsujimoto A, Ide T, et al. **Model-based population pharmacokinetic and exposure response analyses for safety and efficacy of nivolumab as adjuvant treatment in subjects with resected oesophageal or gastroesophageal junction cancer.** *Br J Clin Pharmacol* 2024;90:2920–2930. [DOI](https://doi.org/10.1111/bcp.16188) · PMID 39054780 | PopPK on 1,493 subjects; exposure–response on 756 from CheckMate 577. Hazard ratios at the 5th and 95th exposure percentiles were similar for both disease-free survival and grade ≥2 immune-mediated events. `C-03` is about what a flat relationship licenses — and what it quietly does not. |
 
+| Long GV, Tykodi SS, Schneider JG, et al. **Assessment of nivolumab exposure and clinical safety of 480 mg every 4 weeks flat-dosing schedule in patients with cancer.** *Ann Oncol* 2018;29:2208–2213. [DOI](https://doi.org/10.1093/annonc/mdy408) · PMID 30215677 · **[free]** | The nivolumab counterpart to Lala, and `C-03`'s regimen comparison. 480 mg Q4W against 3 mg/kg Q2W: similar time-averaged concentration, about 16% lower trough, about 45% higher peak — with that peak still below 10 mg/kg Q2W, a dose already tolerated. Same three-legged argument as `C-02`, different drug. |
+
+### When exposure is a symptom, not a cause
+
+Read these three together. They are the reason `C-03` spends more time on causal
+inference than on pharmacokinetics.
+
+| | Why |
+|---|---|
+| Turner DC, Kondic AG, Anderson KM, et al. **Pembrolizumab exposure-response assessments challenged by association of cancer cachexia and catabolic clearance.** *Clin Cancer Res* 2018;24:5841–5849. [DOI](https://doi.org/10.1158/1078-0432.CCR-18-0415) · PMID 29891725 | The keystone. Across 1,453 subjects, survival was dose-independent from 2 to 10 mg/kg (HR 0.98) while baseline clearance predicted survival powerfully (unadjusted HR 2.56 in melanoma, 2.64 in NSCLC), tracking the markers of cancer anorexia–cachexia. Adjusting for prognostic covariates attenuated but did **not** remove it (1.64 and 1.88). The authors expect the pattern to generalise to antineoplastic monoclonal antibodies. |
+| Hamuro L, Statkevich P, Bello A, Roy A, Bajaj G. **Nivolumab clearance is stationary in patients with resected melanoma on adjuvant therapy: implications of disease status on time-varying clearance.** *Clin Pharmacol Ther* 2019;106:1018–1027. [DOI](https://doi.org/10.1002/cpt.1502) · PMID 31090921 | The natural experiment. Remove the tumour surgically and nivolumab's time-varying clearance disappears — 40% lower at baseline, no time dependence at all. About as close to an intervention as observational pharmacokinetics gets, and it identifies what the clearance was tracking without requiring a covariate model to be correctly specified. |
+| He JZ, Duval V, Jauslin P, et al. **Population pharmacokinetics and exposure-response analysis for the CTLA-4 inhibitor tremelimumab in metastatic NSCLC patients in the phase III POSEIDON study.** *Clin Pharmacol Ther* 2023;114:1375–1386. [DOI](https://doi.org/10.1002/cpt.3063) · PMID 37777827 | The diagnostic, run in public on a registrational dataset. Higher exposure looked associated with better survival; case-matching the lowest exposure quartile against comparable chemotherapy patients returned HR 1.04 (0.76–1.44) for overall survival and 0.99 (0.72–1.36) for progression-free survival. The authors' own word for the apparent relationship is "confounded". |
+
 ### The population models the arguments rest on
 
 | | Why |
 |---|---|
 | Ahamadi M, Freshwater T, Prohn M, et al. **Model-based characterization of the pharmacokinetics of pembrolizumab.** *CPT Pharmacometrics Syst Pharmacol* 2016;6:49–57. [DOI](https://doi.org/10.1002/psp4.12139) · PMID 27863186 · **[free]** | The model underneath `C-02`. Built on KEYNOTE-001, -002 and -006. Its most consequential finding is a **negative** one: sex, performance status, renal and hepatic measures, tumour type and burden all had modest, clinically insignificant effects on exposure. That is what licensed flat dosing, and it is the kind of result that rarely gets a headline. |
+| Bajaj G, Wang X, Agrawal S, Gupta M, Roy A, Feng Y. **Model-based population pharmacokinetic analysis of nivolumab in patients with solid tumors.** *CPT Pharmacometrics Syst Pharmacol* 2017;6:58–66. [DOI](https://doi.org/10.1002/psp4.12143) · PMID 28019091 · **[free]** | The model underneath `C-03`: 1,895 patients, eleven trials, 0.3–10 mg/kg, linear pharmacokinetics with a **time-varying** clearance. Every covariate examined moved clearance by less than 20%. The time dependence is the interesting parameter, and the reason `C-03` exists — read it alongside Hamuro. |
 | Shang J, Huang L, Huang J, et al. **Population pharmacokinetic models of anti-PD-1 mAbs in patients with multiple tumor types: a systematic review.** *Front Immunol* 2022;13:871372. [DOI](https://doi.org/10.3389/fimmu.2022.871372) · PMID 35983041 · **[free]** | Fourteen models across five antibodies, with the parameter ranges tabulated — clearance 0.179–0.290 L/day, central volume 2.98–4.46 L, two-compartment with time-varying clearance. `C-02`'s notebooks take their parameters from inside these ranges rather than inventing them, and say so. |
 
 ### Doses that were argued over
