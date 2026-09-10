@@ -152,13 +152,30 @@ apparent exposure–response "might be confounded".
 ## Work through it
 
 The notebook builds a trial in which exposure has *exactly* no effect on outcome,
-runs the analysis anyone would run, and watches it report a 67% hazard reduction
-with a confidence interval nowhere near 1. It then applies covariate adjustment
-(which removes about half the bias) and case-matching (which removes most of it),
-and finishes with the sabotage run that proves where the bias came from.
+runs the analysis anyone would run, and watches it report a hazard reduction of
+roughly two-thirds with a confidence interval nowhere near 1. It then applies
+covariate adjustment — which removes some of the bias, and by no means reliably
+half of it — and case-matching, which removes most. It finishes with the sabotage
+run that proves where the bias came from.
 
 ::: {.callout-note appearance="simple"}
 [Notebook — Python](notebook-py.qmd) · [Notebook — R](notebook-r.qmd)
+:::
+
+::: {.callout-note appearance="simple"}
+## The two notebooks disagree on the digits, and that is the useful part
+They are independent implementations drawing on different random number
+generators, so they simulate different trials. The naive exposure–response comes
+out at 0.33 (0.25–0.42) in Python and 0.35 (0.27–0.46) in R. Covariate adjustment
+moves it to 0.62 in one and 0.39 in the other — the bluntest available reminder
+that "adjusting for prognosis" is not a procedure with a dependable amount of
+correction in it.
+
+Every conclusion survives both: the spurious effect is large and its interval
+excludes 1; adjustment is insufficient; case-matching recovers most of the truth;
+and setting the clearance–prognosis link to zero collapses the whole thing to
+1.01 (0.79–1.30) in Python and 1.13 (0.89–1.45) in R. A result that holds in two
+implementations is evidence. A result from one is a run.
 :::
 
 ## Failure mode — the flat line that was never tested

@@ -27,3 +27,5 @@ _to_delete/
 
 # raw openFDA responses — regenerate with `make fda`, never committed
 fda-cache/
+
+**/*.quarto_ipynb
