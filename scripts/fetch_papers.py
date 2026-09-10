@@ -45,6 +45,7 @@ import sys
 import tarfile
 import time
 import unicodedata
+import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -55,8 +56,21 @@ PAPERS = ROOT / "reading" / "papers"
 WORKLIST = PAPERS / "download-list.html"
 
 ELINK = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi"
-IDCONV = "https://www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/"
-OA = "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi"
+
+# PMC moved to its own host and the old www.ncbi.nlm.nih.gov/pmc/utils/ paths
+# were retired -- which is what 404'd here. Rather than hard-code whichever URL
+# happens to work this year, probe the candidates once against an article known
+# to be in the OA subset and use the first that answers. When NCBI moves these
+# again, add a line; do not go hunting through the code.
+OA_CANDIDATES = [
+    "https://pmc.ncbi.nlm.nih.gov/utils/oa/oa.fcgi",
+    "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi",
+]
+IDCONV_CANDIDATES = [
+    "https://pmc.ncbi.nlm.nih.gov/utils/idconv/v1.0/",
+    "https://www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/",
+]
+KNOWN_OA = "PMC5270302"   # Bajaj 2017, the population model behind C-03
 TOOL = "modelers-bench-reading-list"
 PAUSE = 0.34                      # NCBI: <= 3 requests/second unauthenticated
 
@@ -180,6 +194,30 @@ def parse_idconv(payload):
     return out
 
 
+def probe_endpoint(candidates, build, want, debug=False):
+    """Return the first candidate URL whose response actually looks right.
+
+    `build(url)` makes the probe request, `want` is a substring the answer must
+    contain. A 404 is not the only failure worth catching -- a redirect to a
+    friendly HTML "this service has moved" page returns 200 and would sail
+    straight through a status-code check.
+    """
+    for url in candidates:
+        try:
+            body = get(build(url), timeout=30)
+            if want in body:
+                if debug:
+                    print(f"    using {url}")
+                return url
+            if debug:
+                print(f"    {url}: answered, but no {want!r} in the response")
+        except Exception as e:                                # noqa: BLE001
+            if debug:
+                print(f"    {url}: {type(e).__name__}: {e}")
+        time.sleep(PAUSE)
+    return None
+
+
 def to_pmcid(pmids, email, debug=False):
     """PMID -> PMCID.
 
@@ -210,7 +248,14 @@ def to_pmcid(pmids, email, debug=False):
             q = urllib.parse.urlencode(
                 {"ids": ",".join(missing[:200]), "format": "json",
                  "tool": TOOL, "email": email})
-            found.update(parse_idconv(get(f"{IDCONV}?{q}")))
+            base = probe_endpoint(
+                IDCONV_CANDIDATES,
+                lambda u: u + "?" + urllib.parse.urlencode(
+                    {"ids": "28019091", "format": "json", "tool": TOOL,
+                     "email": email}),
+                "PMC", debug)
+            if base:
+                found.update(parse_idconv(get(f"{base}?{q}")))
         except Exception as e:                                # noqa: BLE001
             if debug:
                 print(f"    ID Converter fallback failed: "
@@ -231,7 +276,7 @@ def to_pmcid(pmids, email, debug=False):
     return found
 
 
-def oa_location(pmcid, email):
+def oa_location(pmcid, email, endpoint):
     """Ask the OA Web Service where (or whether) this article may be downloaded.
 
     Returns (kind, href) with kind in {"pdf", "tgz"}, or (None, reason).
@@ -239,7 +284,7 @@ def oa_location(pmcid, email):
     error record here -- which is the distinction this script exists to respect.
     """
     q = urllib.parse.urlencode({"id": pmcid, "tool": TOOL, "email": email})
-    xml = get(f"{OA}?{q}")
+    xml = get(f"{endpoint}?{q}")
     err = re.search(r'<error[^>]*code="([^"]+)"[^>]*>([^<]*)', xml)
     if err:
         return None, f"{err.group(1)}: {err.group(2).strip() or 'not in the OA subset'}"
@@ -292,24 +337,48 @@ def cmd_fetch(papers, email, everything, debug=False):
         print("  `--list` works offline and writes the worklist you can use in")
         print("  a browser instead.")
         return 1
+    # Find the OA service before doing 43 papers' worth of work against a URL
+    # that may not exist. The previous version assumed one, and a 404 on the
+    # first paper took the whole run down with it.
+    oa = probe_endpoint(
+        OA_CANDIDATES,
+        lambda u: u + "?" + urllib.parse.urlencode(
+            {"id": KNOWN_OA, "tool": TOOL, "email": email}),
+        "<OA", debug)
+    if not oa:
+        print("STOP  None of the known PMC Open Access service URLs answered:\n")
+        for u in OA_CANDIDATES:
+            print(f"    {u}")
+        print("\n  NCBI has moved this service before and will again. Check")
+        print("  https://pmc.ncbi.nlm.nih.gov/tools/oa-service/ for the current")
+        print("  address and add it to OA_CANDIDATES at the top of this file.")
+        print("  Re-run with --debug to see what each candidate replied.")
+        print("\n  Nothing was downloaded and nothing was changed.")
+        return 1
+
     got, skipped, no_pmc, not_oa, failed = [], [], [], [], []
 
     for p in wanted:
-        pmcid = pmcids.get(p["pmid"])
-        if not pmcid:
-            no_pmc.append(p)
-            continue
-        name = filename(p, pmcid)
-        if name in have:
-            skipped.append(p)
-            continue
-        kind, where = oa_location(pmcid, email)
-        time.sleep(PAUSE)
-        if not kind:
-            p["_why"] = where
-            not_oa.append(p)
-            continue
+        # One paper must never be able to end the run. Forty-two successful
+        # downloads thrown away because the forty-third 404'd is the failure
+        # this whole block exists to prevent.
         try:
+            pmcid = pmcids.get(p["pmid"])
+            if not pmcid:
+                no_pmc.append(p)
+                continue
+            name = filename(p, pmcid)
+            if name in have:
+                skipped.append(p)
+                continue
+
+            kind, where = oa_location(pmcid, email, oa)
+            time.sleep(PAUSE)
+            if not kind:
+                p["_why"] = where
+                not_oa.append(p)
+                continue
+
             blob = get(https(where), binary=True)
             pdf = blob if kind == "pdf" else pdf_from_tgz(blob)
             if not pdf:
@@ -322,6 +391,8 @@ def cmd_fetch(papers, email, everything, debug=False):
         except Exception as e:                       # noqa: BLE001
             p["_why"] = f"{type(e).__name__}: {e}"
             failed.append(p)
+            if debug:
+                print(f"  fail {p['pmid']}: {p['_why']}")
         time.sleep(PAUSE)
 
     print(f"\n  downloaded          {len(got)}")
@@ -483,8 +554,10 @@ def cmd_self_test(papers):
         ("a non-NCBI href is left alone",
          https("https://example.org/a.pdf") == "https://example.org/a.pdf"),
     ]
+    checks.append(("one bad paper cannot end the run", _isolation_holds()))
     for msg, good in checks:
         print(f"  {'PASS' if good else 'FAIL'}  {msg}")
+
     bad = [m for m, g in checks if not g]
     print(f"\n  {len(checks) - len(bad)}/{len(checks)} passed")
 
@@ -502,6 +575,51 @@ def cmd_self_test(papers):
         print("  Counted as distinct works: "
               f"{len(papers) - len(dupes)}, not {len(papers)}.")
     return 1 if bad else 0
+
+
+def _isolation_holds():
+    """Run cmd_fetch against a stubbed network where paper 3 of 5 raises 404.
+
+    This is the regression test for the bug that made it necessary: a single
+    HTTPError propagated out of the per-paper loop and ended a 43-paper run
+    before anything was written. The test asserts BOTH halves -- that four
+    PDFs land, and that all five papers were attempted. Checking only the
+    first would pass a version that stops early and happens to have written
+    four already.
+    """
+    import tempfile
+    mod = sys.modules[__name__]
+    saved = {k: getattr(mod, k) for k in
+             ("probe_endpoint", "to_pmcid", "oa_location", "get", "PAUSE", "PAPERS")}
+    attempted = []
+    try:
+        papers = [dict(pmid=str(i), doi=None, year="2020", first="a",
+                       title=f"probe paper {i}", journal="J", free=True)
+                  for i in range(5)]
+        mod.PAUSE = 0
+        mod.PAPERS = Path(tempfile.mkdtemp())
+        mod.probe_endpoint = lambda *a, **k: "https://oa.invalid/oa.fcgi"
+        mod.to_pmcid = lambda ids, email, debug=False: {i: "PMC" + i for i in ids}
+        mod.get = lambda url, binary=False, timeout=60: (
+            b"%PDF-1.4 stub" if binary else "<OA/>")
+
+        def locate(pmcid, email, endpoint):
+            attempted.append(pmcid)
+            if pmcid == "PMC2":
+                raise urllib.error.HTTPError(endpoint, 404, "Not Found", None, None)
+            return "pdf", "https://example.invalid/x.pdf"
+        mod.oa_location = locate
+
+        import contextlib, io as _io
+        with contextlib.redirect_stdout(_io.StringIO()):
+            mod.cmd_fetch(papers, "x@example.org", False)
+        written = len(list(mod.PAPERS.glob("*.pdf")))
+        return written == 4 and len(attempted) == 5
+    except Exception:                                         # noqa: BLE001
+        return False
+    finally:
+        for k, v in saved.items():
+            setattr(mod, k, v)
 
 
 def main():
